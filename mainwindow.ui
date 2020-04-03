@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QLabel" name="label_homepage">
@@ -99,14 +99,80 @@
      <widget class="QLabel" name="label_POSpage">
       <property name="geometry">
        <rect>
-        <x>560</x>
-        <y>190</y>
+        <x>710</x>
+        <y>20</y>
         <width>121</width>
         <height>81</height>
        </rect>
       </property>
       <property name="text">
        <string>page for our POS system</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_8">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>110</y>
+        <width>511</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_pos">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_pos_qty">
+         <property name="text">
+          <string>Quantity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_pos_itemlist">
+         <property name="text">
+          <string>Item</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="comboBox_pos_itemlist"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboBox_pos_qty"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="pushButton_pos_purchase">
+         <property name="text">
+          <string>Purchase</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_pos_price">
+         <property name="text">
+          <string>blank for now</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_pos_pricelabel">
+         <property name="text">
+          <string>Price</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLabel" name="label_pos_receipt">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>230</y>
+        <width>331</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>receipt goes here </string>
       </property>
      </widget>
     </widget>
@@ -121,14 +187,14 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_sales_1">
        <widget class="QLabel" name="label_dailysales">
         <property name="geometry">
          <rect>
-          <x>480</x>
-          <y>240</y>
+          <x>640</x>
+          <y>500</y>
           <width>131</width>
           <height>16</height>
          </rect>
@@ -137,13 +203,23 @@
          <string>Page for saily sales reports</string>
         </property>
        </widget>
+       <widget class="QTableView" name="tableView_sales_daily">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>30</y>
+          <width>730</width>
+          <height>460</height>
+         </rect>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_sales_2">
        <widget class="QLabel" name="label_membersales">
         <property name="geometry">
          <rect>
-          <x>430</x>
-          <y>220</y>
+          <x>640</x>
+          <y>520</y>
           <width>161</width>
           <height>16</height>
          </rect>
@@ -152,13 +228,23 @@
          <string>page for sales sorted by member</string>
         </property>
        </widget>
+       <widget class="QTableView" name="tableView_sales_bymember">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>30</y>
+          <width>730</width>
+          <height>460</height>
+         </rect>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_sales_3">
        <widget class="QLabel" name="label_inventorysales">
         <property name="geometry">
          <rect>
-          <x>450</x>
-          <y>260</y>
+          <x>170</x>
+          <y>510</y>
           <width>161</width>
           <height>16</height>
          </rect>
@@ -167,15 +253,25 @@
          <string>page for sales sorted by item</string>
         </property>
        </widget>
+       <widget class="QTableView" name="tableView_sales_byitem">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>30</y>
+          <width>730</width>
+          <height>460</height>
+         </rect>
+        </property>
+       </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="gridLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>1060</x>
-        <y>120</y>
+        <x>1070</x>
+        <y>30</y>
         <width>160</width>
-        <height>281</height>
+        <height>291</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_sales">
@@ -207,8 +303,8 @@
      <widget class="QLabel" name="label_membership">
       <property name="geometry">
        <rect>
-        <x>440</x>
-        <y>230</y>
+        <x>880</x>
+        <y>350</y>
         <width>321</width>
         <height>16</height>
        </rect>
@@ -217,6 +313,56 @@
        <string>page for membership info- (member list, rebate suggestions)</string>
       </property>
      </widget>
+     <widget class="QTableView" name="tableView_membership">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>30</y>
+        <width>811</width>
+        <height>471</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>920</x>
+        <y>80</y>
+        <width>160</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_membership_expiration">
+         <property name="text">
+          <string>Expiring Memberships</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="pushButton_membership_upgrades">
+         <property name="text">
+          <string>Suggested Upgrades</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_membership_rebates">
+         <property name="text">
+          <string>View Rebates</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="pushButton_membership_downgrades">
+         <property name="text">
+          <string>Suggested Downgrades</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_5">
      <widget class="QStackedWidget" name="stackedWidget_admin">
@@ -224,7 +370,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1000</width>
+        <width>1100</width>
         <height>600</height>
        </rect>
       </property>
@@ -232,32 +378,275 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="page_admin_1">
-       <widget class="QLabel" name="label_admin_member">
+       <widget class="QTableView" name="tableView_admin_members">
         <property name="geometry">
          <rect>
-          <x>430</x>
-          <y>270</y>
-          <width>181</width>
+          <x>20</x>
+          <y>30</y>
+          <width>591</width>
+          <height>471</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QWidget" name="gridLayoutWidget_5">
+        <property name="geometry">
+         <rect>
+          <x>630</x>
+          <y>30</y>
+          <width>121</width>
+          <height>98</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_admin_memberpushButtons">
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_admin_addmember">
+           <property name="text">
+            <string>Add Member</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_admin_editmember">
+           <property name="text">
+            <string>Edit Member</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pushButton_admin_deletemember">
+           <property name="text">
+            <string>Delete Member</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="gridWidget_admin_memberdatafields" native="true">
+        <property name="geometry">
+         <rect>
+          <x>630</x>
+          <y>140</y>
+          <width>430</width>
+          <height>260</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_admin_datafields">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_1"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_2"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_2">
+           <property name="text">
+            <string>Field 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_4">
+           <property name="text">
+            <string>Field 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_5"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_3">
+           <property name="text">
+            <string>Field 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_admin_membersubmission">
+           <property name="text">
+            <string>submit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_1">
+           <property name="text">
+            <string>Field 1                   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_3"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_4"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_5">
+           <property name="text">
+            <string>Field 5</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QLabel" name="label_comment">
+        <property name="geometry">
+         <rect>
+          <x>660</x>
+          <y>450</y>
+          <width>341</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>currently line edits show if add or edit are pressed</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_comment_2">
+        <property name="geometry">
+         <rect>
+          <x>640</x>
+          <y>500</y>
+          <width>381</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>page for adding/deleting customers</string>
+         <string>feel free to change/add/remove labels once we decide the values</string>
         </property>
        </widget>
       </widget>
       <widget class="QWidget" name="page_admin_2">
-       <widget class="QLabel" name="label_admin_inventory">
+       <widget class="QLabel" name="label_comment_3">
         <property name="geometry">
          <rect>
-          <x>460</x>
-          <y>240</y>
-          <width>181</width>
+          <x>660</x>
+          <y>450</y>
+          <width>341</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>currently line edits show if add or edit are pressed</string>
+        </property>
+       </widget>
+       <widget class="QTableView" name="tableView_admin_inventory">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>591</width>
+          <height>471</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QWidget" name="gridWidget_admin_itemdatafields" native="true">
+        <property name="geometry">
+         <rect>
+          <x>630</x>
+          <y>140</y>
+          <width>430</width>
+          <height>260</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_admin_datafields_6">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_itemsubmission_1"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_itemsubmission_2"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_admin_itemsubmission_2">
+           <property name="text">
+            <string>Field 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_admin_itemsubmission_4">
+           <property name="text">
+            <string>Field 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_itemsubmission_5"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_admin_itemsubmission_3">
+           <property name="text">
+            <string>Field 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_admin_itemsubmission">
+           <property name="text">
+            <string>submit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_admin_itemsubmission_1">
+           <property name="text">
+            <string>Field 1                   </string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_itemsubmission_3"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_itemsubmission_4"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_admin_itemsubmission_5">
+           <property name="text">
+            <string>Field 5</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="gridLayoutWidget_6">
+        <property name="geometry">
+         <rect>
+          <x>630</x>
+          <y>30</y>
+          <width>121</width>
+          <height>98</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_admin_inventorypushButtons">
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_admin_deleteitem">
+           <property name="text">
+            <string>Delete Item</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pushButton_admin_additem">
+           <property name="text">
+            <string>Add Item</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QLabel" name="label_comment_4">
+        <property name="geometry">
+         <rect>
+          <x>640</x>
+          <y>500</y>
+          <width>381</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>page for adding/deleting inventory</string>
+         <string>feel free to change/add/remove labels once we decide the values</string>
         </property>
        </widget>
       </widget>
@@ -265,10 +654,10 @@
      <widget class="QWidget" name="gridLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>1060</x>
-        <y>110</y>
-        <width>160</width>
-        <height>281</height>
+        <x>1140</x>
+        <y>30</y>
+        <width>121</width>
+        <height>191</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_admin">
@@ -293,13 +682,27 @@
    <widget class="QWidget" name="gridLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>320</x>
       <y>20</y>
-      <width>491</width>
+      <width>671</width>
       <height>80</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_main">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButton_home">
+       <property name="text">
+        <string>Home </string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QPushButton" name="pushButton_members">
+       <property name="text">
+        <string>Membership Info</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="6">
       <widget class="QPushButton" name="pushButton_admin">
        <property name="text">
@@ -314,24 +717,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="pushButton_home">
-       <property name="text">
-        <string>Home </string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="4">
       <widget class="QPushButton" name="pushButton_sales">
        <property name="text">
         <string>Sales Reports</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5">
-      <widget class="QPushButton" name="pushButton_members">
-       <property name="text">
-        <string>Membership Info</string>
        </property>
       </widget>
      </item>

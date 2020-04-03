@@ -15,6 +15,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
+
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_itemdatafields->hide();
+
 }
 
 
@@ -65,7 +69,7 @@ void MainWindow::on_pushButton_3_clicked()
 }
 
 
-/*----Push Button Navigation----*/
+/*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page
 {
     ui->stackedWidget_main->setCurrentIndex(0);
@@ -113,4 +117,81 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
     {
         ui->stackedWidget_admin->setCurrentIndex(1);
     }
+
+
+
+/*----Admin Window push buttons----*/
+    /*----Member Page----*/
+void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
+{
+    ui->gridWidget_admin_memberdatafields->show();
+    ui->pushButton_admin_editmember->setEnabled(false);
+    ui->pushButton_admin_deletemember->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
+{
+    ui->gridWidget_admin_memberdatafields->show();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+    ui->pushButton_admin_addmember->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member button
+{
+
+}
+
+void MainWindow::on_pushButton_admin_membersubmission_clicked() // submit button for adding/editing
+{
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->pushButton_admin_editmember->setEnabled(true);
+}
+
+    /*----Inventory Page----*/
+void MainWindow::on_pushButton_admin_additem_clicked() //add item button
+{
+    ui->gridWidget_admin_itemdatafields->show();
+    ui->pushButton_admin_deleteitem->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_deleteitem_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_admin_itemsubmission_clicked()
+{
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->pushButton_admin_deleteitem->setEnabled(true);
+}
+
+/*----Membership Window push buttons----*/
+void MainWindow::on_pushButton_membership_rebates_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_membership_expiration_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_membership_upgrades_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_membership_downgrades_clicked()
+{
+
+}
+
+/*----POS Page push buttons----*/
+void MainWindow::on_pushButton_pos_purchase_clicked()
+{
+
+}
+
 

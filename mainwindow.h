@@ -48,6 +48,30 @@ private slots:
 
     void on_pushButton_admin_inventory_clicked();
 
+    void on_pushButton_admin_addmember_clicked();
+
+    void on_pushButton_admin_editmember_clicked();
+
+    void on_pushButton_admin_deletemember_clicked();
+
+    void on_pushButton_admin_membersubmission_clicked();
+
+    void on_pushButton_admin_additem_clicked();
+
+    void on_pushButton_admin_deleteitem_clicked();
+
+    void on_pushButton_admin_itemsubmission_clicked();
+
+    void on_pushButton_membership_rebates_clicked();
+
+    void on_pushButton_membership_expiration_clicked();
+
+    void on_pushButton_membership_upgrades_clicked();
+
+    void on_pushButton_membership_downgrades_clicked();
+
+    void on_pushButton_pos_purchase_clicked();
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
