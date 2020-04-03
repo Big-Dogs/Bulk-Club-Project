@@ -57,19 +57,19 @@ void MainWindow::setPermissions(int permission)
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_employeepermissions_clicked()
 {
     index = 0;
     setPermissions(index);
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButton_managerpermissions_clicked()
 {
     index = 1;
     setPermissions(index);
 }
 
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_pushButton_adminpermissions_clicked()
 {
     index = 2;
     setPermissions(index);
@@ -96,12 +96,12 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         ui->stackedWidget_sales->setCurrentIndex(salesdaily);
     }
 
-    void MainWindow::on_pushButton_sales_member_clicked() // sales by member
+    void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
         ui->stackedWidget_sales->setCurrentIndex(salessortmember);
     }
 
-    void MainWindow::on_pushButton_sales_item_clicked() // sales by item
+    void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     {
         ui->stackedWidget_sales->setCurrentIndex(salessortitem);
     }
@@ -295,3 +295,5 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
 {
 
 }
+
+

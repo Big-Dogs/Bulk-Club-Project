@@ -45,11 +45,11 @@ public:
 private slots:
 
     /*----Testing Permissions----*/
-    void on_pushButton_clicked();
+    void on_pushButton_employeepermissions_clicked();
 
-    void on_pushButton_2_clicked();
+    void on_pushButton_managerpermissions_clicked();
 
-    void on_pushButton_3_clicked();
+    void on_pushButton_adminpermissions_clicked();
 
 
     /*----Menu Navigation----*/
@@ -67,9 +67,9 @@ private slots:
 
         void on_pushButton_sales_daily_clicked();
 
-        void on_pushButton_sales_member_clicked();
+        void on_pushButton_sales_sortmember_clicked();
 
-        void on_pushButton_sales_item_clicked();
+        void on_pushButton_sales_sortitem_clicked();
 
         void on_pushButton_sales_searchmember_clicked();
 
@@ -128,6 +128,8 @@ private slots:
             void on_pushButton_admin_canceldeleteitem_clicked();
 
             void on_tableView_admin_inventory_doubleClicked(const QModelIndex &index);
+
+
 
 
 

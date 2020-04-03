@@ -32,9 +32,9 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
-    <widget class="QWidget" name="page_1">
+    <widget class="QWidget" name="page_home">
      <widget class="QLabel" name="label_homepage">
       <property name="geometry">
        <rect>
@@ -48,19 +48,6 @@
        <string>Home Page. empty for now- we could put the login here, extra information, or remove it if we don't need it</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>500</x>
-        <y>160</y>
-        <width>231</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>have buttons now just for testing permissions</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="gridLayoutWidget_4">
       <property name="geometry">
        <rect>
@@ -72,21 +59,21 @@
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="pushButton_managerpermissions">
          <property name="text">
           <string>manager</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="pushButton_employeepermissions">
          <property name="text">
           <string>employee</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="pushButton_adminpermissions">
          <property name="text">
           <string>admin</string>
          </property>
@@ -95,20 +82,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_2">
-     <widget class="QLabel" name="label_POSpage">
-      <property name="geometry">
-       <rect>
-        <x>710</x>
-        <y>20</y>
-        <width>121</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>page for our POS system</string>
-      </property>
-     </widget>
+    <widget class="QWidget" name="page_pos">
      <widget class="QWidget" name="gridLayoutWidget_8">
       <property name="geometry">
        <rect>
@@ -176,7 +150,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_3">
+    <widget class="QWidget" name="page_sales">
      <widget class="QStackedWidget" name="stackedWidget_sales">
       <property name="geometry">
        <rect>
@@ -189,20 +163,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="page_sales_1">
-       <widget class="QLabel" name="label_dailysales">
-        <property name="geometry">
-         <rect>
-          <x>640</x>
-          <y>500</y>
-          <width>131</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Page for saily sales reports</string>
-        </property>
-       </widget>
+      <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
         <property name="geometry">
          <rect>
@@ -236,7 +197,7 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_sales_2">
+      <widget class="QWidget" name="page_sales_sortmember">
        <widget class="QLabel" name="label_membersales">
         <property name="geometry">
          <rect>
@@ -261,7 +222,7 @@
         </property>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_sales_3">
+      <widget class="QWidget" name="page_sales_sortitem">
        <widget class="QLabel" name="label_inventorysales">
         <property name="geometry">
          <rect>
@@ -286,7 +247,7 @@
         </property>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_sales_4">
+      <widget class="QWidget" name="page_sales_searchmember">
        <widget class="QTableView" name="tableView_sales_searchmember">
         <property name="geometry">
          <rect>
@@ -295,19 +256,6 @@
           <width>660</width>
           <height>460</height>
          </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>230</x>
-          <y>520</y>
-          <width>231</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>page for search by member</string>
         </property>
        </widget>
        <widget class="QWidget" name="gridLayoutWidget_11">
@@ -340,7 +288,7 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_sales_5">
+      <widget class="QWidget" name="page_sales_searchitem">
        <widget class="QTableView" name="tableView_sales_searchitem">
         <property name="geometry">
          <rect>
@@ -349,19 +297,6 @@
           <width>660</width>
           <height>460</height>
          </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_5">
-        <property name="geometry">
-         <rect>
-          <x>310</x>
-          <y>510</y>
-          <width>231</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>page for search by item</string>
         </property>
        </widget>
        <widget class="QWidget" name="gridLayoutWidget_10">
@@ -443,7 +378,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_4">
+    <widget class="QWidget" name="page_membership">
      <widget class="QLabel" name="label_membership">
       <property name="geometry">
        <rect>
@@ -476,7 +411,7 @@
         <height>201</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout_2">
+      <layout class="QGridLayout" name="gridLayout_membership">
        <item row="1" column="0">
         <widget class="QPushButton" name="pushButton_membership_expiration">
          <property name="text">
@@ -530,7 +465,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_5">
+    <widget class="QWidget" name="page_admin">
      <widget class="QStackedWidget" name="stackedWidget_admin">
       <property name="geometry">
        <rect>
@@ -543,7 +478,7 @@
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="page_admin_1">
+      <widget class="QWidget" name="page_admin_member">
        <widget class="QTableView" name="tableView_admin_members">
         <property name="geometry">
          <rect>
@@ -686,7 +621,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label_doubleclick">
         <property name="geometry">
          <rect>
           <x>30</x>
@@ -700,7 +635,7 @@
         </property>
        </widget>
       </widget>
-      <widget class="QWidget" name="page_admin_2">
+      <widget class="QWidget" name="page_admin_inventory">
        <widget class="QTableView" name="tableView_admin_inventory">
         <property name="geometry">
          <rect>
@@ -833,7 +768,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_doubleclick_2">
         <property name="geometry">
          <rect>
           <x>130</x>
