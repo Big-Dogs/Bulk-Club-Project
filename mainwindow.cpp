@@ -268,6 +268,12 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
     ui->gridWidget_membership_expire->show();
 }
 
+void MainWindow::on_pushButton_membership_expire_clicked()
+{
+
+}
+
+
 void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades list
 {
     ui->gridWidget_membership_expire->hide();
@@ -292,6 +298,12 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 }
 
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
+{
+
+}
+
+
+void MainWindow::on_pushButton_sale_byday_clicked()
 {
 
 }

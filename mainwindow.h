@@ -133,6 +133,10 @@ private slots:
 
 
 
+            void on_pushButton_sale_byday_clicked();
+
+            void on_pushButton_membership_expire_clicked();
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
