@@ -15,24 +15,25 @@ CREATE TABLE members
 (
 memberID INTEGER PRIMARY KEY AUTOINCREMENT,
 name varchar(50) UNIQUE,
-isExecutive int,
-expireDate varchar(10)
+memberType varchar(20),
+expireDate varchar(10),
+renewalPrice int
 );
-INSERT INTO members VALUES(12121,'Harry Havealotsofkids',1,'12/30/2020');
-INSERT INTO members VALUES(12345,'Sally Shopper',0,'08/01/2020');
-INSERT INTO members VALUES(12897,'Fred Frugal',1,'12/15/2020');
-INSERT INTO members VALUES(12899,'Johnny Shopper',0,'10/04/2020');
-INSERT INTO members VALUES(16161,'Benjamin BusinessShopper',0,'11/20/2020');
-INSERT INTO members VALUES(31311,'Sam Single',1,'12/05/2020');
-INSERT INTO members VALUES(35647,'Linda Livesalone',1,'12/15/2020');
-INSERT INTO members VALUES(44444,'Larry Largefamily',0,'10/01/2020');
-INSERT INTO members VALUES(56723,'Sue Shoparound',1,'03/21/2020');
-INSERT INTO members VALUES(61616,'Sally SuperShopper',0,'03/20/2021');
-INSERT INTO members VALUES(67890,'Betty Buysalot',0,'03/12/2021');
-INSERT INTO members VALUES(67899,'BulkClub Bob',0,'10/22/2020');
-INSERT INTO members VALUES(77777,'Sam Spendstomuch ',1,'11/15/2020');
-INSERT INTO members VALUES(88888,'Carrie CaresAboutMoney',1,'10/22/2020');
-INSERT INTO members VALUES(96309,'Mary IsHappy',1,'12/05/2020');
+INSERT INTO members VALUES(12121,'Harry Havealotsofkids','Executive','12/30/2020',120);
+INSERT INTO members VALUES(12345,'Sally Shopper','Regular','08/01/2020',60);
+INSERT INTO members VALUES(12897,'Fred Frugal','Executive','12/15/2020',120);
+INSERT INTO members VALUES(12899,'Johnny Shopper','Regular','10/04/2020',60);
+INSERT INTO members VALUES(16161,'Benjamin BusinessShopper','Regular','11/20/2020',60);
+INSERT INTO members VALUES(31311,'Sam Single','Executive','12/05/2020',120);
+INSERT INTO members VALUES(35647,'Linda Livesalone','Executive','12/15/2020',120);
+INSERT INTO members VALUES(44444,'Larry Largefamily','Regular','10/01/2020',60);
+INSERT INTO members VALUES(56723,'Sue Shoparound','Executive','03/21/2020',120);
+INSERT INTO members VALUES(61616,'Sally SuperShopper','Regular','03/20/2021',60);
+INSERT INTO members VALUES(67890,'Betty Buysalot','Regular','03/12/2021',60);
+INSERT INTO members VALUES(67899,'BulkClub Bob','Regular','10/22/2020',60);
+INSERT INTO members VALUES(77777,'Sam Spendstomuch ','Executive','11/15/2020',120);
+INSERT INTO members VALUES(88888,'Carrie CaresAboutMoney','Executive','10/22/2020',120);
+INSERT INTO members VALUES(96309,'Mary IsHappy','Executive','12/05/2020',120);
 CREATE TABLE products
 (
 productID INTEGER PRIMARY KEY AUTOINCREMENT,

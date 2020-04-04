@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtDebug>
+#include "Database.h"
+#include "MembershipTableModel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,28 +20,30 @@ public:
 
     void setPermissions(int);
 
-    enum pages
+    Database *database;
+
+    enum Pages
     {
-        home,
-        pos,
-        sales,
-        member,
-        admin,
+        HOME,
+        POS,
+        SALES,
+        MEMBER,
+        ADMIN,
     };
 
-    enum salespages
+    enum SalesPages
     {
-        salesdaily,
-        salessortmember,
-        salessortitem,
-        salessearchmember,
-        salessearchitem,
+        SALES_DAILY,
+        SALES_SORT_MEMBER,
+        SALES_SORT_ITEM,
+        SALES_SEARCH_MEMBER,
+        SALES_SEARCH_ITEM,
     };
 
-    enum adminpages
+    enum AdminPages
     {
-        adminmember,
-        adminitem,
+        ADMIN_MEMBER,
+        ADMIN_ITEM,
     };
 
 
@@ -140,5 +145,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
+    MembershipTableModel *membershipModel;
 };
 #endif // MAINWINDOW_H
