@@ -1,15 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    ui->stackedWidget_main->setCurrentIndex(home); // setting default indices
-    ui->stackedWidget_sales->setCurrentIndex(salesdaily);
-    ui->stackedWidget_admin->setCurrentIndex(adminmember);
+    // Instantiate database
+    this->database = new Database("db.db", "QSQLITE");
+
+    ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
+    ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
 
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
@@ -79,60 +83,60 @@ void MainWindow::on_pushButton_adminpermissions_clicked()
 /*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page
 {
-    ui->stackedWidget_main->setCurrentIndex(home);
+    ui->stackedWidget_main->setCurrentIndex(HOME);
 }
 
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
-    ui->stackedWidget_main->setCurrentIndex(pos);
+    ui->stackedWidget_main->setCurrentIndex(POS);
 }
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
-    ui->stackedWidget_main->setCurrentIndex(sales);
+    ui->stackedWidget_main->setCurrentIndex(SALES);
 }
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
-        ui->stackedWidget_sales->setCurrentIndex(salesdaily);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     }
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
-        ui->stackedWidget_sales->setCurrentIndex(salessortmember);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
     }
 
     void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     {
-        ui->stackedWidget_sales->setCurrentIndex(salessortitem);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_ITEM);
     }
 
     void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
     {
-        ui->stackedWidget_sales->setCurrentIndex(salessearchmember);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_MEMBER);
     }
 
     void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
     {
-        ui->stackedWidget_sales->setCurrentIndex(salessearchitem);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_ITEM);
     }
 
 void MainWindow::on_pushButton_members_clicked() // membership page
 {
-    ui->stackedWidget_main->setCurrentIndex(member);
+    ui->stackedWidget_main->setCurrentIndex(MEMBER);
 }
 
 void MainWindow::on_pushButton_admin_clicked() // administrator tools
 {
-    ui->stackedWidget_main->setCurrentIndex(admin);
+    ui->stackedWidget_main->setCurrentIndex(ADMIN);
 }
     void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     {
-        ui->stackedWidget_admin->setCurrentIndex(adminmember);
+        ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
     {
-        ui->stackedWidget_admin->setCurrentIndex(adminitem);
+        ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
     }
 
 
@@ -265,11 +269,66 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 
 void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
 {
+    // Populate dropdown menu if empty
+    if(ui->comboBox_membership_expire->count() == 0)
+    {
+        ui->comboBox_membership_expire->addItem("January");
+        ui->comboBox_membership_expire->addItem("February");
+        ui->comboBox_membership_expire->addItem("March");
+        ui->comboBox_membership_expire->addItem("April");
+        ui->comboBox_membership_expire->addItem("May");
+        ui->comboBox_membership_expire->addItem("June");
+        ui->comboBox_membership_expire->addItem("July");
+        ui->comboBox_membership_expire->addItem("August");
+        ui->comboBox_membership_expire->addItem("September");
+        ui->comboBox_membership_expire->addItem("October");
+        ui->comboBox_membership_expire->addItem("November");
+        ui->comboBox_membership_expire->addItem("December");
+    }
+
+    // Initialize tableView_membership using MembershipTableModel
+    membershipModel = new MembershipTableModel(this, database);
+    membershipModel->InitializeTable();
+    ui->tableView_membership->setModel(membershipModel);
+
+    // Hide numerical vertical header
+    ui->tableView_membership->verticalHeader()->setVisible(false);
+    // Make fields uneditable
+    ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+    // Show it
     ui->gridWidget_membership_expire->show();
 }
 
 void MainWindow::on_pushButton_membership_expire_clicked()
 {
+    // Filter expiration by month
+    switch(ui->comboBox_membership_expire->currentIndex())
+    {
+        case MembershipTableModel::JANUARY   : membershipModel->setFilter("substr(expireDate, 0, 3) = '01'");
+                                               break;
+        case MembershipTableModel::FEBRUARY  : membershipModel->setFilter("substr(expireDate, 0, 3) = '02'");
+                                               break;
+        case MembershipTableModel::MARCH     : membershipModel->setFilter("substr(expireDate, 0, 3) = '03'");
+                                               break;
+        case MembershipTableModel::APRIL     : membershipModel->setFilter("substr(expireDate, 0, 3) = '04'");
+                                               break;
+        case MembershipTableModel::MAY       : membershipModel->setFilter("substr(expireDate, 0, 3) = '05'");
+                                               break;
+        case MembershipTableModel::JUNE      : membershipModel->setFilter("substr(expireDate, 0, 3) = '06'");
+                                               break;
+        case MembershipTableModel::JULY      : membershipModel->setFilter("substr(expireDate, 0, 3) = '07'");
+                                               break;
+        case MembershipTableModel::AUGUST    : membershipModel->setFilter("substr(expireDate, 0, 3) = '08'");
+                                               break;
+        case MembershipTableModel::SEPTEMBER : membershipModel->setFilter("substr(expireDate, 0, 3) = '09'");
+                                               break;
+        case MembershipTableModel::OCTOBER   : membershipModel->setFilter("substr(expireDate, 0, 3) = '10'");
+                                               break;
+        case MembershipTableModel::NOVEMBER  : membershipModel->setFilter("substr(expireDate, 0, 3) = '11'");
+                                               break;
+        case MembershipTableModel::DECEMBER  : membershipModel->setFilter("substr(expireDate, 0, 3) = '12'");
+                                               break;
+    }
 
 }
 
