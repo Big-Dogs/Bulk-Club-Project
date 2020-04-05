@@ -478,6 +478,16 @@
        </item>
       </layout>
      </widget>
+     <widget class="QTableWidget" name="tableWidget_membership">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>811</width>
+        <height>471</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_admin">
      <widget class="QStackedWidget" name="stackedWidget_admin">
@@ -879,7 +889,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

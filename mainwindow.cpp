@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
+    ui->tableWidget_membership->hide();
 
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
@@ -298,10 +299,12 @@ void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &i
 void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates list
 {
     ui->gridWidget_membership_expire->hide();
+    ui->tableWidget_membership->hide();
 }
 
 void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
 {
+    ui->tableWidget_membership->hide();
     // Populate dropdown menu if empty
     if(ui->comboBox_membership_expire->count() == 0)
     {
@@ -368,11 +371,13 @@ void MainWindow::on_pushButton_membership_expire_clicked()
 
 void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades list
 {
+    ui->tableWidget_membership->show();
     ui->gridWidget_membership_expire->hide();
 }
 
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
+    ui->tableWidget_membership->show();
     ui->gridWidget_membership_expire->hide();
 
     // pull executivememberIDs from db to list
