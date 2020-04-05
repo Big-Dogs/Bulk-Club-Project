@@ -117,7 +117,38 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
     {
+        // Move to proper page
         ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_ITEM);
+
+        // Make sure list is empty
+        if(productList.empty())
+        {
+            // Create list of all products in database
+            QSqlQuery query;
+            query.prepare("SELECT name FROM products");
+
+            // If query executes successfully
+            if(query.exec())
+            {
+                while(query.next())
+                {
+                    productList << query.value(0).toString();
+                }
+
+                // Output list to console
+                for(int index = 0; index < productList.count(); index++)
+                {
+                    qDebug() << productList[index];
+                }
+            }
+            else // Else print error
+            {
+                qDebug() << query.lastError().text();
+            }
+        }
+        // Initialize textcompleter for searching
+        QLineEdit* inputField = ui->lineEdit_sales_searchitem;
+        TextCompleter(productList, inputField);
     }
 
 void MainWindow::on_pushButton_members_clicked() // membership page
@@ -358,13 +389,61 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
 {
+    // Pull desired item to be placed into query
+    salesReportProduct = ui->lineEdit_sales_searchitem->text();
 
+    // Output item to terminal for testing purposes
+    qDebug() << salesReportProduct;
+
+    // Declare and intialize query and query model to pull relevant information
+    QSqlQueryModel *model = new QSqlQueryModel;
+    QSqlQuery query;
+
+    // Prep extremely complex query
+    query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
+                  "from products, purchases "
+                  "where products.name=:name "
+                  "and products.productID = purchases.productID;");
+
+    // Bind variable to query
+    query.bindValue(":name", salesReportProduct);
+
+    if(query.exec())
+    {
+        // Insert query into model
+        model->setQuery(query);
+
+        // Configure headers to reflect relevant descriptors
+        model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
+        model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
+        model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
+    }
+    else // if unsuccessful, print error
+    {
+        qDebug() << query.lastError().text();
+    }
+
+    // Hide row numbers
+    ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
+    // Configure tableView with model
+    ui->tableView_sales_searchitem->setModel(model);
 }
-
 
 void MainWindow::on_pushButton_sale_byday_clicked()
 {
 
 }
 
-
+/**
+ * @brief MainWindow::TextCompleter
+ * Continuously searches list of products as the user types what they want
+ * to find.
+ * @param names the list of school names currently in database
+ * @param field QLineEdit form that function is being used on
+ */
+void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
+{
+    QCompleter *completer = new QCompleter(products, inputField);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    inputField->setCompleter(completer);
+}
