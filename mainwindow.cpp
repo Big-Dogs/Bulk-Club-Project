@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Instantiate database
     this->database = new Database("db.db", "QSQLITE");
 
+    // Create Executive Member Vector
+
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
@@ -372,6 +374,82 @@ void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades 
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
     ui->gridWidget_membership_expire->hide();
+
+    // pull executivememberIDs from db to list
+    QSqlQuery query;
+    int index = 0;
+    ExecutiveMember temp;
+
+    query.prepare("select memberID from members where memberType='Executive'");
+
+    // Execute Query
+    if(query.exec())
+    {
+        // iterate through and pull ids
+        while(query.next())
+        {
+            executiveMemberIDList.insert(index, query.value(0).toString());
+            index++;
+        }
+
+        // DEBUG: print list
+        for(index = 0; index < executiveMemberIDList.size(); index++)
+        {
+            qDebug() << executiveMemberIDList[index];
+        }
+    }
+    else // if unsuccessful, print error
+    {
+        qDebug() << query.lastError().text();
+    }
+
+    // use executiveMemberID to pull purchase data from db into vector
+    query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
+                  "FROM members, purchases, products "
+                  "WHERE members.memberID = purchases.memberID "
+                  "AND purchases.productID = products.productID "
+                  "AND members.memberID = :memberID");
+
+    // Iterate through ID list, calling each member's purchases
+    for(index = 0; index < executiveMemberIDList.size(); index++)
+    {
+        query.bindValue(":memberID", executiveMemberIDList[index]);
+
+        // Execute Query
+        if(query.exec())
+        {
+            // Iterate through query data and pull purchase information into vector
+            while(query.next())
+            {
+                if(query.value(0).toString() != "")
+                {
+                    // Copy into temp object
+                    temp.memberID = query.value(0).toString();
+                    temp.name = query.value(1).toString();
+                    temp.amountSpent = query.value(2).toString();
+
+                    // Add object to vector
+                    executiveAr.append(temp);
+                }
+            }
+        }
+        else // if unsuccessful, print error
+        {
+            qDebug() << query.lastError().text();
+        }
+    }
+
+   // Print entire vector
+   for(index = 0; index < executiveAr.count(); index++)
+   {
+       qDebug() << "PRINTING PERSON #" << index + 1;
+       qDebug() << executiveAr[index].memberID;
+       qDebug() << executiveAr[index].name;
+       qDebug() << executiveAr[index].amountSpent;
+   }
+
+    // loop through purchases to collect all people. add to vector if <65
+
 }
 
 /*----POS Page push buttons----*/

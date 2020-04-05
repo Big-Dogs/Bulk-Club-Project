@@ -124,8 +124,15 @@ private:
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
     Database *database; // Pointer to database
+
+    // For use in 'Search Sales by Product Name' feature
     QStringList productList; // List of all products in database
     QString salesReportProduct; // Product manager wishes to view for sales report
+
+    // For use in 'Recommend Downgrades' feature
+    struct ExecutiveMember; // forward declaration of struct (required for pointer)
+    QVector<ExecutiveMember> executiveAr; // executive member array
+    QStringList executiveMemberIDList; // list of executive member's IDs
 
     // Enum to keep track of all program pages
     enum Pages
@@ -154,6 +161,13 @@ private:
         ADMIN_ITEM,
     };
 
+    // Struct to hold executive member information
+    struct ExecutiveMember
+    {
+        QString memberID;
+        QString name;
+        QString amountSpent;
+    };
 
 
 
