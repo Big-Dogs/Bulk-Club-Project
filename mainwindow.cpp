@@ -1,19 +1,34 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->stackedWidget_main->setCurrentIndex(0);
-    ui->stackedWidget_sales->setCurrentIndex(0);
-    ui->stackedWidget_admin->setCurrentIndex(0);
+
+    // Instantiate database
+    this->database = new Database("db.db", "QSQLITE");
+
+    ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
+    ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
 
-    ui->pushButton_sales->setEnabled(false);
+    ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
+
+    ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
+    ui->pushButton_admin_confirmdeletemember->setEnabled(false);
+
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_confirmdeletemember->hide();
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->gridWidget_admin_confirmdeleteitem->hide();
+
+    ui->gridWidget_membership_expire->hide();
 
 }
 
@@ -46,71 +61,310 @@ void MainWindow::setPermissions(int permission)
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_employeepermissions_clicked()
 {
     index = 0;
     setPermissions(index);
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButton_managerpermissions_clicked()
 {
     index = 1;
     setPermissions(index);
 }
 
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_pushButton_adminpermissions_clicked()
 {
     index = 2;
     setPermissions(index);
 }
 
 
-/*----Push Button Navigation----*/
+/*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page
 {
-    ui->stackedWidget_main->setCurrentIndex(0);
+    ui->stackedWidget_main->setCurrentIndex(HOME);
 }
 
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
-    ui->stackedWidget_main->setCurrentIndex(1);
+    ui->stackedWidget_main->setCurrentIndex(POS);
 }
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
-    ui->stackedWidget_main->setCurrentIndex(2);
+    ui->stackedWidget_main->setCurrentIndex(SALES);
 }
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
-        ui->stackedWidget_sales->setCurrentIndex(0);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     }
 
-    void MainWindow::on_pushButton_sales_member_clicked() // sales by member
+    void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
-        ui->stackedWidget_sales->setCurrentIndex(1);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
     }
 
-    void MainWindow::on_pushButton_sales_item_clicked() // sales by item
+    void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     {
-        ui->stackedWidget_sales->setCurrentIndex(2);
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_ITEM);
+    }
+
+    void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
+    {
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_MEMBER);
+    }
+
+    void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
+    {
+        ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_ITEM);
     }
 
 void MainWindow::on_pushButton_members_clicked() // membership page
 {
-    ui->stackedWidget_main->setCurrentIndex(3);
+    ui->stackedWidget_main->setCurrentIndex(MEMBER);
 }
 
 void MainWindow::on_pushButton_admin_clicked() // administrator tools
 {
-    ui->stackedWidget_main->setCurrentIndex(4);
+    ui->stackedWidget_main->setCurrentIndex(ADMIN);
 }
     void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     {
-        ui->stackedWidget_admin->setCurrentIndex(0);
+        ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
     {
-        ui->stackedWidget_admin->setCurrentIndex(1);
+        ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
     }
+
+
+
+/*----Admin Window push buttons----*/
+    /*----Member Page----*/
+void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
+{
+    ui->gridWidget_admin_memberdatafields->show();
+    ui->pushButton_admin_editmember->setEnabled(false);
+    ui->pushButton_admin_deletemember->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
+{
+    ui->gridWidget_admin_memberdatafields->show();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+    ui->pushButton_admin_addmember->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member button
+{
+    ui->gridWidget_admin_confirmdeletemember->show();
+    ui->pushButton_admin_editmember->setEnabled(false);
+    ui->pushButton_admin_addmember->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
+{
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->pushButton_admin_editmember->setEnabled(true);
+}
+
+void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
+{
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->pushButton_admin_editmember->setEnabled(true);
+}
+void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
+{
+    ui->gridWidget_admin_confirmdeletemember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->pushButton_admin_editmember->setEnabled(true);
+}
+
+void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
+{
+    ui->gridWidget_admin_confirmdeletemember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->pushButton_admin_editmember->setEnabled(true);
+}
+
+void MainWindow::on_tableView_admin_members_doubleClicked(const QModelIndex &index) // double click admin member table
+{
+    ui->pushButton_admin_confirmdeletemember->setEnabled(true);
+    // set text for label_admin_confirmdeletemember and change initial value to empty
+}
+
+    /*----Inventory Page----*/
+void MainWindow::on_pushButton_admin_additem_clicked() //add item button
+{
+    ui->gridWidget_admin_itemdatafields->show();
+    ui->pushButton_admin_deleteitem->setEnabled(false);
+    ui->pushButton_admin_edititem->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
+{
+    ui->gridWidget_admin_itemdatafields->show();
+    ui->pushButton_admin_deleteitem->setEnabled(false);
+    ui->pushButton_admin_additem->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
+{
+    ui->gridWidget_admin_confirmdeleteitem->show();
+    ui->pushButton_admin_edititem->setEnabled(false);
+    ui->pushButton_admin_additem->setEnabled(false);
+}
+
+void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
+{
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(true);
+}
+
+void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels add/edit
+{
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(true);
+}
+
+void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms delete
+{
+    ui->gridWidget_admin_confirmdeleteitem->hide();
+    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(true);
+}
+
+void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delete
+{
+    ui->gridWidget_admin_confirmdeleteitem->hide();
+    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(true);
+}
+
+void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &index) // double click admin inventory table
+{
+    ui->pushButton_admin_confirmdeleteitem->setEnabled(true);
+    // set text for label_admin_confirmdeleteitem and change initial value to empty
+}
+
+/*----Membership Window push buttons----*/
+void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates list
+{
+    ui->gridWidget_membership_expire->hide();
+}
+
+void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
+{
+    // Populate dropdown menu if empty
+    if(ui->comboBox_membership_expire->count() == 0)
+    {
+        ui->comboBox_membership_expire->addItem("January");
+        ui->comboBox_membership_expire->addItem("February");
+        ui->comboBox_membership_expire->addItem("March");
+        ui->comboBox_membership_expire->addItem("April");
+        ui->comboBox_membership_expire->addItem("May");
+        ui->comboBox_membership_expire->addItem("June");
+        ui->comboBox_membership_expire->addItem("July");
+        ui->comboBox_membership_expire->addItem("August");
+        ui->comboBox_membership_expire->addItem("September");
+        ui->comboBox_membership_expire->addItem("October");
+        ui->comboBox_membership_expire->addItem("November");
+        ui->comboBox_membership_expire->addItem("December");
+    }
+
+    // Initialize tableView_membership using MembershipTableModel
+    membershipModel = new MembershipTableModel(this, database);
+    membershipModel->InitializeTable();
+    ui->tableView_membership->setModel(membershipModel);
+
+    // Hide numerical vertical header
+    ui->tableView_membership->verticalHeader()->setVisible(false);
+    // Make fields uneditable
+    ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+    // Show it
+    ui->gridWidget_membership_expire->show();
+}
+
+void MainWindow::on_pushButton_membership_expire_clicked()
+{
+    // Filter expiration by month
+    switch(ui->comboBox_membership_expire->currentIndex())
+    {
+        case MembershipTableModel::JANUARY   : membershipModel->setFilter("substr(expireDate, 0, 3) = '01'");
+                                               break;
+        case MembershipTableModel::FEBRUARY  : membershipModel->setFilter("substr(expireDate, 0, 3) = '02'");
+                                               break;
+        case MembershipTableModel::MARCH     : membershipModel->setFilter("substr(expireDate, 0, 3) = '03'");
+                                               break;
+        case MembershipTableModel::APRIL     : membershipModel->setFilter("substr(expireDate, 0, 3) = '04'");
+                                               break;
+        case MembershipTableModel::MAY       : membershipModel->setFilter("substr(expireDate, 0, 3) = '05'");
+                                               break;
+        case MembershipTableModel::JUNE      : membershipModel->setFilter("substr(expireDate, 0, 3) = '06'");
+                                               break;
+        case MembershipTableModel::JULY      : membershipModel->setFilter("substr(expireDate, 0, 3) = '07'");
+                                               break;
+        case MembershipTableModel::AUGUST    : membershipModel->setFilter("substr(expireDate, 0, 3) = '08'");
+                                               break;
+        case MembershipTableModel::SEPTEMBER : membershipModel->setFilter("substr(expireDate, 0, 3) = '09'");
+                                               break;
+        case MembershipTableModel::OCTOBER   : membershipModel->setFilter("substr(expireDate, 0, 3) = '10'");
+                                               break;
+        case MembershipTableModel::NOVEMBER  : membershipModel->setFilter("substr(expireDate, 0, 3) = '11'");
+                                               break;
+        case MembershipTableModel::DECEMBER  : membershipModel->setFilter("substr(expireDate, 0, 3) = '12'");
+                                               break;
+    }
+
+}
+
+
+void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades list
+{
+    ui->gridWidget_membership_expire->hide();
+}
+
+void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
+{
+    ui->gridWidget_membership_expire->hide();
+}
+
+/*----POS Page push buttons----*/
+void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
+{
+
+}
+
+
+/*----Sales Page push buttons----*/
+void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search member button
+{
+
+}
+
+void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
+{
+
+}
+
+
+void MainWindow::on_pushButton_sale_byday_clicked()
+{
+
+}
+
 

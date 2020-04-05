@@ -10,10 +10,5 @@ int main(int argc, char *argv[])
     LoginWindow login;
     login.show();
 
-    int mainIndex = login.getIndex();
-
-    w.setPermissions(mainIndex);
-
-
     return a.exec();
 }
