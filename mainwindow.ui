@@ -488,6 +488,19 @@
        </rect>
       </property>
      </widget>
+     <widget class="QLabel" name="label_membership_recommendation_status">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>500</y>
+        <width>361</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>[+]recommendation</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_admin">
      <widget class="QStackedWidget" name="stackedWidget_admin">
@@ -889,7 +902,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

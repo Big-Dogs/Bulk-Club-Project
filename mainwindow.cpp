@@ -454,8 +454,44 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
        qDebug() << executiveAr[index].amountSpent;
    }
 
-    // loop through purchases to collect all people. add to vector if <65
+   // Initializing tableWidget
+   enum { MEMBERSHIP_NUMBER, MEMBER_NAME, AMT_SPENT, REBATE_AMOUNT };
+   QStringList columns;
+   ui->tableWidget_membership->setColumnCount(4);
+   columns << "Membership Number" << "Member Name" << "Amount Spent" << "Rebate Amount";
+   ui->tableWidget_membership->setHorizontalHeaderLabels(columns);
 
+
+   float rebateAmount = 0.0;            // member's rebate received
+   const float REBATE_RATE = 0.02;      // rebate rate for calculation
+   const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
+   int count = 0;                       // number of members suggested for downgrade
+
+   // loop through purchases to collect all people. add to tableWidget if <65
+   for(index = 0; index < executiveAr.count(); index++)
+   {
+       // Calculate estimated rebate
+       rebateAmount = executiveAr[index].amountSpent.toFloat() * REBATE_RATE;
+
+       // If rebateAmount under rebateMin, add to recommendations
+       if(rebateAmount < REBATE_MIN)
+       {
+           ui->tableWidget_membership->insertRow(count);
+           ui->tableWidget_membership->setItem(count, MEMBERSHIP_NUMBER,
+                                               new QTableWidgetItem(executiveAr[index].memberID));
+           ui->tableWidget_membership->setItem(count, MEMBER_NAME,
+                                               new QTableWidgetItem(executiveAr[index].name));
+           ui->tableWidget_membership->setItem(count, AMT_SPENT,
+                                               new QTableWidgetItem(QString::number(executiveAr[index].amountSpent.toFloat(), 'f', 2)));
+           ui->tableWidget_membership->setItem(count, REBATE_AMOUNT,
+                                               new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+           count++;
+       }
+   }
+
+   // Set label to display number of recommendations
+   QString labelText = "Number of recommended membership downgrades: " + QString::number(count);
+   ui->label_membership_recommendation_status->setText(labelText);
 }
 
 /*----POS Page push buttons----*/
