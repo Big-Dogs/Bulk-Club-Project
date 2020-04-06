@@ -130,17 +130,25 @@ private:
     QString salesReportProduct; // Product manager wishes to view for sales report
 
     // For use in 'Recommend Downgrades' feature
-    struct ExecutiveMember // Struct to hold executive member information
+    struct Member // Struct to hold executive member information
     {
         QString memberID;
         QString name;
         QString amountSpent;
     };
-    QVector<ExecutiveMember> executiveAr; // executive member array
+    QVector<Member> executiveAr; // executive member array
     QStringList executiveMemberIDList; // list of executive member's IDs
-    int downgradeCount = 0; // number of downgrade recommendations on list
+    int downgradeCount = 0; // number of downgrade recommendations on QStringList
     int downgradeIndex = 0;
-    ExecutiveMember temp;
+    Member execTemp;
+
+
+    // For use in 'Recommend Upgrades' feature
+    QVector<Member> regularAr; // regular member array
+    QStringList regularMemberIDList; // list of regular member's IDs
+    int upgradeCount = 0; // number of downgrade recommendations on QStringList
+    int upgradeIndex = 0;
+    Member regTemp;
 
     // Enum to keep track of all program pages
     enum Pages
