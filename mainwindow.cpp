@@ -381,11 +381,7 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
     ui->tableWidget_membership->show();
     ui->gridWidget_membership_expire->hide();
 
-    // pull executivememberIDs from db to list
     QSqlQuery query;
-    int index = 0;
-    ExecutiveMember temp;
-
     query.prepare("select memberID from members where memberType='Executive'");
 
     // Execute Query
@@ -394,14 +390,14 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
         // iterate through and pull ids
         while(query.next())
         {
-            executiveMemberIDList.insert(index, query.value(0).toString());
-            index++;
+            executiveMemberIDList.insert(downgradeIndex, query.value(0).toString());
+            downgradeIndex++;
         }
 
         // DEBUG: print list
-        for(index = 0; index < executiveMemberIDList.size(); index++)
+        for(downgradeIndex = 0; downgradeIndex < executiveMemberIDList.size(); downgradeIndex++)
         {
-            qDebug() << executiveMemberIDList[index];
+            qDebug() << executiveMemberIDList[downgradeIndex];
         }
     }
     else // if unsuccessful, print error
@@ -416,42 +412,46 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
                   "AND purchases.productID = products.productID "
                   "AND members.memberID = :memberID");
 
-    // Iterate through ID list, calling each member's purchases
-    for(index = 0; index < executiveMemberIDList.size(); index++)
+    // If vector empty
+    if(executiveAr.empty())
     {
-        query.bindValue(":memberID", executiveMemberIDList[index]);
-
-        // Execute Query
-        if(query.exec())
+        // Iterate through ID list, calling each member's purchases
+        for(downgradeIndex = 0; downgradeIndex < executiveMemberIDList.size(); downgradeIndex++)
         {
-            // Iterate through query data and pull purchase information into vector
-            while(query.next())
-            {
-                if(query.value(0).toString() != "")
-                {
-                    // Copy into temp object
-                    temp.memberID = query.value(0).toString();
-                    temp.name = query.value(1).toString();
-                    temp.amountSpent = query.value(2).toString();
+            query.bindValue(":memberID", executiveMemberIDList[downgradeIndex]);
 
-                    // Add object to vector
-                    executiveAr.append(temp);
+            // Execute Query
+            if(query.exec())
+            {
+                // Iterate through query data and pull purchase information into vector
+                while(query.next())
+                {
+                    if(query.value(0).toString() != "")
+                    {
+                        // Copy into temp object
+                        temp.memberID = query.value(0).toString();
+                        temp.name = query.value(1).toString();
+                        temp.amountSpent = query.value(2).toString();
+
+                        // Add object to vector
+                        executiveAr.append(temp);
+                    }
                 }
             }
-        }
-        else // if unsuccessful, print error
-        {
-            qDebug() << query.lastError().text();
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+            }
         }
     }
 
    // Print entire vector
-   for(index = 0; index < executiveAr.count(); index++)
+   for(downgradeIndex = 0; downgradeIndex < executiveAr.count(); downgradeIndex++)
    {
-       qDebug() << "PRINTING PERSON #" << index + 1;
-       qDebug() << executiveAr[index].memberID;
-       qDebug() << executiveAr[index].name;
-       qDebug() << executiveAr[index].amountSpent;
+       qDebug() << "PRINTING PERSON #" << downgradeIndex + 1;
+       qDebug() << executiveAr[downgradeIndex].memberID;
+       qDebug() << executiveAr[downgradeIndex].name;
+       qDebug() << executiveAr[downgradeIndex].amountSpent;
    }
 
    // Initializing tableWidget
@@ -465,32 +465,34 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
    float rebateAmount = 0.0;            // member's rebate received
    const float REBATE_RATE = 0.02;      // rebate rate for calculation
    const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
-   int count = 0;                       // number of members suggested for downgrade
 
    // loop through purchases to collect all people. add to tableWidget if <65
-   for(index = 0; index < executiveAr.count(); index++)
+   if(downgradeCount == 0)
    {
-       // Calculate estimated rebate
-       rebateAmount = executiveAr[index].amountSpent.toFloat() * REBATE_RATE;
-
-       // If rebateAmount under rebateMin, add to recommendations
-       if(rebateAmount < REBATE_MIN)
+       for(downgradeIndex = 0; downgradeIndex < executiveAr.count(); downgradeIndex++)
        {
-           ui->tableWidget_membership->insertRow(count);
-           ui->tableWidget_membership->setItem(count, MEMBERSHIP_NUMBER,
-                                               new QTableWidgetItem(executiveAr[index].memberID));
-           ui->tableWidget_membership->setItem(count, MEMBER_NAME,
-                                               new QTableWidgetItem(executiveAr[index].name));
-           ui->tableWidget_membership->setItem(count, AMT_SPENT,
-                                               new QTableWidgetItem(QString::number(executiveAr[index].amountSpent.toFloat(), 'f', 2)));
-           ui->tableWidget_membership->setItem(count, REBATE_AMOUNT,
-                                               new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
-           count++;
+           // Calculate estimated rebate
+           rebateAmount = executiveAr[downgradeIndex].amountSpent.toFloat() * REBATE_RATE;
+
+           // If rebateAmount under rebateMin, add to recommendations
+           if(rebateAmount < REBATE_MIN)
+           {
+               ui->tableWidget_membership->insertRow(downgradeCount);
+               ui->tableWidget_membership->setItem(downgradeCount, MEMBERSHIP_NUMBER,
+                                                   new QTableWidgetItem(executiveAr[downgradeIndex].memberID));
+               ui->tableWidget_membership->setItem(downgradeCount, MEMBER_NAME,
+                                                   new QTableWidgetItem(executiveAr[downgradeIndex].name));
+               ui->tableWidget_membership->setItem(downgradeCount, AMT_SPENT,
+                                                   new QTableWidgetItem(QString::number(executiveAr[downgradeIndex].amountSpent.toFloat(), 'f', 2)));
+               ui->tableWidget_membership->setItem(downgradeCount, REBATE_AMOUNT,
+                                                   new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+               downgradeCount++;
+           }
        }
    }
 
    // Set label to display number of recommendations
-   QString labelText = "Number of recommended membership downgrades: " + QString::number(count);
+   QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
    ui->label_membership_recommendation_status->setText(labelText);
 }
 
