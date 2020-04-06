@@ -374,12 +374,149 @@ void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades 
 {
     ui->tableWidget_membership->show();
     ui->gridWidget_membership_expire->hide();
+
+    // wipe existing data on table
+    ui->tableWidget_membership->setRowCount(0);
+    executiveMemberIDList.clear();
+    executiveAr.clear();
+    regularMemberIDList.clear();
+    regularAr.clear();
+    upgradeCount = 0;
+    downgradeCount = 0;
+    upgradeIndex = 0;
+    downgradeIndex = 0;
+
+    QSqlQuery query;
+    query.prepare("select memberID from members where memberType='Regular'");
+
+    // Execute Query
+    if(query.exec())
+    {
+        // iterate through and pull ids
+        while(query.next())
+        {
+            regularMemberIDList.insert(upgradeIndex, query.value(0).toString());
+            upgradeIndex++;
+        }
+
+        // DEBUG: print list
+        for(upgradeIndex = 0; upgradeIndex < regularMemberIDList.size(); upgradeIndex++)
+        {
+            qDebug() << regularMemberIDList[upgradeIndex];
+        }
+    }
+    else // if unsuccessful, print error
+    {
+        qDebug() << query.lastError().text();
+    }
+
+    // use executiveMemberID to pull purchase data from db into vector
+    query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
+                  "FROM members, purchases, products "
+                  "WHERE members.memberID = purchases.memberID "
+                  "AND purchases.productID = products.productID "
+                  "AND members.memberID = :memberID");
+
+    // If vector empty
+    if(regularAr.empty())
+    {
+        // Iterate through ID list, calling each member's purchases
+        for(upgradeIndex = 0; upgradeIndex < regularMemberIDList.size(); upgradeIndex++)
+        {
+            query.bindValue(":memberID", regularMemberIDList[upgradeIndex]);
+
+            // Execute Query
+            if(query.exec())
+            {
+                // Iterate through query data and pull purchase information into vector
+                while(query.next())
+                {
+                    if(query.value(0).toString() != "")
+                    {
+                        // Copy into temp object
+                        regTemp.memberID = query.value(0).toString();
+                        regTemp.name = query.value(1).toString();
+                        regTemp.amountSpent = query.value(2).toString();
+
+                        // Add object to vector
+                        regularAr.append(regTemp);
+                    }
+                }
+            }
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+            }
+        }
+    }
+
+   // Print entire vector
+   for(upgradeIndex = 0; upgradeIndex < regularAr.count(); upgradeIndex++)
+   {
+       qDebug() << "PRINTING PERSON #" << upgradeIndex + 1;
+       qDebug() << regularAr[upgradeIndex].memberID;
+       qDebug() << regularAr[upgradeIndex].name;
+       qDebug() << regularAr[upgradeIndex].amountSpent;
+   }
+
+   // Initializing tableWidget
+   enum { MEMBERSHIP_NUMBER, MEMBER_NAME, AMT_SPENT, REBATE_AMOUNT };
+   QStringList columns;
+   ui->tableWidget_membership->setColumnCount(4);
+   columns << "Membership Number" << "Member Name" << "Amount Spent" << "Rebate Amount";
+   ui->tableWidget_membership->setHorizontalHeaderLabels(columns);
+
+
+   float rebateAmount = 0.0;            // member's rebate received
+   const float REBATE_RATE = 0.02;      // rebate rate for calculation
+   const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
+
+   // loop through purchases to collect all people. add to tableWidget if <65
+   if(upgradeCount == 0)
+   {
+       for(upgradeIndex = 0; upgradeIndex < regularAr.count(); upgradeIndex++)
+       {
+           // Calculate estimated rebate
+           rebateAmount = regularAr[upgradeIndex].amountSpent.toFloat() * REBATE_RATE;
+
+           // If rebateAmount under rebateMin, add to recommendations
+           if(rebateAmount > REBATE_MIN)
+           {
+               ui->tableWidget_membership->insertRow(upgradeCount);
+               ui->tableWidget_membership->setItem(upgradeCount, MEMBERSHIP_NUMBER,
+                                                   new QTableWidgetItem(regularAr[upgradeIndex].memberID));
+               ui->tableWidget_membership->setItem(upgradeCount, MEMBER_NAME,
+                                                   new QTableWidgetItem(regularAr[upgradeIndex].name));
+               ui->tableWidget_membership->setItem(upgradeCount, AMT_SPENT,
+                                                   new QTableWidgetItem(QString::number(regularAr[upgradeIndex].amountSpent.toFloat(), 'f', 2)));
+               ui->tableWidget_membership->setItem(upgradeCount, REBATE_AMOUNT,
+                                                   new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+               upgradeCount++;
+           }
+       }
+   }
+
+   // Set label to display number of recommendations
+   QString labelText = "Number of recommended membership upgrades: " + QString::number(upgradeCount);
+   ui->label_membership_recommendation_status->setText(labelText);
 }
 
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
     ui->tableWidget_membership->show();
     ui->gridWidget_membership_expire->hide();
+
+    // wipe existing data on table
+    ui->tableWidget_membership->clear();
+    ui->tableWidget_membership->setRowCount(0);
+    executiveMemberIDList.clear();
+    executiveAr.clear();
+    regularMemberIDList.clear();
+    regularAr.clear();
+    upgradeCount = 0;
+    downgradeCount = 0;
+    upgradeIndex = 0;
+    downgradeIndex = 0;
 
     QSqlQuery query;
     query.prepare("select memberID from members where memberType='Executive'");
@@ -429,12 +566,12 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
                     if(query.value(0).toString() != "")
                     {
                         // Copy into temp object
-                        temp.memberID = query.value(0).toString();
-                        temp.name = query.value(1).toString();
-                        temp.amountSpent = query.value(2).toString();
+                        execTemp.memberID = query.value(0).toString();
+                        execTemp.name = query.value(1).toString();
+                        execTemp.amountSpent = query.value(2).toString();
 
                         // Add object to vector
-                        executiveAr.append(temp);
+                        executiveAr.append(execTemp);
                     }
                 }
             }
