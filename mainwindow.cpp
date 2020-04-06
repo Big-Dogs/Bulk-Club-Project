@@ -337,6 +337,7 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
 
 void MainWindow::on_pushButton_membership_expire_clicked()
 {
+    ui->tableWidget_membership->show();
     // Filter expiration by month
     switch(ui->comboBox_membership_expire->currentIndex())
     {
