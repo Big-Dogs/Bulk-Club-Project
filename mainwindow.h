@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtDebug>
+#include <QCompleter>
 #include "Database.h"
 #include "MembershipTableModel.h"
 
@@ -19,33 +20,6 @@ public:
     ~MainWindow();
 
     void setPermissions(int);
-
-    Database *database;
-
-    enum Pages
-    {
-        HOME,
-        POS,
-        SALES,
-        MEMBER,
-        ADMIN,
-    };
-
-    enum SalesPages
-    {
-        SALES_DAILY,
-        SALES_SORT_MEMBER,
-        SALES_SORT_ITEM,
-        SALES_SEARCH_MEMBER,
-        SALES_SEARCH_ITEM,
-    };
-
-    enum AdminPages
-    {
-        ADMIN_MEMBER,
-        ADMIN_ITEM,
-    };
-
 
 private slots:
 
@@ -142,9 +116,71 @@ private slots:
 
             void on_pushButton_membership_expire_clicked();
 
+    // Autocomplete text searches
+    void TextCompleter(QStringList products, QLineEdit *inputField);
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
-    MembershipTableModel *membershipModel;
+    MembershipTableModel *membershipModel; // Membership Table View Configuration
+    Database *database; // Pointer to database
+
+    // For use in 'Search Sales by Product Name' feature
+    QStringList productList; // List of all products in database
+    QString salesReportProduct; // Product manager wishes to view for sales report
+
+    // For use in 'Recommend Downgrades' feature
+    struct Member // Struct to hold executive member information
+    {
+        QString memberID;
+        QString name;
+        QString amountSpent;
+    };
+    QVector<Member> executiveAr; // executive member array
+    QStringList executiveMemberIDList; // list of executive member's IDs
+    int downgradeCount = 0; // number of downgrade recommendations on QStringList
+    int downgradeIndex = 0;
+    Member execTemp;
+
+
+    // For use in 'Recommend Upgrades' feature
+    QVector<Member> regularAr; // regular member array
+    QStringList regularMemberIDList; // list of regular member's IDs
+    int upgradeCount = 0; // number of downgrade recommendations on QStringList
+    int upgradeIndex = 0;
+    Member regTemp;
+
+    // Enum to keep track of all program pages
+    enum Pages
+    {
+        HOME,
+        POS,
+        SALES,
+        MEMBER,
+        ADMIN,
+    };
+
+    // Enum to keep track of manager reports pages
+    enum SalesPages
+    {
+        SALES_DAILY,
+        SALES_SORT_MEMBER,
+        SALES_SORT_ITEM,
+        SALES_SEARCH_MEMBER,
+        SALES_SEARCH_ITEM,
+    };
+
+    // Enum to keep track of administrator interface pages
+    enum AdminPages
+    {
+        ADMIN_MEMBER,
+        ADMIN_ITEM,
+    };
+
+
+
+
+
+
 };
 #endif // MAINWINDOW_H
