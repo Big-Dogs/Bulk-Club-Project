@@ -9,8 +9,9 @@ password varchar(32),
 isManager int,
 isAdmin int
 );
-INSERT INTO users VALUES(1,'Randy Manager','man','man',1,0);
+INSERT INTO users VALUES(1,'Manny Manager','man','man',1,0);
 INSERT INTO users VALUES(2,'Anne Admin','admin','admin',1,1);
+INSERT INTO users VALUES(3,'Eddie Employee','emp','emp',0,0);
 CREATE TABLE members
 (
 memberID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,62 +41,62 @@ productID INTEGER PRIMARY KEY AUTOINCREMENT,
 name varchar(50) UNIQUE,
 price float
 );
-INSERT INTO products VALUES(1,'1 gallon milk',6.4900000000000002131);
-INSERT INTO products VALUES(2,'Rye Bread',4.7900000000000000355);
+INSERT INTO products VALUES(1,'1 gallon milk',6.49);
+INSERT INTO products VALUES(2,'Rye Bread',4.79);
 INSERT INTO products VALUES(3,'Steak',8.8599999999999994315);
 INSERT INTO products VALUES(4,'Pork Tenderloin',13.75);
-INSERT INTO products VALUES(5,'Shrek 3',19.949999999999999289);
-INSERT INTO products VALUES(6,'Jay Leno Collection DVDs',39.950000000000002842);
-INSERT INTO products VALUES(7,'The Alamo',19.949999999999999289);
-INSERT INTO products VALUES(8,'Most Basic DVD Player',59.99000000000000199);
-INSERT INTO products VALUES(9,'EPSON Printer',59.99000000000000199);
+INSERT INTO products VALUES(5,'Shrek 3',19.95);
+INSERT INTO products VALUES(6,'Jay Leno Collection DVDs',39.95);
+INSERT INTO products VALUES(7,'The Alamo',19.95);
+INSERT INTO products VALUES(8,'Most Basic DVD Player',59.99);
+INSERT INTO products VALUES(9,'EPSON Printer',59.99);
 INSERT INTO products VALUES(10,'EPSON Printer Cart.',32.5);
 INSERT INTO products VALUES(11,'Starbux Coffee',7.75);
-INSERT INTO products VALUES(12,'Paper Shredder',199.99000000000000908);
-INSERT INTO products VALUES(13,'Envelopes',2.9900000000000002131);
-INSERT INTO products VALUES(14,'Wonder Bread',1.2900000000000000355);
+INSERT INTO products VALUES(12,'Paper Shredder',199.99);
+INSERT INTO products VALUES(13,'Envelopes',2.99);
+INSERT INTO products VALUES(14,'Wonder Bread',1.29);
 INSERT INTO products VALUES(15,'1.5 dozen eggs',29.0);
 INSERT INTO products VALUES(16,'Hamburger',7.25);
-INSERT INTO products VALUES(17,'The Bourne Supremacy',19.949999999999999289);
-INSERT INTO products VALUES(18,'Toiler Paper',11.749999999999999999);
-INSERT INTO products VALUES(19,'Ponds Lotion',5.7900000000000000355);
-INSERT INTO products VALUES(20,'VCR/DVD Player',89.989999999999994882);
+INSERT INTO products VALUES(17,'The Bourne Supremacy',19.95);
+INSERT INTO products VALUES(18,'Toiler Paper',11.75);
+INSERT INTO products VALUES(19,'Ponds Lotion',5.79);
+INSERT INTO products VALUES(20,'VCR/DVD Player',89.99);
 INSERT INTO products VALUES(21,'Levi 501s',21.5);
-INSERT INTO products VALUES(22,'Farberware Cookware Set',289.99000000000000908);
+INSERT INTO products VALUES(22,'Farberware Cookware Set',289.99);
 INSERT INTO products VALUES(23,'Coffee Creamer',5.75);
 INSERT INTO products VALUES(24,'Legal Pads',6.25);
-INSERT INTO products VALUES(25,'Assorted Muffins',5.8899999999999996802);
-INSERT INTO products VALUES(26,'Home On The Range',19.980000000000000426);
-INSERT INTO products VALUES(27,'Disney DVD Collection',49.950000000000002843);
-INSERT INTO products VALUES(28,'A Bugs Life',9.9499999999999992894);
+INSERT INTO products VALUES(25,'Assorted Muffins',5.89);
+INSERT INTO products VALUES(26,'Home On The Range',19.98);
+INSERT INTO products VALUES(27,'Disney DVD Collection',49.95);
+INSERT INTO products VALUES(28,'A Bugs Life',9.95);
 INSERT INTO products VALUES(29,'The Princess Bride',17.75);
-INSERT INTO products VALUES(30,'All Laundry Detergent',7.9900000000000002131);
-INSERT INTO products VALUES(31,'Pringles',6.9900000000000002131);
-INSERT INTO products VALUES(32,'Diet Coke',6.7900000000000000355);
-INSERT INTO products VALUES(33,'Rack of Lamb',14.789999999999999147);
-INSERT INTO products VALUES(34,'Foster Farms Whole Chicken',11.749999999999999999);
-INSERT INTO products VALUES(35,'Spiderman 2',19.949999999999999289);
+INSERT INTO products VALUES(30,'All Laundry Detergent',7.99);
+INSERT INTO products VALUES(31,'Pringles',6.99);
+INSERT INTO products VALUES(32,'Diet Coke',6.79);
+INSERT INTO products VALUES(33,'Rack of Lamb',14.79);
+INSERT INTO products VALUES(34,'Foster Farms Whole Chicken',11.75);
+INSERT INTO products VALUES(35,'Spiderman 2',19.95);
 INSERT INTO products VALUES(36,'While You Were Sleeping',17.75);
-INSERT INTO products VALUES(37,'Cheer Laundry Detergent',7.9900000000000002131);
-INSERT INTO products VALUES(38,'Bkfst Cereal Variety Pack',7.2900000000000000355);
-INSERT INTO products VALUES(39,'Disney DVD Collection 2',59.99000000000000199);
+INSERT INTO products VALUES(37,'Cheer Laundry Detergent',7.99);
+INSERT INTO products VALUES(38,'Bkfst Cereal Variety Pack',7.29);
+INSERT INTO products VALUES(39,'Disney DVD Collection 2',59.99);
 INSERT INTO products VALUES(40,'Pepsi',6.75);
-INSERT INTO products VALUES(41,'Coke',6.7900000000000000355);
-INSERT INTO products VALUES(42,'Crest Toothpaste',7.5899999999999998578);
-INSERT INTO products VALUES(43,'Grosse Pointe Blank DVD',16.989999999999998436);
-INSERT INTO products VALUES(44,'Serendipity',16.949999999999999289);
-INSERT INTO products VALUES(45,'Runaway Jury',18.949999999999999289);
+INSERT INTO products VALUES(41,'Coke',6.79);
+INSERT INTO products VALUES(42,'Crest Toothpaste',7.59);
+INSERT INTO products VALUES(43,'Grosse Pointe Blank DVD',16.99);
+INSERT INTO products VALUES(44,'Serendipity',16.95);
+INSERT INTO products VALUES(45,'Runaway Jury',18.95);
 INSERT INTO products VALUES(46,'Brie (Made in U.S.)',7.25);
-INSERT INTO products VALUES(47,'Fresh Mozzarella',8.6500000000000003552);
-INSERT INTO products VALUES(48,'Vine Ripe Tomatoes',6.9900000000000002131);
-INSERT INTO products VALUES(49,'Roasted Garlic Bread',7.2900000000000000355);
+INSERT INTO products VALUES(47,'Fresh Mozzarella',8.65);
+INSERT INTO products VALUES(48,'Vine Ripe Tomatoes',6.99);
+INSERT INTO products VALUES(49,'Roasted Garlic Bread',7.29);
 INSERT INTO products VALUES(50,'Sprite',6.75);
 INSERT INTO products VALUES(51,'Propel Fitness Water',12.5);
-INSERT INTO products VALUES(52,'Beef Steak',18.949999999999999289);
-INSERT INTO products VALUES(53,'Oatmeal',5.5899999999999998578);
-INSERT INTO products VALUES(54,'T-bone Steak',19.949999999999999289);
+INSERT INTO products VALUES(52,'Beef Steak',18.95);
+INSERT INTO products VALUES(53,'Oatmeal',5.59);
+INSERT INTO products VALUES(54,'T-bone Steak',19.95);
 INSERT INTO products VALUES(55,'Salmon',33.75);
-INSERT INTO products VALUES(56,'Brocolli',3.9900000000000002131);
+INSERT INTO products VALUES(56,'Brocolli',3.99);
 CREATE TABLE purchases
 (
 memberID int,
