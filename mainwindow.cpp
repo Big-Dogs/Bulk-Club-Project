@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->gridWidget_membership_expire->hide();
 
+    qDebug() << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
+
 }
 
 
@@ -105,7 +107,39 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
+        qDebug() << "MEMEBER_PURCHASE_AMOUT_TEST: " << MEMEBER_PURCHASE_AMOUT_TEST;
+        #if MEMEBER_PURCHASE_AMOUT_TEST
+            const int VERIFY_SIZE = 15; //The number of members being verified
+
+            /* Unit testing parallel arrays
+             *
+             * These three parallel are for my unit test only,
+             */
+
+            int verifyId[VERIFY_SIZE] = {12121, 12345, 12897, 12899, 16161, 31311,
+                                         35647, 44444, 56723, 61616, 67890, 67899,
+                                         77777, 88888, 96309};
+
+            QString verifyName[VERIFY_SIZE] = {"Harry Havealotsofkids", "Sally Shopper", "Fred Frugal",
+                                               "Johnny Shopper", "Benjamin BusinessShopper", "Sam Single",
+                                               "Linda Livesalone", "Larry Largefamily", "Sue Shoparound",
+                                               "Sally SuperShopper", "Betty Buysalot", "BulkClub Bob",
+                                               "Sam Spendstomuch", "Carrie CaresAboutMoney", "Mary IsHappy"};
+
+            double verifyPurchase[VERIFY_SIZE] = {226.75, 9452.839999999997, 1, 5201.32, 1, 79.8, 63.17, 1,
+                                                  14.950000000000001, 5813.4, 129.8, 269.59, 4700.969999999999,
+                                                  1823.1200000000001, 1}; //1s are placeholders for the members I have yet to calculate
+                                                                          //the purchase amout for
+
+            bool passUnitTest = false; //This is a bool value that keeps track of whether or not this feature passes
+                                       //its unit test
+        #endif
+
         ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
+
+        #if MEMEBER_PURCHASE_AMOUT_TEST
+            assert(passUnitTest);
+        #endif
     }
 
     void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item

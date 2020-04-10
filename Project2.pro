@@ -26,7 +26,8 @@ HEADERS += \
     Database.h \
     MembershipTableModel.h \
     loginwindow.h \
-    mainwindow.h
+    mainwindow.h \
+    debugflags.h
 
 FORMS += \
     loginwindow.ui \

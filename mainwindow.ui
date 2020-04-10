@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="page_home">
      <widget class="QLabel" name="label_homepage">
@@ -161,7 +161,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -179,7 +179,7 @@
          <rect>
           <x>700</x>
           <y>40</y>
-          <width>167</width>
+          <width>181</width>
           <height>76</height>
          </rect>
         </property>
@@ -414,7 +414,7 @@
        <rect>
         <x>1070</x>
         <y>30</y>
-        <width>160</width>
+        <width>189</width>
         <height>201</height>
        </rect>
       </property>
@@ -531,7 +531,7 @@
          <rect>
           <x>630</x>
           <y>30</y>
-          <width>121</width>
+          <width>127</width>
           <height>98</height>
          </rect>
         </property>
@@ -825,7 +825,7 @@
        <rect>
         <x>1140</x>
         <y>30</y>
-        <width>121</width>
+        <width>146</width>
         <height>191</height>
        </rect>
       </property>
@@ -902,7 +902,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

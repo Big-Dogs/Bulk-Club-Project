@@ -4,8 +4,10 @@
 #include <QMainWindow>
 #include <QtDebug>
 #include <QCompleter>
+#include <QSqlDriver>
 #include "Database.h"
 #include "MembershipTableModel.h"
+#include "debugflags.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
