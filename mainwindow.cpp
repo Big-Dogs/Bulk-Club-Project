@@ -115,7 +115,6 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
              *
              * These three parallel are for my unit test only,
              */
-
             int verifyId[VERIFY_SIZE] = {12121, 12345, 12897, 12899, 16161, 31311,
                                          35647, 44444, 56723, 61616, 67890, 67899,
                                          77777, 88888, 96309};
@@ -131,11 +130,89 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
                                                   1823.1200000000001, 1}; //1s are placeholders for the members I have yet to calculate
                                                                           //the purchase amout for
 
-            bool passUnitTest = false; //This is a bool value that keeps track of whether or not this feature passes
+            bool passUnitTest = true;  //This is a bool value that keeps track of whether or not this feature passes
                                        //its unit test
         #endif
 
+        //Variables
+        QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
+        QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
+
         ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
+
+       bool queryError = query.exec("SELECT purchases.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM purchases "
+                                    "JOIN members ON purchases.memberID=members.memberID "
+                                    "JOIN products ON purchases.productID=products.productID "
+                                    "GROUP BY purchases.memberID "
+                                    "ORDER BY purchases.memberID");
+
+       if (!queryError)
+       {
+           qDebug() << query.lastError().text();
+
+           throw query.lastError();
+       }
+       else
+       {
+           qDebug() << "successful";
+       }
+
+       tableData = new QSqlQueryModel();
+
+       tableData->setQuery(query);
+
+       tableData->setHeaderData(0, Qt::Horizontal, tr("ID"));
+       tableData->setHeaderData(1, Qt::Horizontal, tr("Name"));
+       tableData->setHeaderData(2, Qt::Horizontal, tr("Revune"));
+
+       ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
+
+       ui->tableView_sales_sortmember->setModel(tableData);
+
+       #if MEMEBER_PURCHASE_AMOUT_TEST
+           const int RESULT_WIDTH = 50; //The width of printing out the results
+
+           QString result = ""; //The string to be qDebug out
+           QString member;      //A QString storing one member
+
+           result.append(QString("Expected").leftJustified(RESULT_WIDTH, QChar(' ')));
+           result.append(QString("Actual").leftJustified(RESULT_WIDTH, QChar(' ')));
+
+           qDebug() << result << endl;
+       #endif
+
+       for (int index = 0; index < tableData->rowCount(); index++)
+       {
+
+//           qDebug() << tableData->record(index).value("memberID").toString()
+//                    << " " << tableData->record(index).value("name").toString()
+//                    << " " << tableData->record(index).value("revune").toString();
+
+           #if MEMEBER_PURCHASE_AMOUT_TEST
+               member = tableData->record(index).value("memberID").toString();
+               member.append(" " + tableData->record(index).value("name").toString());
+               member.append(" " + tableData->record(index).value("revune").toString());
+
+               result = member.leftJustified(RESULT_WIDTH, QChar(' '));
+
+               member = QString::number(verifyId[index]);
+               member.append(" " + verifyName[index]);
+               member.append(" " + QString::number(verifyPurchase[index], 'd'));
+
+               result.append(member.leftJustified(RESULT_WIDTH, QChar(' ')));
+
+               qDebug() << result << endl;
+
+               if (tableData->record(index).value("memberID").toInt()    != verifyId[index]   &&
+                   tableData->record(index).value("name").toString()     != verifyName[index] &&
+                   tableData->record(index).value("revune").toDouble()   != verifyPurchase[index])
+               {
+                   passUnitTest = false;
+               }
+           #endif
+       }
+
+
 
         #if MEMEBER_PURCHASE_AMOUT_TEST
             assert(passUnitTest);
