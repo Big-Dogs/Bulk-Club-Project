@@ -228,6 +228,25 @@
          </rect>
         </property>
        </widget>
+       <widget class="QLabel" name="label_total_revune">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>500</y>
+          <width>251</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="text">
+         <string>Total Revune: </string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_sales_sortitem">
        <widget class="QLabel" name="label_inventorysales">

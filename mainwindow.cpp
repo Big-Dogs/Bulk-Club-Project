@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Instantiate database
     this->database = new Database("db.db", "QSQLITE");
 
+    formatPrice = new MoneyDelegate;
+
     // Create Executive Member Vector
 
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
@@ -33,7 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->gridWidget_membership_expire->hide();
 
-    qDebug() << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
+    ui->label_total_revune->setVisible(false);
+
+    qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
 }
 
@@ -41,6 +45,10 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    delete database;
+
+    delete formatPrice;
 }
 
 /*----Testing Permissions----*/
@@ -125,26 +133,31 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
                                                "Sally SuperShopper", "Betty Buysalot", "BulkClub Bob",
                                                "Sam Spendstomuch", "Carrie CaresAboutMoney", "Mary IsHappy"};
 
-            double verifyPurchase[VERIFY_SIZE] = {226.75, 9452.839999999997, 1, 5201.32, 1, 79.8, 63.17, 1,
+            double verifyPurchase[VERIFY_SIZE] = {226.75, 9452.839999999997, 0, 5201.32, 0, 79.8, 63.17, 0,
                                                   14.950000000000001, 5813.4, 129.8, 269.59, 4700.969999999999,
-                                                  1823.1200000000001, 1}; //1s are placeholders for the members I have yet to calculate
-                                                                          //the purchase amout for
+                                                  1823.1200000000001, 0};
 
             bool passUnitTest = true;  //This is a bool value that keeps track of whether or not this feature passes
                                        //its unit test
         #endif
 
+        //Constant
+            const int ID_COLUMN     = 0; //The column number for the member's id number
+            const int NAME_COLUMN   = 1; //The column number for the member's name
+            const int REVUNE_COLUMN = 2; //The column number for the member's revune
         //Variables
         QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
         QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
 
+        double totalRevune = 0.00; //The total revune across all members
+
         ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-       bool queryError = query.exec("SELECT purchases.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM purchases "
-                                    "JOIN members ON purchases.memberID=members.memberID "
-                                    "JOIN products ON purchases.productID=products.productID "
-                                    "GROUP BY purchases.memberID "
-                                    "ORDER BY purchases.memberID");
+       bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+                                    "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
+                                    "LEFT OUTER JOIN products ON purchases.productID=products.productID "
+                                    "GROUP BY members.memberID "
+                                    "ORDER BY members.memberID");
 
        if (!queryError)
        {
@@ -161,13 +174,15 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
        tableData->setQuery(query);
 
-       tableData->setHeaderData(0, Qt::Horizontal, tr("ID"));
-       tableData->setHeaderData(1, Qt::Horizontal, tr("Name"));
-       tableData->setHeaderData(2, Qt::Horizontal, tr("Revune"));
+       tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, tr("ID"));
+       tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, tr("Name"));
+       tableData->setHeaderData(REVUNE_COLUMN, Qt::Horizontal, tr("Revune"));
 
        ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
 
        ui->tableView_sales_sortmember->setModel(tableData);
+
+       ui->tableView_sales_sortmember->setItemDelegateForColumn(REVUNE_COLUMN, formatPrice);
 
        #if MEMEBER_PURCHASE_AMOUT_TEST
            const int RESULT_WIDTH = 50; //The width of printing out the results
@@ -181,12 +196,11 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
            qDebug() << result << endl;
        #endif
 
+       qDebug() << tableData->rowCount();
        for (int index = 0; index < tableData->rowCount(); index++)
        {
 
-//           qDebug() << tableData->record(index).value("memberID").toString()
-//                    << " " << tableData->record(index).value("name").toString()
-//                    << " " << tableData->record(index).value("revune").toString();
+          totalRevune += tableData->record(index).value("Revune").toDouble();
 
            #if MEMEBER_PURCHASE_AMOUT_TEST
                member = tableData->record(index).value("memberID").toString();
@@ -212,7 +226,8 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
            #endif
        }
 
-
+       ui->label_total_revune->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
+       ui->label_total_revune->setVisible(true);
 
         #if MEMEBER_PURCHASE_AMOUT_TEST
             assert(passUnitTest);

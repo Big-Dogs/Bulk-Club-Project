@@ -8,6 +8,7 @@
 #include "Database.h"
 #include "MembershipTableModel.h"
 #include "debugflags.h"
+#include "moneydelegate.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -126,6 +127,9 @@ private:
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
     Database *database; // Pointer to database
+
+    MoneyDelegate *formatPrice; //A pointer to the delegate used to format
+                                //items in table for money
 
     // For use in 'Search Sales by Product Name' feature
     QStringList productList; // List of all products in database
