@@ -21,6 +21,7 @@ SOURCES += \
     loginwindow.cpp \
     main.cpp \
     mainwindow.cpp \
+    tablequery.cpp \
     moneydelegate.cpp
 
 HEADERS += \
@@ -29,6 +30,7 @@ HEADERS += \
     loginwindow.h \
     mainwindow.h \
     debugflags.h \
+    tablequery.h \
     moneydelegate.h
 
 FORMS += \
