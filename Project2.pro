@@ -20,13 +20,18 @@ SOURCES += \
     MembershipTableModel.cpp \
     loginwindow.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    tablequery.cpp \
+    moneydelegate.cpp
 
 HEADERS += \
     Database.h \
     MembershipTableModel.h \
     loginwindow.h \
-    mainwindow.h
+    mainwindow.h \
+    debugflags.h \
+    tablequery.h \
+    moneydelegate.h
 
 FORMS += \
     loginwindow.ui \
