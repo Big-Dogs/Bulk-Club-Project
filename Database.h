@@ -28,6 +28,9 @@ public:
     // Remove Product
     bool DeleteProduct(QString productID);
 
+    // Finding the database file
+    static QString findDatabase(QString fileName);
+
 
     // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
     // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE

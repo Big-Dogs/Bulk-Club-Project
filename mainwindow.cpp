@@ -6,10 +6,22 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    //Variables
+    QString databasePath = Database::findDatabase("db.db");
+
     ui->setupUi(this);
 
     // Instantiate database
-    this->database = new Database("db.db", "QSQLITE");
+    if (databasePath != "NOT FOUND")
+    {
+        this->database = new Database(databasePath, "QSQLITE");
+    }
+    else
+    {
+        throw databasePath;
+    }
+
+    qDebug() << "Current Path: " << QDir::currentPath();
 
     formatPrice = new MoneyDelegate;
 
