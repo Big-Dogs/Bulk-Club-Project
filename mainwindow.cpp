@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gridWidget_membership_expire->hide();
 
     ui->label_total_revune->setVisible(false);
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+    ui->comboBox_sales_manymembersfound->setVisible(false);
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
@@ -241,7 +243,33 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
     {
+        //Constants
+        const int ID   = 0; //The consant corresponding the id column from the query result
+        const int NAME = 1; //The constant corresponding to the name column from the query result
+        //Variables
+        QSqlQuery   retrieveMemberData; //The query object use to retrieve the member's name and id
+        QStringList memberIdName;       //A QStringList container the id and name of all the members
+                                        //basically a member in the list has a QString for their id
+                                        //then following QString is their name
+
         ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_MEMBER);
+
+        bool retrieveDataError = retrieveMemberData.exec("SELECT memberId, name FROM members");
+
+        if (!retrieveDataError)
+        {
+            qDebug() << retrieveMemberData.lastError().text();
+
+            throw retrieveMemberData.lastError();
+        }
+
+        while (retrieveMemberData.next())
+        {
+            memberIdName << retrieveMemberData.value(ID).toString();
+            memberIdName << retrieveMemberData.value(NAME).toString();
+        }
+
+        TextCompleter(memberIdName, ui->lineEdit_sales_searchmember);
     }
 
     void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
@@ -769,7 +797,79 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 /*----Sales Page push buttons----*/
 void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search member button
 {
+    //Variables
+    QString        memberFound;   //The QString store member that is found, it
+                                  //eiter stores the member's name or id
+    QSqlQuery      retrieveData;  //The query object that retrieves the data from
+                                  //the database
+    QSqlQueryModel *tableData;    //The model that store the data to be displayed in
+                                  //the table view
+    QString         comboBoxText; //A QString to do intermediates steps on the text
+                                  //for the many members found comboBox
 
+    //seting error widgets to be invisible
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+    ui->comboBox_sales_manymembersfound->setVisible(false);
+
+    memberFound = ui->lineEdit_sales_searchmember->text();
+
+    //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+                         "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
+                         "LEFT OUTER JOIN products ON purchases.productID=products.productID "
+                         "WHERE members.memberID=? OR members.name=?");
+
+    retrieveData.bindValue(0, memberFound);
+    retrieveData.bindValue(1, memberFound);
+
+    bool queryError = retrieveData.exec();
+
+    if (!queryError)
+    {
+        qDebug() << retrieveData.lastError().text();
+
+        throw retrieveData.lastError();
+    }
+
+    tableData = new QSqlQueryModel;
+
+    tableData->setQuery(retrieveData);
+
+    qDebug() << "check";
+
+    if (tableData->rowCount() == 1)
+    {
+        ui->tableView_sales_searchmember->setModel(tableData);
+
+        if (tableData->record(0).value("memberId").isNull()) //no members found
+        {
+            ui->label_sales_searchmembererrormessage->setText("Error: That member was not found");
+            ui->label_sales_searchmembererrormessage->setVisible(true);
+
+            //clearing table view
+            tableData->clear();
+        }
+        else //exactly one member found
+        {
+            ui->tableView_sales_searchmember->setItemDelegateForColumn(2, formatPrice);
+        }
+    }
+    else //more than one member found
+    {
+        ui->label_sales_searchmembererrormessage->setText("Error: Many members found, please choose the one you were looking for");
+        ui->label_sales_searchmembererrormessage->setVisible(true);
+
+        for (int index = 0; index < tableData->rowCount(); index++)
+        {
+            comboBoxText = tableData->record(index).value("memberId").toString().append(" ");
+
+            comboBoxText.append(tableData->record(index).value("name").toString());
+
+            ui->comboBox_sales_manymembersfound->addItem(comboBoxText);
+        }
+
+        ui->comboBox_sales_manymembersfound->setVisible(true);
+    }
 }
 
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
