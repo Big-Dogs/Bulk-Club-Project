@@ -800,7 +800,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     //Constant
     const int ID_COLUMN     = 0; //The column number for the member's id number
     const int NAME_COLUMN   = 1; //The column number for the member's name
-    const int REVUNE_COLUMN = 2; //The column number for the member's revune
+    const int REVENUNE_COLUMN = 2; //The column number for the member's revune
 
     //Variables
     QString        memberFound;   //The QString store member that is found, it
@@ -840,9 +840,9 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
     tableData->setQuery(retrieveData);
 
-    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("ID"));
-    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
-    tableData->setHeaderData(REVUNE_COLUMN, Qt::Horizontal, QVariant("Revune"));
+    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Member Name"));
+    tableData->setHeaderData(REVENUNE_COLUMN, Qt::Horizontal, QVariant("Revenune"));
 
     qDebug() << "check";
 
