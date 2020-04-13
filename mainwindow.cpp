@@ -304,6 +304,22 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
     void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     {
         ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
+
+
+        QSqlQueryModel *model = new QSqlQueryModel();
+        QSqlQuery * query = new QSqlQuery;
+        query->prepare("select * from members");
+
+        if(!query->exec())
+        {
+            qDebug() << query->lastError().text();
+        }
+        else
+        {
+            model->setQuery(*query);
+            ui->tableView_admin_members->setModel(model);
+        }
+        delete query;
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
@@ -320,6 +336,8 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
     ui->gridWidget_admin_memberdatafields->show();
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
+
+     MainWindow::on_pushButton_admin_member_clicked();
 }
 
 void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
@@ -342,6 +360,45 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
+
+    QString memberType = "Regular";
+
+    TempMember tempMemberAdd;
+
+
+    tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
+    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
+    tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
+    tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
+
+    if(tempMemberAdd.executiveStatus == "executive")
+        memberType = "Executive";
+
+    QSqlQuery query;
+
+    int renewalPrice;
+
+    if(memberType == "Executive")
+        renewalPrice = 120;
+    else
+        renewalPrice = 60;
+
+    query.prepare("INSERT INTO members "
+                  "(memberID, name, "
+                  "memberType, expireDate,"
+                  "renewalPrice) VALUES(?,?,?,?,?)");
+
+    query.addBindValue(tempMemberAdd.id);
+    query.addBindValue(tempMemberAdd.name);
+    query.addBindValue(memberType);
+    query.addBindValue(tempMemberAdd.expirationDate);
+    query.addBindValue(QString::number(renewalPrice));
+
+    if(!query.exec())
+        qDebug() << "Member failed to save";
+
+     MainWindow::on_pushButton_admin_member_clicked();
+
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing

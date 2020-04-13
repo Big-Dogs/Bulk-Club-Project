@@ -135,6 +135,16 @@ private:
     QStringList productList; // List of all products in database
     QString salesReportProduct; // Product manager wishes to view for sales report
 
+
+    //For use in 'Add Customer' feature
+    struct TempMember
+    {
+        QString id;
+        QString name;
+        QString executiveStatus;
+        QString expirationDate;
+    };
+
     // For use in 'Recommend Downgrades' feature
     struct Member // Struct to hold executive member information
     {
