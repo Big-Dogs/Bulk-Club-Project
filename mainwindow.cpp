@@ -357,6 +357,47 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
+
+    QString memberType = "Regular";
+
+    TempMember tempMemberAdd;
+    QString id;
+    QString name;
+    QString executiveStatus;
+    QString expirationDate;
+
+    tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
+    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
+    tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
+    tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
+
+    if(tempMemberAdd.executiveStatus == "executive");
+        memberType = "Executive";
+
+    QSqlQuery query;
+
+    int renewalPrice;
+    if(memberType == "Executive")
+        renewalPrice = 120;
+    else
+        renewalPrice = 60;
+
+    query.prepare("INSERT INTO members "
+                  "(memberID, name, "
+                  "memberType, expireDate,"
+                  "renewalPrice) VALUES(?,?,?,?,?)");
+
+    query.addBindValue(tempMemberAdd.id);
+    query.addBindValue(tempMemberAdd.name);
+    query.addBindValue(memberType);
+    query.addBindValue(tempMemberAdd.expirationDate);
+    query.addBindValue(QString::number(renewalPrice));
+
+    if(!query.exec())
+        qDebug() << "Member failed to save";
+
+
+
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
