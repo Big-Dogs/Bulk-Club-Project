@@ -495,6 +495,130 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 {
     ui->gridWidget_membership_expire->hide();
     ui->tableWidget_membership->hide();
+
+    //clears the information from other vertical stackwidget tabs
+    ui->tableWidget_membership->setRowCount(0);
+    executiveMemberIDList.clear();
+    executiveAr.clear();
+    regularMemberIDList.clear();
+    regularAr.clear();
+    upgradeCount = 0;
+    downgradeCount = 0;
+    upgradeIndex = 0;
+    downgradeIndex = 0;
+
+
+    ExecutiveMemberRebate tempMember;
+    int memberIndex = 0;
+    QStringList memberIDList;
+
+    QSqlQuery query;
+    query.prepare("SELECT memberID FROM MEMBERS WHERE memberType='Executive'");
+
+    // Execute Query
+    if(query.exec())
+    {
+        // iterate through and pull ids
+        while(query.next())
+        {
+
+            memberIDList.insert(memberIndex, query.value(0).toString());
+            memberIndex++;
+        }
+
+        // DEBUG: print list
+        for(int i = 0; i < memberIDList.size(); i++)
+        {
+            qDebug() << memberIDList[i];
+        }
+    }
+    else
+    {
+        qDebug() << query.lastError().text();
+    }
+
+    query.prepare("SELECT members.memberID, members.name, "
+                  "sum(purchases.qty * products.price) "
+                  "FROM members, purchases, products "
+                  "WHERE members.memberID = purchases.memberID "
+                  "AND purchases.productID = products.productID "
+                  "AND members.memberID = :memberID");
+
+    QVector<ExecutiveMemberRebate> memberList;
+
+    // If member list is empty
+    if(memberList.empty())
+    {
+        // Iterate through ID list, calling each member's purchases
+        for(int i = 0; i < memberIDList.size(); i++)
+        {
+            query.bindValue(":memberID", memberIDList[i]);
+
+            // Execute Query
+            if(query.exec())
+            {
+                // Iterate through query data and pull purchase information into vector
+                while(query.next())
+                {
+                    if(query.value(0).toString() != "")
+                    {
+                        // Copy into temp object
+                        tempMember.memberID = query.value(0).toString();
+                        tempMember.name = query.value(1).toString();
+                        tempMember.amountSpent = query.value(2).toString();
+                        tempMember.rebate = QString::number((tempMember.amountSpent.toFloat()) * .02);
+                        // Add object to member list
+                        memberList.append(tempMember);
+                    }
+                }
+            }
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+            }
+        }
+    }
+    //printing the list of executive members
+    for(int i = 0; i < memberList.size(); i++)
+    {
+        qDebug() << memberList[i].name << " " << memberList[i].memberID << " "
+                 << memberList[i].amountSpent << " " << memberList[i].rebate << "\n";
+    }
+
+
+    QStringList tableColumns;
+    ui->tableWidget_membership->setColumnCount(3);
+    tableColumns << "ID Number" << "Name" << "Rebate";
+    ui->tableWidget_membership->setHorizontalHeaderLabels(tableColumns);
+
+
+        //populates the tableWidget_membership
+        for(int execMember = 0; execMember < memberList.count(); execMember++)
+        {
+            ui->tableWidget_membership->insertRow(execMember);
+            ui->tableWidget_membership->setItem(execMember, 0,
+                                                new QTableWidgetItem(memberList[execMember].memberID));
+            ui->tableWidget_membership->setItem(execMember, 1,
+                                                new QTableWidgetItem(memberList[execMember].name));
+            ui->tableWidget_membership->setItem(execMember, 2,
+                                                new QTableWidgetItem("$" + QString::number(memberList[execMember].rebate.toFloat(), 'f', 2)));
+        }
+        //shows the tableWidget_membership
+        ui->tableWidget_membership->show();
+
+        //outputs the nuber of rows in tableWidget_membership
+        qDebug() << ui->tableWidget_membership->rowCount();
+
+        //gets the total of all of the executive member's rebates.
+        float totalAllRebates;
+        for(int i = 0; i < memberList.size(); i++)
+        {
+            totalAllRebates += memberList[i].rebate.toFloat();
+        }
+        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
+        ui->label_membership_recommendation_status->setText(labelText);
+
+
 }
 
 void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
