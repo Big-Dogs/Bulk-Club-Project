@@ -304,6 +304,21 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
     void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     {
         ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
+
+
+        QSqlQueryModel *model = new QSqlQueryModel();
+        QSqlQuery * query = new QSqlQuery;
+        query->prepare("select * from members");
+
+        if(!query->exec())
+        {
+            qDebug() << query->lastError().text();
+        }
+        else
+        {
+            model->setQuery(*query);
+            ui->tableView_admin_members->setModel(model);
+        }
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
