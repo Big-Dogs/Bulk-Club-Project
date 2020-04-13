@@ -136,6 +136,7 @@ private:
     QString salesReportProduct; // Product manager wishes to view for sales report
 
 
+
     //For use in 'Display Member Rebates' feature
     struct ExecutiveMemberRebate
     {
@@ -152,7 +153,6 @@ private:
         QString name;
         QString executiveStatus;
         QString expirationDate;
-
     };
 
     // For use in 'Recommend Downgrades' feature
