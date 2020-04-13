@@ -143,7 +143,7 @@ private:
         QString name;
         QString amountSpent;
         QString rebate;
-
+    };
 
     //For use in 'Add Customer' feature
     struct TempMember
