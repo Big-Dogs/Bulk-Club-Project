@@ -319,6 +319,7 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
             model->setQuery(*query);
             ui->tableView_admin_members->setModel(model);
         }
+        delete query;
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
@@ -335,6 +336,8 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
     ui->gridWidget_admin_memberdatafields->show();
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
+
+     MainWindow::on_pushButton_admin_member_clicked();
 }
 
 void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
@@ -361,22 +364,20 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     QString memberType = "Regular";
 
     TempMember tempMemberAdd;
-    QString id;
-    QString name;
-    QString executiveStatus;
-    QString expirationDate;
+
 
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
     tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
     tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
     tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
-    if(tempMemberAdd.executiveStatus == "executive");
+    if(tempMemberAdd.executiveStatus == "executive")
         memberType = "Executive";
 
     QSqlQuery query;
 
     int renewalPrice;
+
     if(memberType == "Executive")
         renewalPrice = 120;
     else
@@ -396,7 +397,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     if(!query.exec())
         qDebug() << "Member failed to save";
 
-
+     MainWindow::on_pushButton_admin_member_clicked();
 
 }
 
