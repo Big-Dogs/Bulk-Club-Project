@@ -797,6 +797,11 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 /*----Sales Page push buttons----*/
 void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search member button
 {
+    //Constant
+    const int ID_COLUMN     = 0; //The column number for the member's id number
+    const int NAME_COLUMN   = 1; //The column number for the member's name
+    const int REVUNE_COLUMN = 2; //The column number for the member's revune
+
     //Variables
     QString        memberFound;   //The QString store member that is found, it
                                   //eiter stores the member's name or id
@@ -835,11 +840,17 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
     tableData->setQuery(retrieveData);
 
+    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("ID"));
+    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+    tableData->setHeaderData(REVUNE_COLUMN, Qt::Horizontal, QVariant("Revune"));
+
     qDebug() << "check";
 
     if (tableData->rowCount() == 1)
     {
         ui->tableView_sales_searchmember->setModel(tableData);
+        ui->tableView_sales_searchmember->verticalHeader()->setVisible(false);
+//        ui->tableView_sales_searchmember->resizeColumnsToContents(); Messes up with the delegate, will work on in a later sprint
 
         if (tableData->record(0).value("memberId").isNull()) //no members found
         {
