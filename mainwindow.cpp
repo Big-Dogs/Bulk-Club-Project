@@ -398,7 +398,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
         qDebug() << "Member failed to save";
 
      MainWindow::on_pushButton_admin_member_clicked();
-
+     MainWindow::ClearMemberFields();
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -407,6 +407,8 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
+
+    MainWindow::ClearMemberFields();
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -900,4 +902,11 @@ void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
     QCompleter *completer = new QCompleter(products, inputField);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     inputField->setCompleter(completer);
+}
+void MainWindow::ClearMemberFields()
+{
+    ui->lineEdit_admin_membersubmission_id->clear();
+    ui->lineEdit_admin_membersubmission_name->clear();
+    ui->lineEdit_admin_membersubmission_executive->clear();
+    ui->lineEdit_admin_membersubmission_date->clear();
 }

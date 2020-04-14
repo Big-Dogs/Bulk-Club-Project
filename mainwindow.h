@@ -119,6 +119,7 @@ private slots:
 
             void on_pushButton_membership_expire_clicked();
 
+            void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
