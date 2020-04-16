@@ -1,5 +1,7 @@
 #include "moneydelegate.h"
 #include <QDebug>
+#include <QRect>
+#include <QPoint>
 
 MoneyDelegate::MoneyDelegate(QObject *parent)
               :QStyledItemDelegate(parent)
@@ -19,5 +21,7 @@ void MoneyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     text = "$ ";
     text.append(QString::number(value, 'f', 2));
 
-    painter->drawText(option.rect, text);
+    //translated is used here to print the data in the middle of
+    //its item veritically
+    painter->drawText(option.rect.translated(0, 5), text);
 }
