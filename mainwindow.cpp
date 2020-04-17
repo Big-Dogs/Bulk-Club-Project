@@ -170,6 +170,8 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
        ui->tableView_sales_sortmember->setItemDelegateForColumn(REVUNE_COLUMN, formatPrice);
 
+       ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
+
        qDebug() << tableData->rowCount();
        for (int index = 0; index < tableData->rowCount(); index++)
        {
