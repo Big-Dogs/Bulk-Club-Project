@@ -138,6 +138,7 @@ private:
 
 
     //For use in 'Display Member Rebates' feature
+    //this is a comment
     struct ExecutiveMemberRebate
     {
         QString memberID;
