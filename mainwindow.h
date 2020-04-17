@@ -119,6 +119,7 @@ private slots:
 
             void on_pushButton_membership_expire_clicked();
 
+            void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
@@ -134,6 +135,19 @@ private:
     // For use in 'Search Sales by Product Name' feature
     QStringList productList; // List of all products in database
     QString salesReportProduct; // Product manager wishes to view for sales report
+
+
+
+
+    //For use in 'Display Member Rebates' feature
+    //this is a comment
+    struct ExecutiveMemberRebate
+    {
+        QString memberID;
+        QString name;
+        QString amountSpent;
+        QString rebate;
+    };
 
 
     //For use in 'Add Customer' feature

@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gridWidget_membership_expire->hide();
 
     ui->label_total_revune->setVisible(false);
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+    ui->comboBox_sales_manymembersfound->setVisible(false);
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
@@ -190,7 +192,33 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
     {
+        //Constants
+        const int ID   = 0; //The consant corresponding the id column from the query result
+        const int NAME = 1; //The constant corresponding to the name column from the query result
+        //Variables
+        QSqlQuery   retrieveMemberData; //The query object use to retrieve the member's name and id
+        QStringList memberIdName;       //A QStringList container the id and name of all the members
+                                        //basically a member in the list has a QString for their id
+                                        //then following QString is their name
+
         ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_MEMBER);
+
+        bool retrieveDataError = retrieveMemberData.exec("SELECT memberId, name FROM members");
+
+        if (!retrieveDataError)
+        {
+            qDebug() << retrieveMemberData.lastError().text();
+
+            throw retrieveMemberData.lastError();
+        }
+
+        while (retrieveMemberData.next())
+        {
+            memberIdName << retrieveMemberData.value(ID).toString();
+            memberIdName << retrieveMemberData.value(NAME).toString();
+        }
+
+        TextCompleter(memberIdName, ui->lineEdit_sales_searchmember);
     }
 
     void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
@@ -335,7 +363,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
         qDebug() << "Member failed to save";
 
      MainWindow::on_pushButton_admin_member_clicked();
-
+     MainWindow::ClearMemberFields();
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -344,6 +372,8 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
+
+    MainWindow::ClearMemberFields();
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -432,6 +462,131 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 {
     ui->gridWidget_membership_expire->hide();
     ui->tableWidget_membership->hide();
+
+
+    //clears the information from other vertical stackwidget tabs
+    ui->tableWidget_membership->setRowCount(0);
+    executiveMemberIDList.clear();
+    executiveAr.clear();
+    regularMemberIDList.clear();
+    regularAr.clear();
+    upgradeCount = 0;
+    downgradeCount = 0;
+    upgradeIndex = 0;
+    downgradeIndex = 0;
+
+
+    ExecutiveMemberRebate tempMember;
+    int memberIndex = 0;
+    QStringList memberIDList;
+
+    QSqlQuery query;
+    query.prepare("SELECT memberID FROM MEMBERS WHERE memberType='Executive'");
+
+    // Execute Query
+    if(query.exec())
+    {
+        // iterate through and pull ids
+        while(query.next())
+        {
+
+            memberIDList.insert(memberIndex, query.value(0).toString());
+            memberIndex++;
+        }
+
+        // DEBUG: print list
+        for(int i = 0; i < memberIDList.size(); i++)
+        {
+            qDebug() << memberIDList[i];
+        }
+    }
+    else
+    {
+        qDebug() << query.lastError().text();
+    }
+
+    query.prepare("SELECT members.memberID, members.name, "
+                  "sum(purchases.qty * products.price) "
+                  "FROM members, purchases, products "
+                  "WHERE members.memberID = purchases.memberID "
+                  "AND purchases.productID = products.productID "
+                  "AND members.memberID = :memberID");
+
+    QVector<ExecutiveMemberRebate> memberList;
+
+    // If member list is empty
+    if(memberList.empty())
+    {
+        // Iterate through ID list, calling each member's purchases
+        for(int i = 0; i < memberIDList.size(); i++)
+        {
+            query.bindValue(":memberID", memberIDList[i]);
+
+            // Execute Query
+            if(query.exec())
+            {
+                // Iterate through query data and pull purchase information into vector
+                while(query.next())
+                {
+                    if(query.value(0).toString() != "")
+                    {
+                        // Copy into temp object
+                        tempMember.memberID = query.value(0).toString();
+                        tempMember.name = query.value(1).toString();
+                        tempMember.amountSpent = query.value(2).toString();
+                        tempMember.rebate = QString::number((tempMember.amountSpent.toFloat()) * .02);
+                        // Add object to member list
+                        memberList.append(tempMember);
+                    }
+                }
+            }
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+            }
+        }
+    }
+    //printing the list of executive members
+    for(int i = 0; i < memberList.size(); i++)
+    {
+        qDebug() << memberList[i].name << " " << memberList[i].memberID << " "
+                 << memberList[i].amountSpent << " " << memberList[i].rebate << "\n";
+    }
+
+
+    QStringList tableColumns;
+    ui->tableWidget_membership->setColumnCount(3);
+    tableColumns << "ID Number" << "Name" << "Rebate";
+    ui->tableWidget_membership->setHorizontalHeaderLabels(tableColumns);
+
+
+        //populates the tableWidget_membership
+        for(int execMember = 0; execMember < memberList.count(); execMember++)
+        {
+            ui->tableWidget_membership->insertRow(execMember);
+            ui->tableWidget_membership->setItem(execMember, 0,
+                                                new QTableWidgetItem(memberList[execMember].memberID));
+            ui->tableWidget_membership->setItem(execMember, 1,
+                                                new QTableWidgetItem(memberList[execMember].name));
+            ui->tableWidget_membership->setItem(execMember, 2,
+                                                new QTableWidgetItem("$" + QString::number(memberList[execMember].rebate.toFloat(), 'f', 2)));
+        }
+        //shows the tableWidget_membership
+        ui->tableWidget_membership->show();
+
+        //outputs the nuber of rows in tableWidget_membership
+        qDebug() << ui->tableWidget_membership->rowCount();
+
+        //gets the total of all of the executive member's rebates.
+        float totalAllRebates;
+        for(int i = 0; i < memberList.size(); i++)
+        {
+            totalAllRebates += memberList[i].rebate.toFloat();
+        }
+        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
+        ui->label_membership_recommendation_status->setText(labelText);
+
+
 }
 
 void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
@@ -775,7 +930,90 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 /*----Sales Page push buttons----*/
 void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search member button
 {
+    //Constant
+    const int ID_COLUMN     = 0; //The column number for the member's id number
+    const int NAME_COLUMN   = 1; //The column number for the member's name
+    const int REVENUNE_COLUMN = 2; //The column number for the member's revune
 
+    //Variables
+    QString        memberFound;   //The QString store member that is found, it
+                                  //eiter stores the member's name or id
+    QSqlQuery      retrieveData;  //The query object that retrieves the data from
+                                  //the database
+    QSqlQueryModel *tableData;    //The model that store the data to be displayed in
+                                  //the table view
+    QString         comboBoxText; //A QString to do intermediates steps on the text
+                                  //for the many members found comboBox
+
+    //seting error widgets to be invisible
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+    ui->comboBox_sales_manymembersfound->setVisible(false);
+
+    memberFound = ui->lineEdit_sales_searchmember->text();
+
+    //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+                         "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
+                         "LEFT OUTER JOIN products ON purchases.productID=products.productID "
+                         "WHERE members.memberID=? OR members.name=?");
+
+    retrieveData.bindValue(0, memberFound);
+    retrieveData.bindValue(1, memberFound);
+
+    bool queryError = retrieveData.exec();
+
+    if (!queryError)
+    {
+        qDebug() << retrieveData.lastError().text();
+
+        throw retrieveData.lastError();
+    }
+
+    tableData = new QSqlQueryModel;
+
+    tableData->setQuery(retrieveData);
+
+    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Member Name"));
+    tableData->setHeaderData(REVENUNE_COLUMN, Qt::Horizontal, QVariant("Revenune"));
+
+    qDebug() << "check";
+
+    if (tableData->rowCount() == 1)
+    {
+        ui->tableView_sales_searchmember->setModel(tableData);
+        ui->tableView_sales_searchmember->verticalHeader()->setVisible(false);
+//        ui->tableView_sales_searchmember->resizeColumnsToContents(); Messes up with the delegate, will work on in a later sprint
+
+        if (tableData->record(0).value("memberId").isNull()) //no members found
+        {
+            ui->label_sales_searchmembererrormessage->setText("Error: That member was not found");
+            ui->label_sales_searchmembererrormessage->setVisible(true);
+
+            //clearing table view
+            tableData->clear();
+        }
+        else //exactly one member found
+        {
+            ui->tableView_sales_searchmember->setItemDelegateForColumn(2, formatPrice);
+        }
+    }
+    else //more than one member found
+    {
+        ui->label_sales_searchmembererrormessage->setText("Error: Many members found, please choose the one you were looking for");
+        ui->label_sales_searchmembererrormessage->setVisible(true);
+
+        for (int index = 0; index < tableData->rowCount(); index++)
+        {
+            comboBoxText = tableData->record(index).value("memberId").toString().append(" ");
+
+            comboBoxText.append(tableData->record(index).value("name").toString());
+
+            ui->comboBox_sales_manymembersfound->addItem(comboBoxText);
+        }
+
+        ui->comboBox_sales_manymembersfound->setVisible(true);
+    }
 }
 
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
@@ -837,4 +1075,11 @@ void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
     QCompleter *completer = new QCompleter(products, inputField);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     inputField->setCompleter(completer);
+}
+void MainWindow::ClearMemberFields()
+{
+    ui->lineEdit_admin_membersubmission_id->clear();
+    ui->lineEdit_admin_membersubmission_name->clear();
+    ui->lineEdit_admin_membersubmission_executive->clear();
+    ui->lineEdit_admin_membersubmission_date->clear();
 }
