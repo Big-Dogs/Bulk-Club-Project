@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page_home">
      <widget class="QLabel" name="label_homepage">
@@ -313,7 +313,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>690</x>
@@ -861,6 +861,22 @@ color: rgb(239, 41, 41);</string>
         </property>
         <property name="text">
          <string>confirm delete button should be enabled when you double click an item but i can't test until the list is populated</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_admin_products_errormessage">
+        <property name="geometry">
+         <rect>
+          <x>760</x>
+          <y>40</y>
+          <width>321</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(239, 41, 41);</string>
+        </property>
+        <property name="text">
+         <string>Error Message</string>
         </property>
        </widget>
       </widget>
