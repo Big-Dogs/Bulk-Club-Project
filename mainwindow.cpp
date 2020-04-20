@@ -333,8 +333,8 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
     tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
+    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
+    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
     if(tempMemberAdd.executiveStatus == "executive")
         memberType = "Executive";
@@ -1080,6 +1080,6 @@ void MainWindow::ClearMemberFields()
 {
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
-    ui->lineEdit_admin_membersubmission_executive->clear();
-    ui->lineEdit_admin_membersubmission_date->clear();
+    //ui->lineEdit_admin_membersubmission_executive->clear();
+    //ui->lineEdit_admin_membersubmission_date->clear();
 }
