@@ -1083,3 +1083,38 @@ void MainWindow::ClearMemberFields()
     ui->lineEdit_admin_membersubmission_executive->clear();
     ui->lineEdit_admin_membersubmission_date->clear();
 }
+
+/*----Home Page push buttons----*/
+void MainWindow::on_pushButton_home_login_clicked()
+{
+    QString username = ui->lineEdit_home_username->text();
+    QString password = ui->lineEdit_home_password->text();
+    QString warning = "Invalid username or password. Please try again.";
+
+    if (username == "employee" &&
+        password == "test")
+    {
+        index = 0;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+    }
+    else if (username == "manager" &&
+        password == "test")
+    {
+        index = 1;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+    }
+    else if (username == "admin" &&
+        password == "test")
+    {
+        index = 2;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+    }
+    else
+    {
+        ui->label_home_warning->setText(warning);
+    }
+
+}
