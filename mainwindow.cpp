@@ -818,10 +818,13 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
             downgradeIndex++;
         }
 
+        qDebug() << "PRINTING EXECUTIVE MEMBER ID LIST: \n";
         // DEBUG: print list
         for(downgradeIndex = 0; downgradeIndex < executiveMemberIDList.size(); downgradeIndex++)
         {
-            qDebug() << executiveMemberIDList[downgradeIndex];
+
+            qDebug() << "EXECUTIVE ID #" << downgradeIndex + 1 << ": "
+                     << executiveMemberIDList[downgradeIndex];
         }
     }
     else // if unsuccessful, print error
@@ -834,7 +837,8 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
                   "FROM members, purchases, products "
                   "WHERE members.memberID = purchases.memberID "
                   "AND purchases.productID = products.productID "
-                  "AND members.memberID = :memberID");
+                  "AND members.memberID = :memberID"
+                  );
 
     // If vector empty
     if(executiveAr.empty())
@@ -867,7 +871,37 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
                 qDebug() << query.lastError().text();
             }
         }
+
+        // THIS IS WHERE WE ADD THE PEOPLE WHO MADE NO PURCHASES
+        query.prepare("SELECT DISTINCT members.memberID, members.name, 0 , 0 "
+                      "FROM members, purchases "
+                      "WHERE members.memberType = 'Executive' "
+                      "AND members.memberID NOT IN "
+                      "(SELECT memberID from purchases)" );
+
+        if(query.exec())
+        {
+            while(query.next())
+            {
+                if(query.value(0).toString() != "")
+                {
+                    // Copy into temp object
+                    execTemp.memberID = query.value(0).toString();
+                    execTemp.name = query.value(1).toString();
+                    execTemp.amountSpent = query.value(2).toString();
+
+                    // Add object to vector
+                    executiveAr.append(execTemp);
+                }
+            }
+        }
+        else // if unsuccessful, print error
+        {
+            qDebug() << query.lastError().text();
+        }
     }
+
+
 
    // Print entire vector
    for(downgradeIndex = 0; downgradeIndex < executiveAr.count(); downgradeIndex++)
