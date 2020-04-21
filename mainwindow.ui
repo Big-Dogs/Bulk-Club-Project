@@ -89,7 +89,11 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_home_password"/>
+        <widget class="QLineEdit" name="lineEdit_home_password">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_home_username">
@@ -125,7 +129,7 @@
        <rect>
         <x>50</x>
         <y>260</y>
-        <width>151</width>
+        <width>171</width>
         <height>16</height>
        </rect>
       </property>
@@ -138,7 +142,7 @@
        <rect>
         <x>50</x>
         <y>280</y>
-        <width>151</width>
+        <width>171</width>
         <height>16</height>
        </rect>
       </property>
@@ -151,7 +155,7 @@
        <rect>
         <x>50</x>
         <y>240</y>
-        <width>151</width>
+        <width>181</width>
         <height>16</height>
        </rect>
       </property>
@@ -164,7 +168,7 @@
        <rect>
         <x>40</x>
         <y>220</y>
-        <width>331</width>
+        <width>381</width>
         <height>16</height>
        </rect>
       </property>

@@ -1103,7 +1103,7 @@ void MainWindow::on_pushButton_home_login_clicked()
     {
         index = 1;
         setPermissions(index);
-        ui->stackedWidget_main->setCurrentIndex(POS);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
     }
     else if (username == "admin" &&
         password == "test")
