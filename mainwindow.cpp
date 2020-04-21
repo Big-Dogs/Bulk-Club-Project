@@ -665,31 +665,8 @@ void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades 
     QVector<Database::Member> regularMemberPurchases =
             database->GetRegularMemberPurchases(regularMemberIDList);
 
-   // loop through purchases to collect all people. add to tableWidget if <65
-   for(int index = 0; index < regularMemberPurchases.count(); index++)
-   {
-       // Calculate estimated rebate
-       rebateAmount = regularMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
-
-       // If rebateAmount under rebateMin, add to recommendations
-       if(rebateAmount > REBATE_MIN)
-       {
-           ui->tableWidget_membership->insertRow(upgradeCount);
-           ui->tableWidget_membership->setItem(upgradeCount, MEMBERSHIP_NUMBER,
-                                               new QTableWidgetItem(regularMemberPurchases[index].memberID));
-           ui->tableWidget_membership->setItem(upgradeCount, MEMBER_NAME,
-                                               new QTableWidgetItem(regularMemberPurchases[index].name));
-           ui->tableWidget_membership->setItem(upgradeCount, AMT_SPENT,
-                                               new QTableWidgetItem(QString::number(regularMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
-           ui->tableWidget_membership->setItem(upgradeCount, REBATE_AMOUNT,
-                                               new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
-           upgradeCount++;
-       }
-   }
-
-   // Set label to display number of recommendations
-   QString labelText = "Number of recommended membership upgrades: " + QString::number(upgradeCount);
-   ui->label_membership_recommendation_status->setText(labelText);
+    // Print Suggested Upgrade Report
+    PrintUpgradeReport(regularMemberPurchases);
 }
 
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
@@ -704,32 +681,8 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
     QVector<Database::Member> executiveMemberPurchases =
             database->GetExecutiveMemberPurchases(executiveMemberIDList);
 
-                    // CONSTRUCT WIDGET
-   // loop through purchases to collect all people. add to tableWidget if <65
-   for(int index = 0; index < executiveMemberPurchases.count(); index++)
-   {
-       // Calculate estimated rebate
-       rebateAmount = executiveMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
-
-       // If rebateAmount under rebateMin, add to recommendations
-       if(rebateAmount < REBATE_MIN)
-       {
-           ui->tableWidget_membership->insertRow(downgradeCount);
-           ui->tableWidget_membership->setItem(downgradeCount, MEMBERSHIP_NUMBER,
-                                               new QTableWidgetItem(executiveMemberPurchases[index].memberID));
-           ui->tableWidget_membership->setItem(downgradeCount, MEMBER_NAME,
-                                               new QTableWidgetItem(executiveMemberPurchases[index].name));
-           ui->tableWidget_membership->setItem(downgradeCount, AMT_SPENT,
-                                               new QTableWidgetItem(QString::number(executiveMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
-           ui->tableWidget_membership->setItem(downgradeCount, REBATE_AMOUNT,
-                                               new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
-           downgradeCount++;
-       }
-   }
-
-   // Set label to display number of recommendations
-   QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
-   ui->label_membership_recommendation_status->setText(labelText);
+    // Print Suggested Downgrade Report
+    PrintDowngradeReport(executiveMemberPurchases);
 }
 
 /*----POS Page push buttons----*/
@@ -899,6 +852,7 @@ void MainWindow::ClearMemberFields()
 
 
 // Helper Function Definitions
+    // Reset all values in membership table widget
 void MainWindow::InitializeMembershipTableWidget()
 {
     ui->tableWidget_membership->show();
@@ -909,4 +863,64 @@ void MainWindow::InitializeMembershipTableWidget()
     rebateAmount = 0.0; // member's rebate received
     ui->tableWidget_membership->setColumnCount(TABLE_WIDGET_COLS);
     ui->tableWidget_membership->setHorizontalHeaderLabels(tableWidgetColumnNames);
+}
+
+    // Print suggested upgrades report
+void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases)
+{
+    // loop through purchases to collect all people. add to tableWidget if <65
+    for(int index = 0; index < regularMemberPurchases.count(); index++)
+    {
+        // Calculate estimated rebate
+        rebateAmount = regularMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
+
+        // If rebateAmount under rebateMin, add to recommendations
+        if(rebateAmount > REBATE_MIN)
+        {
+            ui->tableWidget_membership->insertRow(upgradeCount);
+            ui->tableWidget_membership->setItem(upgradeCount, MEMBERSHIP_NUMBER,
+                                                new QTableWidgetItem(regularMemberPurchases[index].memberID));
+            ui->tableWidget_membership->setItem(upgradeCount, MEMBER_NAME,
+                                                new QTableWidgetItem(regularMemberPurchases[index].name));
+            ui->tableWidget_membership->setItem(upgradeCount, AMT_SPENT,
+                                                new QTableWidgetItem(QString::number(regularMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
+            ui->tableWidget_membership->setItem(upgradeCount, REBATE_AMOUNT,
+                                                new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+            upgradeCount++;
+        }
+    }
+
+    // Set label to display number of recommendations
+    QString labelText = "Number of recommended membership upgrades: " + QString::number(upgradeCount);
+    ui->label_membership_recommendation_status->setText(labelText);
+}
+
+    // Print suggested downgrades report
+void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases)
+{
+    // loop through purchases to collect all people. add to tableWidget if <65
+    for(int index = 0; index < executiveMemberPurchases.count(); index++)
+    {
+        // Calculate estimated rebate
+        rebateAmount = executiveMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
+
+        // If rebateAmount under rebateMin, add to recommendations
+        if(rebateAmount < REBATE_MIN)
+        {
+            ui->tableWidget_membership->insertRow(downgradeCount);
+            ui->tableWidget_membership->setItem(downgradeCount, MEMBERSHIP_NUMBER,
+                                                new QTableWidgetItem(executiveMemberPurchases[index].memberID));
+            ui->tableWidget_membership->setItem(downgradeCount, MEMBER_NAME,
+                                                new QTableWidgetItem(executiveMemberPurchases[index].name));
+            ui->tableWidget_membership->setItem(downgradeCount, AMT_SPENT,
+                                                new QTableWidgetItem(QString::number(executiveMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
+            ui->tableWidget_membership->setItem(downgradeCount, REBATE_AMOUNT,
+                                                new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+            downgradeCount++;
+        }
+    }
+
+    // Set label to display number of recommendations
+    QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
+    ui->label_membership_recommendation_status->setText(labelText);
 }

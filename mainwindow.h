@@ -215,7 +215,15 @@ private:
 
 
     // Helper Function Prototypes
+
+        // Reset all values in membership table widget
     void InitializeMembershipTableWidget();
+
+        // Print suggested upgrades report
+    void PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases);
+
+        // Print suggested downgrades report
+    void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
 
 
 };
