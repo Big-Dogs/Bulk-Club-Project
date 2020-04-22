@@ -291,5 +291,47 @@ bool Database::DeleteProduct(QString productID) { return false; }
 // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
 // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
 
+//check login
+int Database::checkLogin(QString username, QString password)
+{
+    int permissionLevel = 0;
+
+    QList<int> isAdmin;
+    QList<int> isManager;
+
+    QSqlQuery query;
+
+    //checks if username and password are valid
+       //query database to see if username and password match any items
+    query.prepare("select isAdmin, isManager from users where username = '"+username+"' and password = '"+password+"'");
+    //if it does match
+        //verify the permission level of valid user
+        //set permission level
+    if(query.exec())
+    {
+
+        while(query.next())
+        {
+            isAdmin.append(query.value(0).toInt());
+            isManager.append(query.value(1).toInt());
+
+        }
+
+        for(int userIndex = 0; userIndex < isAdmin.size(); userIndex++)
+        {
+            permissionLevel = isAdmin[userIndex] + isManager[userIndex] + 1;
+        }
+        qDebug() << " permission level: " << permissionLevel;
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return permissionLevel;
+}
+
 // Destructor
 Database::~Database() {}

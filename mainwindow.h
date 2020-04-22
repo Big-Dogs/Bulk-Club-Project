@@ -213,6 +213,15 @@ private:
         REBATE_AMOUNT
     };
 
+    // Enum to keep track of permission level
+    enum PermissionLevel
+    {
+        NONE,
+        EMPLOYEE,
+        MANAGER,
+        ADMINISTRATOR,
+    };
+
 
 
 
