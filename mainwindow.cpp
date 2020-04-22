@@ -887,7 +887,7 @@ void MainWindow::on_pushButton_home_login_clicked()
 
     int permissionIndex = this->database->checkLogin(username, password);
 
-    if (permissionIndex > 0)
+    if (permissionIndex > NONE)
     {
         setPermissions(permissionIndex);
     }

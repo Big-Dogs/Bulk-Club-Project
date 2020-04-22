@@ -296,9 +296,6 @@ int Database::checkLogin(QString username, QString password)
 {
     int permissionLevel = 0;
 
-    QList<int> isAdmin;
-    QList<int> isManager;
-
     QSqlQuery query;
 
     //checks if username and password are valid
@@ -312,15 +309,9 @@ int Database::checkLogin(QString username, QString password)
 
         while(query.next())
         {
-            isAdmin.append(query.value(0).toInt());
-            isManager.append(query.value(1).toInt());
-
+            permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
         }
 
-        for(int userIndex = 0; userIndex < isAdmin.size(); userIndex++)
-        {
-            permissionLevel = isAdmin[userIndex] + isManager[userIndex] + 1;
-        }
         qDebug() << " permission level: " << permissionLevel;
     }
     //else
