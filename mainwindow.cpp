@@ -129,6 +129,32 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
+        qDebug() << "MEMEBER_PURCHASE_AMOUT_TEST: " << MEMEBER_PURCHASE_AMOUT_TEST;
+        #if MEMEBER_PURCHASE_AMOUT_TEST
+            const int VERIFY_SIZE = 15; //The number of members being verified
+
+            /* Unit testing parallel arrays
+             *
+             * These three parallel are for my unit test only,
+             */
+            int verifyId[VERIFY_SIZE] = {12121, 12345, 12897, 12899, 16161, 31311,
+                                         35647, 44444, 56723, 61616, 67890, 67899,
+                                         77777, 88888, 96309};
+
+            QString verifyName[VERIFY_SIZE] = {"Harry Havealotsofkids", "Sally Shopper", "Fred Frugal",
+                                               "Johnny Shopper", "Benjamin BusinessShopper", "Sam Single",
+                                               "Linda Livesalone", "Larry Largefamily", "Sue Shoparound",
+                                               "Sally SuperShopper", "Betty Buysalot", "BulkClub Bob",
+                                               "Sam Spendstomuch", "Carrie CaresAboutMoney", "Mary IsHappy"};
+
+            double verifyPurchase[VERIFY_SIZE] = {226.75, 9452.839999999997, 0, 5201.32, 0, 79.8, 63.17, 0,
+                                                  14.950000000000001, 5813.4, 129.8, 269.59, 4700.969999999999,
+                                                  1823.1200000000001, 0};
+
+            bool passUnitTest = true;  //This is a bool value that keeps track of whether or not this feature passes
+                                       //its unit test
+        #endif
+
         //Constant
             const int ID_COLUMN     = 0; //The column number for the member's id number
             const int NAME_COLUMN   = 1; //The column number for the member's name
@@ -172,17 +198,54 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
        ui->tableView_sales_sortmember->setItemDelegateForColumn(REVUNE_COLUMN, formatPrice);
 
-       ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
+       #if MEMEBER_PURCHASE_AMOUT_TEST
+           const int RESULT_WIDTH = 50; //The width of printing out the results
+
+           QString result = ""; //The string to be qDebug out
+           QString member;      //A QString storing one member
+
+           result.append(QString("Expected").leftJustified(RESULT_WIDTH, QChar(' ')));
+           result.append(QString("Actual").leftJustified(RESULT_WIDTH, QChar(' ')));
+
+           qDebug() << result << endl;
+       #endif
 
        qDebug() << tableData->rowCount();
        for (int index = 0; index < tableData->rowCount(); index++)
        {
 
           totalRevune += tableData->record(index).value("Revune").toDouble();
+
+           #if MEMEBER_PURCHASE_AMOUT_TEST
+               member = tableData->record(index).value("memberID").toString();
+               member.append(" " + tableData->record(index).value("name").toString());
+               member.append(" " + tableData->record(index).value("revune").toString());
+
+               result = member.leftJustified(RESULT_WIDTH, QChar(' '));
+
+               member = QString::number(verifyId[index]);
+               member.append(" " + verifyName[index]);
+               member.append(" " + QString::number(verifyPurchase[index], 'd'));
+
+               result.append(member.leftJustified(RESULT_WIDTH, QChar(' ')));
+
+               qDebug() << result << endl;
+
+               if (tableData->record(index).value("memberID").toInt()    != verifyId[index]   &&
+                   tableData->record(index).value("name").toString()     != verifyName[index] &&
+                   tableData->record(index).value("revune").toDouble()   != verifyPurchase[index])
+               {
+                   passUnitTest = false;
+               }
+           #endif
        }
 
        ui->label_total_revune->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
        ui->label_total_revune->setVisible(true);
+
+        #if MEMEBER_PURCHASE_AMOUT_TEST
+            assert(passUnitTest);
+        #endif
     }
 
     void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
@@ -333,8 +396,8 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
     tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
+    tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
+    tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
     if(tempMemberAdd.executiveStatus == "executive")
         memberType = "Executive";
@@ -363,7 +426,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
         qDebug() << "Member failed to save";
 
      MainWindow::on_pushButton_admin_member_clicked();
-     MainWindow::ClearMemberFields();
+
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -372,8 +435,6 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
-
-    MainWindow::ClearMemberFields();
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -1075,11 +1136,4 @@ void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
     QCompleter *completer = new QCompleter(products, inputField);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     inputField->setCompleter(completer);
-}
-void MainWindow::ClearMemberFields()
-{
-    ui->lineEdit_admin_membersubmission_id->clear();
-    ui->lineEdit_admin_membersubmission_name->clear();
-    //ui->lineEdit_admin_membersubmission_executive->clear();
-    //ui->lineEdit_admin_membersubmission_date->clear();
 }
