@@ -29,6 +29,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     formatPrice = new MoneyDelegate;
 
+
+
+
+    // Create Executive Member Vector
+
+
+
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
@@ -38,6 +45,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
+
+
+    ui->label_home_warning->hide();
+
+    index = 0;
+    setPermissions(index);
 
     ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
@@ -72,18 +85,28 @@ void MainWindow::setPermissions(int permission)
 {
     if(permission == 0)
     {
+        ui->pushButton_POS->setEnabled(false);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
     }
     else if (permission == 1)
     {
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
     }
     else if (permission == 2)
     {
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(false);
+    }
+    else if (permission == 3)
+    {
+        ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(true);
@@ -92,19 +115,19 @@ void MainWindow::setPermissions(int permission)
 
 void MainWindow::on_pushButton_employeepermissions_clicked()
 {
-    index = 0;
+    index = 1;
     setPermissions(index);
 }
 
 void MainWindow::on_pushButton_managerpermissions_clicked()
 {
-    index = 1;
+    index = 2;
     setPermissions(index);
 }
 
 void MainWindow::on_pushButton_adminpermissions_clicked()
 {
-    index = 2;
+    index = 3;
     setPermissions(index);
 }
 
@@ -113,6 +136,8 @@ void MainWindow::on_pushButton_adminpermissions_clicked()
 void MainWindow::on_pushButton_home_clicked() // home page
 {
     ui->stackedWidget_main->setCurrentIndex(HOME);
+    index = 0;
+    setPermissions(index);
 }
 
 void MainWindow::on_pushButton_POS_clicked() // POS page
@@ -850,6 +875,40 @@ void MainWindow::ClearMemberFields()
 }
 
 
+/*----Home Page push buttons----*/
+void MainWindow::on_pushButton_home_login_clicked()
+{
+    QString username = ui->lineEdit_home_username->text();
+    QString password = ui->lineEdit_home_password->text();
+
+    ui->label_home_warning->hide();
+
+    if (username == "employee" &&
+        password == "test")
+    {
+        index = 1;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+    }
+    else if (username == "manager" &&
+        password == "test")
+    {
+        index = 2;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
+    }
+    else if (username == "admin" &&
+        password == "test")
+    {
+        index = 3;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+    }
+    else
+    {
+        ui->label_home_warning->show();
+    }
+
 
 // Helper Function Definitions
     // Reset all values in membership table widget
@@ -923,4 +982,5 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     // Set label to display number of recommendations
     QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
     ui->label_membership_recommendation_status->setText(labelText);
+
 }

@@ -123,6 +123,8 @@ private slots:
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
+    void on_pushButton_home_login_clicked();
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
