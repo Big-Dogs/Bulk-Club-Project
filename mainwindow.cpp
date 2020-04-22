@@ -25,8 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     formatPrice = new MoneyDelegate;
 
-    index = 0;
-    setPermissions(index);
+
 
     // Create Executive Member Vector
 
@@ -41,6 +40,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
+
+
+    ui->label_home_warning->hide();
+
+    index = 0;
+    setPermissions(index);
 
     ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
@@ -1106,7 +1111,8 @@ void MainWindow::on_pushButton_home_login_clicked()
 {
     QString username = ui->lineEdit_home_username->text();
     QString password = ui->lineEdit_home_password->text();
-    QString warning = "Invalid username or password. Please try again.";
+
+    ui->label_home_warning->hide();
 
     if (username == "employee" &&
         password == "test")
@@ -1131,7 +1137,7 @@ void MainWindow::on_pushButton_home_login_clicked()
     }
     else
     {
-        ui->label_home_warning->setText(warning);
+        ui->label_home_warning->show();
     }
 
 }

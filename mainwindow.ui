@@ -105,7 +105,7 @@
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_home_warning">
          <property name="text">
-          <string/>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid username or password. Please try again.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
