@@ -32,27 +32,14 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page_home">
-     <widget class="QLabel" name="label_homepage">
-      <property name="geometry">
-       <rect>
-        <x>370</x>
-        <y>40</y>
-        <width>531</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Home Page. empty for now- we could put the login here, extra information, or remove it if we don't need it</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="gridLayoutWidget_4">
       <property name="geometry">
        <rect>
-        <x>550</x>
-        <y>230</y>
+        <x>30</x>
+        <y>60</y>
         <width>160</width>
         <height>98</height>
        </rect>
@@ -80,6 +67,114 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_12">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>150</y>
+        <width>295</width>
+        <height>102</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_home_login">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEdit_home_username"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_home_password">
+         <property name="text">
+          <string>Password:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEdit_home_password">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_home_username">
+         <property name="text">
+          <string>Username:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_home_warning">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid username or password. Please try again.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QPushButton" name="pushButton_home_login">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>300</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Login</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_manager">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>260</y>
+        <width>171</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>username: manager pw: test</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_home_admintest">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>280</y>
+        <width>171</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>username: admin pw: test</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_home_employeetest">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>240</y>
+        <width>181</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>username: employee pw: test</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_home_test">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>220</y>
+        <width>381</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>FOR TESTING PURPOSES full functionality will pull from database</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page_pos">
