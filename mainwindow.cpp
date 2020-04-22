@@ -908,7 +908,7 @@ void MainWindow::on_pushButton_home_login_clicked()
     {
         ui->label_home_warning->show();
     }
-
+}
 
 // Helper Function Definitions
     // Reset all values in membership table widget
