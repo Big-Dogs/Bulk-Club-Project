@@ -161,7 +161,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -313,7 +313,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
           <x>690</x>
@@ -614,40 +614,10 @@ color: rgb(239, 41, 41);</string>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_admin_datafields">
-         <item row="3" column="5">
-          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_year">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" colspan="6">
-          <widget class="QPushButton" name="pushButton_admin_membersubmission_submit">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_name">
            <property name="text">
-            <string>submit</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="label_admin_slash2">
-           <property name="text">
-            <string>/</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="4">
-          <widget class="QLabel" name="label_admin_slash1">
-           <property name="text">
-            <string>/</string>
+            <string>Name:</string>
            </property>
           </widget>
          </item>
@@ -658,78 +628,45 @@ color: rgb(239, 41, 41);</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="5">
-          <widget class="QRadioButton" name="radioButton">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_admin_membersubmission_executive">
            <property name="text">
-            <string/>
+            <string>Executive Status:</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_admin_membersubmission_name">
-           <property name="text">
-            <string>Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_day">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_executive"/>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_admin_membersubmission_date">
            <property name="text">
-            <string>Date (MM/DD/YYYY):</string>
+            <string>Date:</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="7">
+         <item row="4" column="0" colspan="2">
+          <widget class="QPushButton" name="pushButton_admin_membersubmission_submit">
+           <property name="text">
+            <string>submit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_date"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_id"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_name"/>
+         </item>
+         <item row="4" column="2">
           <widget class="QPushButton" name="pushButton_admin_membersubmission_cancel">
            <property name="text">
             <string>cancel</string>
            </property>
           </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_month">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_admin_membersubmission_executive">
-           <property name="text">
-            <string>Executive Member:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="5">
-          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_name"/>
-         </item>
-         <item row="0" column="5">
-          <widget class="QLineEdit" name="lineEdit_admin_membersubmission_id"/>
          </item>
         </layout>
        </widget>
@@ -1010,7 +947,7 @@ color: rgb(239, 41, 41);</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
