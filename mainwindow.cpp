@@ -356,9 +356,11 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
 
         ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
 
+        ui->tableView_admin_inventory->setSelectionBehavior(QAbstractItemView::SelectRows);
+
         //connecting to dataChanged and currentChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-        QObject::connect(ui->tableView_admin_inventory, &QTableView::currentChanged, this, &MainWindow::on_tableView_item_currentChanged);
+        QObject::connect(ui->tableView_admin_inventory, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
 
 
         //Disabling edit and delete functionality since no item is selected
@@ -1531,7 +1533,7 @@ void MainWindow::on_tableView_admin_inventory_pressed(const QModelIndex &index)
     qDebug() << "pressed";
 }
 
-void on_tableView_item_currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void MainWindow::on_tableView_item_currentChanged(int row)
 {
     qDebug() << "current changed";
 }
