@@ -149,6 +149,8 @@ private slots:
     void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                    const QVector<int> &roles);
 
+    void on_tableView_admin_inventory_pressed(const QModelIndex &index);
+
 private:
     /* This function capitalize the first letter of
      * every word and set all other letters to lower

@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
-    ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
 
     ui->gridWidget_admin_memberdatafields->hide();
@@ -327,6 +326,7 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
         ui->label_admin_products_errormessage->setVisible(false);
 
         ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
+        ui->gridWidget_admin_itemdatafields->setVisible(false);
 
         //set up model
         if (itemModel != nullptr)
@@ -357,9 +357,15 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
         ui->tableView_admin_inventory->resizeColumnToContents(PRODUCT_NAME_COLUMN);
 
         ui->tableView_admin_inventory->setEditTriggers(QAbstractItemView::AnyKeyPressed);
+      
+        ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
 
         //connecting to dataChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
+
+        //Disabling edit and delete functionality since no item is selected
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_deleteitem->setEnabled(false);
     }
 
 
@@ -473,6 +479,17 @@ void MainWindow::on_pushButton_admin_additem_clicked() //add item button
     ui->gridWidget_admin_itemdatafields->show();
     ui->pushButton_admin_deleteitem->setEnabled(false);
     ui->pushButton_admin_edititem->setEnabled(false);
+    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+
+    //setting up line edit for input
+    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
+
+    ui->lineEdit_admin_itemsubmission_id->setText(QString());
+    ui->lineEdit_admin_itemsubmission_name->setText(QString());
+    ui->lineEdit_admin_itemsubmission_price->setText(QString());
 
     itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
 
@@ -489,9 +506,29 @@ void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
 
 void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
 {
+    //Variables
+    QString     confirmDeleteMessage; //The message display to confirm the deletion
+    QModelIndex deleteProduct;        //The index of the product being deleted
+
     ui->gridWidget_admin_confirmdeleteitem->show();
     ui->pushButton_admin_edititem->setEnabled(false);
     ui->pushButton_admin_additem->setEnabled(false);
+
+    deleteProduct = ui->tableView_admin_inventory->currentIndex();
+
+    deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
+
+    confirmDeleteMessage = "Delete ";
+    confirmDeleteMessage.append(deleteProduct.data().toString());
+    confirmDeleteMessage.append('?');
+    ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
+
+    bool deleteError = itemModel->removeRow(deleteProduct.row());
+
+    if (!deleteError)
+    {
+        qDebug() << itemModel->lastError().text();
+    }
 }
 
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
@@ -546,7 +583,7 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
         qDebug() << input.data().toString();
         itemModel->setData(input, QVariant(normalizeCapitalization(input.data().toString())));
         qDebug() << input.data().toString();
-
+      
         bool submitError = itemModel->submitAll();
 
         if (!submitError)
@@ -598,9 +635,7 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
 void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels add/edit
 {
     ui->gridWidget_admin_itemdatafields->hide();
-    ui->pushButton_admin_deleteitem->setEnabled(true);
     ui->pushButton_admin_additem->setEnabled(true);
-    ui->pushButton_admin_edititem->setEnabled(true);
 
     //Clearing line edits
     ui->lineEdit_admin_itemsubmission_id->setText(QString());
@@ -617,17 +652,23 @@ void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels 
 void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms delete
 {
     ui->gridWidget_admin_confirmdeleteitem->hide();
-    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->gridWidget_admin_itemdatafields->setVisible(false);
+    ui->pushButton_admin_deleteitem->setEnabled(false); //no item will be selected
     ui->pushButton_admin_additem->setEnabled(true);
-    ui->pushButton_admin_edititem->setEnabled(true);
+
+    itemModel->submitAll();
 }
 
 void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delete
 {
     ui->gridWidget_admin_confirmdeleteitem->hide();
-    ui->pushButton_admin_deleteitem->setEnabled(true);
+    ui->gridWidget_admin_itemdatafields->setVisible(false);
+    ui->pushButton_admin_deleteitem->setEnabled(false); //no item will be selected
     ui->pushButton_admin_additem->setEnabled(true);
-    ui->pushButton_admin_edititem->setEnabled(true);
+
+    itemModel->revertAll();
+
+    itemModel->select();
 }
 
 void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &index) // double click admin inventory table
@@ -1400,12 +1441,42 @@ void MainWindow::on_lineEdit_admin_itemsubmission_price_textEdited(const QString
 
 void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 {
+    //Constant
+    const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
+    const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
+    const int PRODUCT_PRICE_COLUMN = 2; //The column for the product price
+
+    //Variables
+    QModelIndex productData; //The QModelIndex use to reflect the product
+                             //data currently being processed
+
     qDebug() << "Activated";
     //checking if table model is clean or dirty
     //dirty means data is being added, updated, or deleted
     if (!itemModel->isDirty())
     {
+        //Displaying data of selected item
+        ui->gridWidget_admin_itemdatafields->setVisible(true);
+        ui->pushButton_admin_itemsubmission_submit->setVisible(false);
+        ui->pushButton_admin_itemsubmission_cancel->setVisible(false);
 
+        productData = index.sibling(index.row(), PRODUCT_ID_COLUMN);
+        ui->lineEdit_admin_itemsubmission_id->setText(productData.data().toString());
+
+        productData = index.sibling(index.row(), PRODUCT_NAME_COLUMN);
+        ui->lineEdit_admin_itemsubmission_name->setText(productData.data().toString());
+
+        productData = index.sibling(index.row(), PRODUCT_PRICE_COLUMN);
+        ui->lineEdit_admin_itemsubmission_price->setText(productData.data().toString());
+
+        //making data uneditable
+        ui->lineEdit_admin_itemsubmission_id->setReadOnly(true);
+        ui->lineEdit_admin_itemsubmission_name->setReadOnly(true);
+        ui->lineEdit_admin_itemsubmission_price->setReadOnly(true);
+
+        //enable edit and delete functionality
+        ui->pushButton_admin_edititem->setEnabled(true);
+        ui->pushButton_admin_deleteitem->setEnabled(true);
     }
     else
     {
@@ -1423,7 +1494,7 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
                                                                "this item before moving on.");
                 ui->label_admin_products_errormessage->setVisible(true);
 
-                ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+                ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, itemModel->fieldIndex("productID")));
             }
         }
 
@@ -1434,7 +1505,9 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 
         if (ui->pushButton_admin_deleteitem->isEnabled())
         {
+            qDebug() << "current: " << ui->tableView_admin_inventory->currentIndex().row();
 
+            qDebug() << "index: " << index.row();
         }
     }
 }
@@ -1499,4 +1572,9 @@ void MainWindow::on_tableModel_dataChanged(const QModelIndex &topLeft, const QMo
             ui->lineEdit_admin_itemsubmission_price->setText(selectedRow.data().toString());
         }
     }
+}
+
+void MainWindow::on_tableView_admin_inventory_pressed(const QModelIndex &index)
+{
+    qDebug() << "pressed";
 }
