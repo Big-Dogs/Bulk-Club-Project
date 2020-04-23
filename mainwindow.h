@@ -151,6 +151,8 @@ private slots:
 
     void on_tableView_admin_inventory_pressed(const QModelIndex &index);
 
+    void on_pushButton_home_login_clicked();
+
 private:
     /* This function capitalize the first letter of
      * every word and set all other letters to lower
@@ -195,26 +197,21 @@ private:
         QString expirationDate;
     };
 
-    // For use in 'Recommend Downgrades' feature
-    struct Member // Struct to hold executive member information
-    {
-        QString memberID;
-        QString name;
-        QString amountSpent;
-    };
-    QVector<Member> executiveAr; // executive member array
-    QStringList executiveMemberIDList; // list of executive member's IDs
+
+    // For use in upgrade/downgrade features
+    float rebateAmount = 0.0; // member's rebate received
     int downgradeCount = 0; // number of downgrade recommendations on QStringList
-    int downgradeIndex = 0;
-    Member execTemp;
-
-
-    // For use in 'Recommend Upgrades' feature
-    QVector<Member> regularAr; // regular member array
-    QStringList regularMemberIDList; // list of regular member's IDs
     int upgradeCount = 0; // number of downgrade recommendations on QStringList
-    int upgradeIndex = 0;
-    Member regTemp;
+    const int TABLE_WIDGET_COLS = 4; // number of columns on tablewidget
+    const float REBATE_RATE = 0.02;      // rebate rate for calculation
+    const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
+    QStringList tableWidgetColumnNames = {
+        "Membership Number",
+        "Member Name",
+        "Amount Spent",
+        "Rebate Amount"
+    };
+
 
     // Enum to keep track of all program pages
     enum Pages
@@ -243,9 +240,28 @@ private:
         ADMIN_ITEM,
     };
 
+    // Enum to keep track of upgrade/downgrade feature columns
+    enum MembershipTableWidgetColumns
+    {
+        MEMBERSHIP_NUMBER,
+        MEMBER_NAME,
+        AMT_SPENT,
+        REBATE_AMOUNT
+    };
 
 
 
+
+    // Helper Function Prototypes
+
+        // Reset all values in membership table widget
+    void InitializeMembershipTableWidget();
+
+        // Print suggested upgrades report
+    void PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases);
+
+        // Print suggested downgrades report
+    void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
 
 
 };

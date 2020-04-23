@@ -2,6 +2,10 @@
 #include "ui_mainwindow.h"
 
 
+
+
+
+// Window Initialization
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -25,7 +29,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     formatPrice = new MoneyDelegate;
 
+
+
+
     // Create Executive Member Vector
+
+
 
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
@@ -37,6 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
+    ui->label_home_warning->hide();
+
+    index = 0;
+    setPermissions(index);
+
+    ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
 
     ui->gridWidget_admin_memberdatafields->hide();
@@ -98,18 +113,28 @@ void MainWindow::setPermissions(int permission)
 {
     if(permission == 0)
     {
+        ui->pushButton_POS->setEnabled(false);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
     }
     else if (permission == 1)
     {
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
     }
     else if (permission == 2)
     {
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(false);
+    }
+    else if (permission == 3)
+    {
+        ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(true);
@@ -118,19 +143,19 @@ void MainWindow::setPermissions(int permission)
 
 void MainWindow::on_pushButton_employeepermissions_clicked()
 {
-    index = 0;
+    index = 1;
     setPermissions(index);
 }
 
 void MainWindow::on_pushButton_managerpermissions_clicked()
 {
-    index = 1;
+    index = 2;
     setPermissions(index);
 }
 
 void MainWindow::on_pushButton_adminpermissions_clicked()
 {
-    index = 2;
+    index = 3;
     setPermissions(index);
 }
 
@@ -139,6 +164,8 @@ void MainWindow::on_pushButton_adminpermissions_clicked()
 void MainWindow::on_pushButton_home_clicked() // home page
 {
     ui->stackedWidget_main->setCurrentIndex(HOME);
+    index = 0;
+    setPermissions(index);
 }
 
 void MainWindow::on_pushButton_POS_clicked() // POS page
@@ -409,8 +436,8 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
     tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
+    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
+    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
     if(tempMemberAdd.executiveStatus == "executive")
         memberType = "Executive";
@@ -686,14 +713,8 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 
     //clears the information from other vertical stackwidget tabs
     ui->tableWidget_membership->setRowCount(0);
-    executiveMemberIDList.clear();
-    executiveAr.clear();
-    regularMemberIDList.clear();
-    regularAr.clear();
     upgradeCount = 0;
     downgradeCount = 0;
-    upgradeIndex = 0;
-    downgradeIndex = 0;
 
 
     ExecutiveMemberRebate tempMember;
@@ -879,265 +900,34 @@ void MainWindow::on_pushButton_membership_expire_clicked()
 
 void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades list
 {
-    ui->tableWidget_membership->show();
-    ui->gridWidget_membership_expire->hide();
+    // Reset all values
+    InitializeMembershipTableWidget();
 
-    // wipe existing data on table
-    ui->tableWidget_membership->setRowCount(0);
-    executiveMemberIDList.clear();
-    executiveAr.clear();
-    regularMemberIDList.clear();
-    regularAr.clear();
-    upgradeCount = 0;
-    downgradeCount = 0;
-    upgradeIndex = 0;
-    downgradeIndex = 0;
+    // Get Regular Member ID List
+    QStringList regularMemberIDList = database->GetRegularMemberIDList();
 
-    QSqlQuery query;
-    query.prepare("select memberID from members where memberType='Regular'");
+    // Get Regular Member Purchases
+    QVector<Database::Member> regularMemberPurchases =
+            database->GetRegularMemberPurchases(regularMemberIDList);
 
-    // Execute Query
-    if(query.exec())
-    {
-        // iterate through and pull ids
-        while(query.next())
-        {
-            regularMemberIDList.insert(upgradeIndex, query.value(0).toString());
-            upgradeIndex++;
-        }
-
-        // DEBUG: print list
-        for(upgradeIndex = 0; upgradeIndex < regularMemberIDList.size(); upgradeIndex++)
-        {
-            qDebug() << regularMemberIDList[upgradeIndex];
-        }
-    }
-    else // if unsuccessful, print error
-    {
-        qDebug() << query.lastError().text();
-    }
-
-    // use executiveMemberID to pull purchase data from db into vector
-    query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
-                  "FROM members, purchases, products "
-                  "WHERE members.memberID = purchases.memberID "
-                  "AND purchases.productID = products.productID "
-                  "AND members.memberID = :memberID");
-
-    // If vector empty
-    if(regularAr.empty())
-    {
-        // Iterate through ID list, calling each member's purchases
-        for(upgradeIndex = 0; upgradeIndex < regularMemberIDList.size(); upgradeIndex++)
-        {
-            query.bindValue(":memberID", regularMemberIDList[upgradeIndex]);
-
-            // Execute Query
-            if(query.exec())
-            {
-                // Iterate through query data and pull purchase information into vector
-                while(query.next())
-                {
-                    if(query.value(0).toString() != "")
-                    {
-                        // Copy into temp object
-                        regTemp.memberID = query.value(0).toString();
-                        regTemp.name = query.value(1).toString();
-                        regTemp.amountSpent = query.value(2).toString();
-
-                        // Add object to vector
-                        regularAr.append(regTemp);
-                    }
-                }
-            }
-            else // if unsuccessful, print error
-            {
-                qDebug() << query.lastError().text();
-            }
-        }
-    }
-
-   // Print entire vector
-   for(upgradeIndex = 0; upgradeIndex < regularAr.count(); upgradeIndex++)
-   {
-       qDebug() << "PRINTING PERSON #" << upgradeIndex + 1;
-       qDebug() << regularAr[upgradeIndex].memberID;
-       qDebug() << regularAr[upgradeIndex].name;
-       qDebug() << regularAr[upgradeIndex].amountSpent;
-   }
-
-   // Initializing tableWidget
-   enum { MEMBERSHIP_NUMBER, MEMBER_NAME, AMT_SPENT, REBATE_AMOUNT };
-   QStringList columns;
-   ui->tableWidget_membership->setColumnCount(4);
-   columns << "Membership Number" << "Member Name" << "Amount Spent" << "Rebate Amount";
-   ui->tableWidget_membership->setHorizontalHeaderLabels(columns);
-
-
-   float rebateAmount = 0.0;            // member's rebate received
-   const float REBATE_RATE = 0.02;      // rebate rate for calculation
-   const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
-
-   // loop through purchases to collect all people. add to tableWidget if <65
-   if(upgradeCount == 0)
-   {
-       for(upgradeIndex = 0; upgradeIndex < regularAr.count(); upgradeIndex++)
-       {
-           // Calculate estimated rebate
-           rebateAmount = regularAr[upgradeIndex].amountSpent.toFloat() * REBATE_RATE;
-
-           // If rebateAmount under rebateMin, add to recommendations
-           if(rebateAmount > REBATE_MIN)
-           {
-               ui->tableWidget_membership->insertRow(upgradeCount);
-               ui->tableWidget_membership->setItem(upgradeCount, MEMBERSHIP_NUMBER,
-                                                   new QTableWidgetItem(regularAr[upgradeIndex].memberID));
-               ui->tableWidget_membership->setItem(upgradeCount, MEMBER_NAME,
-                                                   new QTableWidgetItem(regularAr[upgradeIndex].name));
-               ui->tableWidget_membership->setItem(upgradeCount, AMT_SPENT,
-                                                   new QTableWidgetItem(QString::number(regularAr[upgradeIndex].amountSpent.toFloat(), 'f', 2)));
-               ui->tableWidget_membership->setItem(upgradeCount, REBATE_AMOUNT,
-                                                   new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
-               upgradeCount++;
-           }
-       }
-   }
-
-   // Set label to display number of recommendations
-   QString labelText = "Number of recommended membership upgrades: " + QString::number(upgradeCount);
-   ui->label_membership_recommendation_status->setText(labelText);
+    // Print Suggested Upgrade Report
+    PrintUpgradeReport(regularMemberPurchases);
 }
 
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
-    ui->tableWidget_membership->show();
-    ui->gridWidget_membership_expire->hide();
+    // Reset all values
+    InitializeMembershipTableWidget();
 
-    // wipe existing data on table
-    ui->tableWidget_membership->clear();
-    ui->tableWidget_membership->setRowCount(0);
-    executiveMemberIDList.clear();
-    executiveAr.clear();
-    regularMemberIDList.clear();
-    regularAr.clear();
-    upgradeCount = 0;
-    downgradeCount = 0;
-    upgradeIndex = 0;
-    downgradeIndex = 0;
+    // Get Executive Member ID List
+    QStringList executiveMemberIDList = database->GetExecutiveMemberIDList();
 
-    QSqlQuery query;
-    query.prepare("select memberID from members where memberType='Executive'");
+    // Get Regular Member Purchases
+    QVector<Database::Member> executiveMemberPurchases =
+            database->GetExecutiveMemberPurchases(executiveMemberIDList);
 
-    // Execute Query
-    if(query.exec())
-    {
-        // iterate through and pull ids
-        while(query.next())
-        {
-            executiveMemberIDList.insert(downgradeIndex, query.value(0).toString());
-            downgradeIndex++;
-        }
-
-        // DEBUG: print list
-        for(downgradeIndex = 0; downgradeIndex < executiveMemberIDList.size(); downgradeIndex++)
-        {
-            qDebug() << executiveMemberIDList[downgradeIndex];
-        }
-    }
-    else // if unsuccessful, print error
-    {
-        qDebug() << query.lastError().text();
-    }
-
-    // use executiveMemberID to pull purchase data from db into vector
-    query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
-                  "FROM members, purchases, products "
-                  "WHERE members.memberID = purchases.memberID "
-                  "AND purchases.productID = products.productID "
-                  "AND members.memberID = :memberID");
-
-    // If vector empty
-    if(executiveAr.empty())
-    {
-        // Iterate through ID list, calling each member's purchases
-        for(downgradeIndex = 0; downgradeIndex < executiveMemberIDList.size(); downgradeIndex++)
-        {
-            query.bindValue(":memberID", executiveMemberIDList[downgradeIndex]);
-
-            // Execute Query
-            if(query.exec())
-            {
-                // Iterate through query data and pull purchase information into vector
-                while(query.next())
-                {
-                    if(query.value(0).toString() != "")
-                    {
-                        // Copy into temp object
-                        execTemp.memberID = query.value(0).toString();
-                        execTemp.name = query.value(1).toString();
-                        execTemp.amountSpent = query.value(2).toString();
-
-                        // Add object to vector
-                        executiveAr.append(execTemp);
-                    }
-                }
-            }
-            else // if unsuccessful, print error
-            {
-                qDebug() << query.lastError().text();
-            }
-        }
-    }
-
-   // Print entire vector
-   for(downgradeIndex = 0; downgradeIndex < executiveAr.count(); downgradeIndex++)
-   {
-       qDebug() << "PRINTING PERSON #" << downgradeIndex + 1;
-       qDebug() << executiveAr[downgradeIndex].memberID;
-       qDebug() << executiveAr[downgradeIndex].name;
-       qDebug() << executiveAr[downgradeIndex].amountSpent;
-   }
-
-   // Initializing tableWidget
-   enum { MEMBERSHIP_NUMBER, MEMBER_NAME, AMT_SPENT, REBATE_AMOUNT };
-   QStringList columns;
-   ui->tableWidget_membership->setColumnCount(4);
-   columns << "Membership Number" << "Member Name" << "Amount Spent" << "Rebate Amount";
-   ui->tableWidget_membership->setHorizontalHeaderLabels(columns);
-
-
-   float rebateAmount = 0.0;            // member's rebate received
-   const float REBATE_RATE = 0.02;      // rebate rate for calculation
-   const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
-
-   // loop through purchases to collect all people. add to tableWidget if <65
-   if(downgradeCount == 0)
-   {
-       for(downgradeIndex = 0; downgradeIndex < executiveAr.count(); downgradeIndex++)
-       {
-           // Calculate estimated rebate
-           rebateAmount = executiveAr[downgradeIndex].amountSpent.toFloat() * REBATE_RATE;
-
-           // If rebateAmount under rebateMin, add to recommendations
-           if(rebateAmount < REBATE_MIN)
-           {
-               ui->tableWidget_membership->insertRow(downgradeCount);
-               ui->tableWidget_membership->setItem(downgradeCount, MEMBERSHIP_NUMBER,
-                                                   new QTableWidgetItem(executiveAr[downgradeIndex].memberID));
-               ui->tableWidget_membership->setItem(downgradeCount, MEMBER_NAME,
-                                                   new QTableWidgetItem(executiveAr[downgradeIndex].name));
-               ui->tableWidget_membership->setItem(downgradeCount, AMT_SPENT,
-                                                   new QTableWidgetItem(QString::number(executiveAr[downgradeIndex].amountSpent.toFloat(), 'f', 2)));
-               ui->tableWidget_membership->setItem(downgradeCount, REBATE_AMOUNT,
-                                                   new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
-               downgradeCount++;
-           }
-       }
-   }
-
-   // Set label to display number of recommendations
-   QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
-   ui->label_membership_recommendation_status->setText(labelText);
+    // Print Suggested Downgrade Report
+    PrintDowngradeReport(executiveMemberPurchases);
 }
 
 /*----POS Page push buttons----*/
@@ -1300,8 +1090,119 @@ void MainWindow::ClearMemberFields()
 {
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
-    ui->lineEdit_admin_membersubmission_executive->clear();
-    ui->lineEdit_admin_membersubmission_date->clear();
+    //ui->lineEdit_admin_membersubmission_executive->clear();
+    //ui->lineEdit_admin_membersubmission_date->clear();
+}
+
+
+/*----Home Page push buttons----*/
+void MainWindow::on_pushButton_home_login_clicked()
+{
+    QString username = ui->lineEdit_home_username->text();
+    QString password = ui->lineEdit_home_password->text();
+
+    ui->label_home_warning->hide();
+
+    if (username == "employee" &&
+        password == "test")
+    {
+        index = 1;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+    }
+    else if (username == "manager" &&
+        password == "test")
+    {
+        index = 2;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
+    }
+    else if (username == "admin" &&
+        password == "test")
+    {
+        index = 3;
+        setPermissions(index);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+    }
+    else
+    {
+        ui->label_home_warning->show();
+    }
+}
+
+// Helper Function Definitions
+    // Reset all values in membership table widget
+void MainWindow::InitializeMembershipTableWidget()
+{
+    ui->tableWidget_membership->show();
+    ui->gridWidget_membership_expire->hide();
+    ui->tableWidget_membership->setRowCount(0);
+    upgradeCount = 0;
+    downgradeCount = 0;
+    rebateAmount = 0.0; // member's rebate received
+    ui->tableWidget_membership->setColumnCount(TABLE_WIDGET_COLS);
+    ui->tableWidget_membership->setHorizontalHeaderLabels(tableWidgetColumnNames);
+}
+
+    // Print suggested upgrades report
+void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases)
+{
+    // loop through purchases to collect all people. add to tableWidget if <65
+    for(int index = 0; index < regularMemberPurchases.count(); index++)
+    {
+        // Calculate estimated rebate
+        rebateAmount = regularMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
+
+        // If rebateAmount under rebateMin, add to recommendations
+        if(rebateAmount > REBATE_MIN)
+        {
+            ui->tableWidget_membership->insertRow(upgradeCount);
+            ui->tableWidget_membership->setItem(upgradeCount, MEMBERSHIP_NUMBER,
+                                                new QTableWidgetItem(regularMemberPurchases[index].memberID));
+            ui->tableWidget_membership->setItem(upgradeCount, MEMBER_NAME,
+                                                new QTableWidgetItem(regularMemberPurchases[index].name));
+            ui->tableWidget_membership->setItem(upgradeCount, AMT_SPENT,
+                                                new QTableWidgetItem(QString::number(regularMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
+            ui->tableWidget_membership->setItem(upgradeCount, REBATE_AMOUNT,
+                                                new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+            upgradeCount++;
+        }
+    }
+
+    // Set label to display number of recommendations
+    QString labelText = "Number of recommended membership upgrades: " + QString::number(upgradeCount);
+    ui->label_membership_recommendation_status->setText(labelText);
+}
+
+    // Print suggested downgrades report
+void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases)
+{
+    // loop through purchases to collect all people. add to tableWidget if <65
+    for(int index = 0; index < executiveMemberPurchases.count(); index++)
+    {
+        // Calculate estimated rebate
+        rebateAmount = executiveMemberPurchases[index].amountSpent.toFloat() * REBATE_RATE;
+
+        // If rebateAmount under rebateMin, add to recommendations
+        if(rebateAmount < REBATE_MIN)
+        {
+            ui->tableWidget_membership->insertRow(downgradeCount);
+            ui->tableWidget_membership->setItem(downgradeCount, MEMBERSHIP_NUMBER,
+                                                new QTableWidgetItem(executiveMemberPurchases[index].memberID));
+            ui->tableWidget_membership->setItem(downgradeCount, MEMBER_NAME,
+                                                new QTableWidgetItem(executiveMemberPurchases[index].name));
+            ui->tableWidget_membership->setItem(downgradeCount, AMT_SPENT,
+                                                new QTableWidgetItem(QString::number(executiveMemberPurchases[index].amountSpent.toFloat(), 'f', 2)));
+            ui->tableWidget_membership->setItem(downgradeCount, REBATE_AMOUNT,
+                                                new QTableWidgetItem(QString::number(rebateAmount, 'f', 2)));
+            downgradeCount++;
+        }
+    }
+
+    // Set label to display number of recommendations
+    QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
+    ui->label_membership_recommendation_status->setText(labelText);
+
 }
 
 void MainWindow::on_stackedWidget_admin_currentChanged(int arg1)
