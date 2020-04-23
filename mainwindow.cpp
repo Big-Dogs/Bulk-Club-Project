@@ -61,11 +61,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     //id
     productIdValidator = new QIntValidator;
+    productIdValidator->setBottom(1);
     ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
 
     //price
     productPriceValidator = new QDoubleValidator;
     productPriceValidator->setDecimals(2);
+    productIdValidator->setBottom(0.01);
     ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
@@ -354,6 +356,8 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
 
         ui->tableView_admin_inventory->resizeColumnToContents(PRODUCT_NAME_COLUMN);
 
+        ui->tableView_admin_inventory->setEditTriggers(QAbstractItemView::AnyKeyPressed);
+      
         ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
 
         ui->tableView_admin_inventory->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -534,9 +538,9 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
 {
     //Constant
-//    const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
+    const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
     const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
-//    const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
+    const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
 
     //Variable
     bool inputIsValid = true;  //A bool that is true if the user input
@@ -549,49 +553,80 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
     input = ui->tableView_admin_inventory->currentIndex();
 
     //Validating product id
-//    input = input.model()->index(input.row(), PRODUCT_ID_COLUMN);
-    //nothing to validate here
+    input = input.model()->index(input.row(), PRODUCT_ID_COLUMN);
+
+    if (input.data().toInt() < 0)
+    {
+        errorMessage.append("Please enter a positive value for the id \n");
+
+        inputIsValid = false;
+    }
+
+    //Validating product price
+    input = input.model()->index(input.row(), PRODUCT_PRICE_COLUMN);
+
+    if (input.data().toDouble() <= 0.0)
+    {
+        errorMessage.append("Please enter a positive value for the price \n");
+
+        inputIsValid = false;
+    }
 
     //Validating product name
     input = input.model()->index(input.row(), PRODUCT_NAME_COLUMN);
 
-    if (input.data().isNull())
+    if (input.data().toString() == QString())
     {
         errorMessage.append(("Please enter a product name \n"));
 
         inputIsValid = false;
     }
 
-    //Validating product price
-//    input = input.model()->index(input.row(), PRODUCT_PRICE_COLUMN);
-    //nothing to validate here
-
-
     if (inputIsValid)
     {
         qDebug() << input.data().toString();
         itemModel->setData(input, QVariant(normalizeCapitalization(input.data().toString())));
         qDebug() << input.data().toString();
-
-        ui->gridWidget_admin_itemdatafields->hide();
-        ui->pushButton_admin_additem->setEnabled(true);
-
-        //Clearing line edits
-        ui->lineEdit_admin_itemsubmission_id->setText(QString());
-        ui->lineEdit_admin_itemsubmission_name->setText(QString());
-        ui->lineEdit_admin_itemsubmission_price->setText(QString());
-
+      
         bool submitError = itemModel->submitAll();
 
         if (!submitError)
         {
             qDebug() << itemModel->lastError().text();
+
+            if (itemModel->lastError().text() == "UNIQUE constraint failed: products.name Unable to fetch row")
+            {
+                ui->label_admin_products_errormessage->setText("Product name isn't unique, please enter \n"
+                                                               "another name");
+
+                ui->label_admin_products_errormessage->setVisible(true);
+            }
+
+            if (itemModel->lastError().text() == "UNIQUE constraint failed: products.productID Unable to fetch row")
+            {
+                ui->label_admin_products_errormessage->setText("Product id isn't unique, please enter \n"
+                                                               "another id");
+
+                ui->label_admin_products_errormessage->setVisible(true);
+            }
         }
+        else
+        {
+            ui->gridWidget_admin_itemdatafields->hide();
+            ui->pushButton_admin_deleteitem->setEnabled(true);
+            ui->pushButton_admin_additem->setEnabled(true);
+            ui->pushButton_admin_edititem->setEnabled(true);
 
-        itemModel->select();
+            //Clearing line edits
+            ui->lineEdit_admin_itemsubmission_id->setText(QString());
+            ui->lineEdit_admin_itemsubmission_name->setText(QString());
+            ui->lineEdit_admin_itemsubmission_price->setText(QString());
 
-        //Hidding error message
-        ui->label_admin_products_errormessage->setVisible(false);
+            itemModel->select();
+
+            //Hidding error message
+            ui->label_admin_products_errormessage->setVisible(false);
+        }
     }
     else
     {
@@ -1354,6 +1389,15 @@ void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &p
     //making sure the product id row is selected
     productIdIndex = productIdIndex.model()->index(productIdIndex.row(), PRODUCT_ID_COLUMN);
 
+    qDebug() << QVariant(productId).toInt();
+    if (QVariant(productId).isNull())
+    {
+        qDebug() << "null";
+    }
+    else
+    {
+        qDebug() << "not null";
+    }
     itemModel->setData(productIdIndex, QVariant(productId));
 }
 
@@ -1372,9 +1416,15 @@ void MainWindow::on_lineEdit_admin_itemsubmission_name_textEdited(const QString 
     //making sure the product id row is selected
     productNameIndex = productNameIndex.model()->index(productNameIndex.row(), PRODUCT_NAME_COLUMN);
 
-    qDebug() << "setting Data";
+    if (QVariant(productName).isNull())
+    {
+        qDebug() << "null";
+    }
+    else
+    {
+        qDebug() << "not null";
+    }
     itemModel->setData(productNameIndex, QVariant(productName));
-    qDebug() << "Data setted";
 }
 
 void MainWindow::on_lineEdit_admin_itemsubmission_price_textEdited(const QString &productPrice)
