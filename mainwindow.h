@@ -149,6 +149,8 @@ private slots:
     void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                    const QVector<int> &roles);
 
+    void on_tableView_item_currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
     void on_tableView_admin_inventory_pressed(const QModelIndex &index);
 
 private:
