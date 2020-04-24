@@ -125,6 +125,10 @@ private slots:
 
     void on_pushButton_home_login_clicked();
 
+    void on_comboBox_pos_itemlist_activated(int index);
+
+    void on_comboBox_pos_qty_activated(int index);
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
@@ -137,8 +141,6 @@ private:
     // For use in 'Search Sales by Product Name' feature
     QStringList productList; // List of all products in database
     QString salesReportProduct; // Product manager wishes to view for sales report
-
-
 
 
     //For use in 'Display Member Rebates' feature
@@ -175,6 +177,17 @@ private:
         "Amount Spent",
         "Rebate Amount"
     };
+
+
+    // For use in POS page
+    QString posItemName;
+    double posItem;
+    double posQty;
+    double posPrice;
+    double posTotal;
+    int receiptRow;
+
+    void InitializePosTable();
 
 
     // Enum to keep track of all program pages

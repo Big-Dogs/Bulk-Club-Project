@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     formatPrice = new MoneyDelegate;
 
 
+    InitializePosTable();
 
 
     // Create Executive Member Vector
@@ -40,12 +41,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
+
+
     ui->tableWidget_membership->hide();
 
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->pushButton_pos_purchase->setEnabled(false);
 
     ui->label_home_warning->hide();
 
@@ -165,8 +170,8 @@ void MainWindow::on_pushButton_POS_clicked() // POS page
             ui->comboBox_pos_qty->addItem(QString::number(i));
         }
     }
-
 }
+
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
@@ -736,13 +741,47 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
 /*----POS Page push buttons----*/
 void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 {
-    int item = ui->comboBox_pos_itemlist->currentIndex()+1;
-    int qty = ui->comboBox_pos_qty->currentIndex()+1;
 
+    ui->comboBox_pos_itemlist->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->label_pos_price->setText("");
 
-    double price = this->database->getPrice(item) * qty;
+    QTableWidgetItem *item = new QTableWidgetItem;
+    QTableWidgetItem *price = new QTableWidgetItem;
+    QTableWidgetItem *qty = new QTableWidgetItem;
+    QTableWidgetItem *total = new QTableWidgetItem;
 
-    ui->label_pos_receipt->setText(QString::number(price));
+    item->setText(posItemName);
+    price->setText(QString::number(posPrice));
+    qty->setText(QString::number(posQty));
+    total->setText(QString::number(posTotal));
+
+    ui->tableWidget_pos_receipts->insertRow(receiptRow);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 0, item);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 1, price);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 2, qty);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 3, total);
+    receiptRow++;
+
+    ui->pushButton_pos_purchase->setEnabled(false);
+
+}
+
+void MainWindow::on_comboBox_pos_itemlist_activated(int index)
+{
+    posItem = index+1;
+    posItemName = ui->comboBox_pos_itemlist->currentText();
+    ui->comboBox_pos_qty->setEnabled(true);
+
+}
+void MainWindow::on_comboBox_pos_qty_activated(int index)
+{
+    posQty = index + 1;
+    posPrice = this->database->getPrice(posItem);
+    posTotal = posPrice * posQty;
+    ui->label_pos_price->setText(QString::number(posTotal));
+    ui->pushButton_pos_purchase->setEnabled(true);
 }
 
 
@@ -1013,3 +1052,18 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     ui->label_membership_recommendation_status->setText(labelText);
 
 }
+
+//initialize pos table
+void MainWindow::InitializePosTable()
+{
+    QStringList TableHeader;
+    ui->tableWidget_pos_receipts->setColumnCount(4);
+    TableHeader << "Item" << "Price" << "qty" << "Total";
+    ui->tableWidget_pos_receipts->setHorizontalHeaderLabels(TableHeader);
+    ui->tableWidget_pos_receipts->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget_pos_receipts->setShowGrid(false);
+    ui->tableWidget_pos_receipts->verticalHeader()->setVisible(false);
+    ui->tableWidget_pos_receipts->setColumnWidth(0, 300);
+    receiptRow = 0;
+}
+
