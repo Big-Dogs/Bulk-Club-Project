@@ -534,6 +534,13 @@ void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
     ui->gridWidget_admin_itemdatafields->show();
     ui->pushButton_admin_deleteitem->setEnabled(false);
     ui->pushButton_admin_additem->setEnabled(false);
+    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+
+    //setting up line edit for input
+    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 }
 
 void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
