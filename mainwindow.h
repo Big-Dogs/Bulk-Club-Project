@@ -129,6 +129,8 @@ private slots:
 
     void on_comboBox_pos_qty_activated(int index);
 
+    void on_comboBox_pos_memberlist_activated(int index);
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
@@ -181,13 +183,13 @@ private:
 
     // For use in POS page
     QString posItemName;
-    double posItem;
-    double posQty;
+    QString posDate;
+    int posMemberID;
+    int posItem;
+    int posQty;
     double posPrice;
     double posTotal;
     int receiptRow;
-
-    void InitializePosTable();
 
 
     // Enum to keep track of all program pages
@@ -239,6 +241,13 @@ private:
 
         // Print suggested downgrades report
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
+
+        //initialize pos table
+    void InitializePosTable();
+
+        //prints a receipt in pos page
+    void printReceipt();
+
 
 
 };

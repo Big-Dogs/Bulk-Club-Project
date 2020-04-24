@@ -353,5 +353,54 @@ QStringList Database::getNames()
     return itemNames;
 }
 
+QStringList Database::getPOSMembers()
+{
+    QStringList memberNames;
+    int index = 0;
+
+    QSqlQuery query;
+
+    //retrieves item names
+       //query database to match item name to item number
+    query.prepare("select memberID from members");
+    //if it does match
+        //return names
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            memberNames.insert(index, query.value(0).toString());
+            index++;
+        }
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return memberNames;
+}
+
+void Database::addPurchase(int memberID, int productID, QString datePurchased, int qty)
+{
+
+    QSqlQuery query;
+
+    query.prepare("INSERT INTO purchases "
+                  "(memberID, productID, "
+                  "datePurchased, qty)"
+                  "VALUES(?,?,?,?)");
+
+    query.addBindValue(memberID);
+    query.addBindValue(productID);
+    query.addBindValue(datePurchased);
+    query.addBindValue(qty);
+
+    if(!query.exec())
+        qDebug() << "Purchase could not be added.";
+}
+
 // Destructor
 Database::~Database() {}

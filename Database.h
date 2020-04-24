@@ -63,6 +63,10 @@ public:
 
     QStringList getNames();
 
+    QStringList getPOSMembers();
+
+    void addPurchase(int memberID, int productID, QString datePurchased, int qty);
+
     // Destructor
     ~Database();
 
