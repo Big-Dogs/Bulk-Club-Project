@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     Database.cpp \
     MembershipTableModel.cpp \
+    SalesTableModel.cpp \
     loginwindow.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 HEADERS += \
     Database.h \
     MembershipTableModel.h \
+    SalesTableModel.h \
     loginwindow.h \
     mainwindow.h \
     debugflags.h \

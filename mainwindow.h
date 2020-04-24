@@ -7,6 +7,7 @@
 #include <QSqlDriver>
 #include "Database.h"
 #include "MembershipTableModel.h"
+#include "SalesTableModel.h"
 #include "debugflags.h"
 #include "moneydelegate.h"
 
@@ -48,6 +49,8 @@ private slots:
     void on_pushButton_sales_clicked();
 
         void on_pushButton_sales_daily_clicked();
+
+            void on_pushButton_sale_byday_clicked();
 
         void on_pushButton_sales_sortmember_clicked();
 
@@ -115,7 +118,7 @@ private slots:
 
 
 
-            void on_pushButton_sale_byday_clicked();
+
 
             void on_pushButton_membership_expire_clicked();
 
@@ -176,6 +179,8 @@ private:
         "Rebate Amount"
     };
 
+    // For use in daily sales
+    SalesTableModel *salesModel;
 
     // Enum to keep track of all program pages
     enum Pages
@@ -226,6 +231,9 @@ private:
 
         // Print suggested downgrades report
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
+
+        //initializes sales by day table view
+    void InitializeSalesTableView();
 
 
 };

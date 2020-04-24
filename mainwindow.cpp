@@ -66,6 +66,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_sales_searchmembererrormessage->setVisible(false);
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
+    InitializeSalesTableView(); //initializes daily sales report
+
+
+
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
 }
@@ -143,15 +147,41 @@ void MainWindow::on_pushButton_home_clicked() // home page
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
+
 }
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
+
+/*----Sales Window push buttons----*/
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    }
+
+    void MainWindow::on_pushButton_sale_byday_clicked()
+    {
+        // Filter expiration by month
+        switch(ui->comboBox_sales_byday->currentIndex())
+        {
+            case SalesTableModel::TWELFTH       : salesModel->setFilter("datePurchased like '3/12%'");
+                                                   break;
+            case SalesTableModel::THIRTEENTH    : salesModel->setFilter("datePurchased like '3/13%'");
+                                                   break;
+            case SalesTableModel::FOURTEENTH    : salesModel->setFilter("datePurchased like '3/14%'");
+                                                   break;
+            case SalesTableModel::FIFTEENTH     : salesModel->setFilter("datePurchased like '3/15%'");
+                                                   break;
+            case SalesTableModel::SIXTEENTH     : salesModel->setFilter("datePurchased like '3/16%'");
+                                                   break;
+            case SalesTableModel::SEVENTEENTH   : salesModel->setFilter("datePurchased like '3/17%'");
+                                                   break;
+            case SalesTableModel::EIGHTEENTH    : salesModel->setFilter("datePurchased like '3/18%'");
+                                                   break;
+        }
+
     }
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
@@ -848,10 +878,7 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
     ui->tableView_sales_searchitem->setModel(model);
 }
 
-void MainWindow::on_pushButton_sale_byday_clicked()
-{
 
-}
 
 /**
  * @brief MainWindow::TextCompleter
@@ -983,4 +1010,30 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
     ui->label_membership_recommendation_status->setText(labelText);
 
+}
+
+void MainWindow::InitializeSalesTableView()
+{
+    //sales by day combo box
+    if(ui->comboBox_sales_byday->count() == 0)
+    {
+        ui->comboBox_sales_byday->addItem("3/12");
+        ui->comboBox_sales_byday->addItem("3/13");
+        ui->comboBox_sales_byday->addItem("3/14");
+        ui->comboBox_sales_byday->addItem("3/15");
+        ui->comboBox_sales_byday->addItem("3/16");
+        ui->comboBox_sales_byday->addItem("3/17");
+        ui->comboBox_sales_byday->addItem("3/18");
+    }
+
+
+    // Initialize tableView_sales_daily using SalesTableModel
+    salesModel = new SalesTableModel(this, database);
+    salesModel->InitializeSalesTable();
+    ui->tableView_sales_daily->setModel(salesModel);
+
+    // Hide numerical vertical header
+    ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+    // Make fields uneditable
+    ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
 }
