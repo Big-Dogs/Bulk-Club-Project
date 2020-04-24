@@ -37,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
-    ui->pushButton_admin_confirmdeletemember->setEnabled(false);
-
     ui->gridWidget_admin_memberdatafields->hide();
     ui->gridWidget_admin_confirmdeletemember->hide();
     ui->gridWidget_admin_itemdatafields->hide();
@@ -685,7 +683,6 @@ void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delet
 
 void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &index) // double click admin inventory table
 {
-    ui->pushButton_admin_confirmdeleteitem->setEnabled(true);
     // set text for label_admin_confirmdeleteitem and change initial value to empty
 }
 
