@@ -143,6 +143,24 @@ void MainWindow::on_pushButton_home_clicked() // home page
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
+
+    //item number combo box
+    if(ui->comboBox_pos_itemlist->count() == 0)
+    {
+        for (int i = 1; i <= 56; i++)
+        {
+            ui->comboBox_pos_itemlist->addItem(QString::number(i));
+        }
+    }
+
+    if(ui->comboBox_pos_qty->count() == 0)
+    {
+        for (int i = 1; i <= 10; i++)
+        {
+            ui->comboBox_pos_qty->addItem(QString::number(i));
+        }
+    }
+
 }
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
