@@ -59,6 +59,10 @@ public:
 
     // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
 
+    double getPrice(int);
+
+    QStringList getNames();
+
     // Destructor
     ~Database();
 

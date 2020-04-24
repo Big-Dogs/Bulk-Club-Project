@@ -144,12 +144,17 @@ void MainWindow::on_pushButton_POS_clicked() // POS page
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
 
+
+
+    QStringList items = this->database->getNames();
+
+    qDebug() << items.length() << " items";
     //item number combo box
     if(ui->comboBox_pos_itemlist->count() == 0)
     {
-        for (int i = 1; i <= 56; i++)
+        for (int i = 0; i < items.length(); i++)
         {
-            ui->comboBox_pos_itemlist->addItem(QString::number(i));
+            ui->comboBox_pos_itemlist->addItem(items.at(i));
         }
     }
 
@@ -731,7 +736,13 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
 /*----POS Page push buttons----*/
 void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 {
+    int item = ui->comboBox_pos_itemlist->currentIndex()+1;
+    int qty = ui->comboBox_pos_qty->currentIndex()+1;
 
+
+    double price = this->database->getPrice(item) * qty;
+
+    ui->label_pos_receipt->setText(QString::number(price));
 }
 
 
