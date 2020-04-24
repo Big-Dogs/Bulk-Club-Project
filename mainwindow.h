@@ -160,6 +160,22 @@ private:
      */
     QString normalizeCapitalization(QString text);
 
+    /* restrictSelectToRow
+     *      Restricts the user ability to select a tableview item to
+     *      only the items in the same row of selectedRow
+     *
+     * Precondition:
+     *      pass in const QModelIndex &
+     *          const QModelIndex &selectedRow - An item in the row the user is allow
+     *                                           to select items from. It is
+     *                                           intendended that you pass in the current
+     *                                           index from you tableview
+     *
+     *  Postcondition:
+     *      The user can only selects items in the same row as selectedRow
+     */
+    void restrictSelectToRow(const QModelIndex &selectedRow);
+
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
@@ -245,7 +261,7 @@ private:
         ADMIN_ITEM,
     };
 
-
+    QModelIndex currentProcessIndex; //The current index being processed
 
 
 
