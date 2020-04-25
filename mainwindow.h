@@ -49,6 +49,8 @@ private slots:
 
         void on_pushButton_sales_daily_clicked();
 
+            void on_pushButton_sale_byday_clicked();
+
         void on_pushButton_sales_sortmember_clicked();
 
         void on_pushButton_sales_sortitem_clicked();
@@ -115,7 +117,7 @@ private slots:
 
 
 
-            void on_pushButton_sale_byday_clicked();
+
 
             void on_pushButton_membership_expire_clicked();
 
@@ -181,6 +183,7 @@ private:
     };
 
 
+
     // For use in POS page
     QString posItemName;
     QString posDate;
@@ -190,6 +193,7 @@ private:
     double posPrice;
     double posTotal;
     int receiptRow;
+
 
 
     // Enum to keep track of all program pages
@@ -228,6 +232,28 @@ private:
         REBATE_AMOUNT
     };
 
+    // Enum to keep track of daily sales dates
+    enum DATES
+    {
+        TWENTYFOURTH,
+        TWELFTH,
+        THIRTEENTH,
+        FOURTEENTH,
+        FIFTEENTH,
+        SIXTEENTH,
+        SEVENTEETH,
+        EIGHTEENTH,
+    };
+
+    // Enum to keep track of daily sales columns
+    enum DAILYSALES
+    {
+        DAILY_DATE,
+        DAILY_ID,
+        DAILY_ITEM,
+        DAILY_PRICE,
+        DAILY_QTY,
+    };
 
 
 
@@ -242,11 +268,16 @@ private:
         // Print suggested downgrades report
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
 
+
+        //initializes sales by day table view
+    void InitializeSalesTableView();
+
         //initialize pos table
     void InitializePosTable();
 
         //prints a receipt in pos page
     void printReceipt();
+
 
 
 

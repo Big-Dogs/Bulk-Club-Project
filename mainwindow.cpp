@@ -71,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_sales_searchmembererrormessage->setVisible(false);
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
+    InitializeSalesTableView(); //initializes daily sales report
+
+
+
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
 }
@@ -148,6 +152,7 @@ void MainWindow::on_pushButton_home_clicked() // home page
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
+
 }
 
 
@@ -155,9 +160,55 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 {
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
+
+/*----Sales Window push buttons----*/
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    }
+
+    void MainWindow::on_pushButton_sale_byday_clicked()
+    {
+        QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
+        QSqlQuery query;
+        // Filter expiration by month
+        query.prepare("select purchases.datePurchased, purchases.memberID, "
+                                      "products.name, products.price, purchases.qty "
+                                      "from purchases join products "
+                                      "on (products.productID = purchases.productID) "
+                                      "where datePurchased = ?");
+        qDebug() << "combo box: " << ui->comboBox_sales_byday->currentText();
+        query.bindValue(0, ui->comboBox_sales_byday->currentText());
+
+        if (query.exec())
+        {
+            dailySalesModel->setQuery(query);
+
+        }
+        else
+        {
+            qDebug() << query.lastError().text();
+
+        }
+
+        // Initialize tableView_sales_daily using querymodel
+
+        ui->tableView_sales_daily->setModel(dailySalesModel);
+        dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
+        dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
+        dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
+        dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
+        dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
+
+        ui->tableView_sales_daily->resizeColumnToContents(2);
+
+        // Hide numerical vertical header
+        ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+        // Make fields uneditable
+        ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+
+        
+
     }
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
@@ -893,10 +944,7 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
     ui->tableView_sales_searchitem->setModel(model);
 }
 
-void MainWindow::on_pushButton_sale_byday_clicked()
-{
 
-}
 
 /**
  * @brief MainWindow::TextCompleter
@@ -1030,6 +1078,32 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 
 }
 
+
+void MainWindow::InitializeSalesTableView()
+{
+
+    QSqlQuery query;
+    query.prepare("select datePurchased from purchases group by datePurchased");
+    //sales by day combo box
+    if(query.exec())
+    {
+       while (query.next())
+       {
+           ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
+       }
+    }
+    else
+    {
+        qDebug() << query.lastError().text();
+    }
+
+
+    // Hide numerical vertical header
+    ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+    // Make fields uneditable
+    ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+}
+
 //initialize pos table
 void MainWindow::InitializePosTable()
 {
@@ -1096,6 +1170,7 @@ void MainWindow::printReceipt()
     receiptRow++;
 
 }
+
 
 
 
