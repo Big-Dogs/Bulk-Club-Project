@@ -727,19 +727,22 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 
     printReceipt();
 
+//    QDate::currentDate().toString("m/dd/yyyy");
 
     int addPurchaseID = posMemberID;
-    posDate = "4/24/2020";
+
     int purchaseQty = posQty;
 
-    this->database->addPurchase(addPurchaseID, posItem, posDate, purchaseQty);
+    this->database->addPurchase(addPurchaseID, posItem, QDate::currentDate().toString("M/dd/yyyy"), purchaseQty);
 
     ui->pushButton_pos_purchase->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
 }
 
 void MainWindow::on_comboBox_pos_memberlist_activated(int index)
 {
     posMemberID = ui->comboBox_pos_memberlist->currentText().toInt();
+    ui->comboBox_pos_itemlist->setEnabled(true);
 }
 
 void MainWindow::on_comboBox_pos_itemlist_activated(int index)
