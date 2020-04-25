@@ -807,7 +807,7 @@ void MainWindow::on_comboBox_pos_itemlist_activated(int index)
 void MainWindow::on_comboBox_pos_qty_activated(int index)
 {
     posQty = index + 1;
-    posPrice = this->database->getPrice(posItem);
+    posPrice = this->database->getPrice(posItemName);
     posTotal = posPrice * posQty;
     ui->label_pos_price->setText(QString::number(posTotal));
     ui->pushButton_pos_purchase->setEnabled(true);

@@ -291,18 +291,19 @@ bool Database::DeleteProduct(QString productID) { return false; }
 // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
 // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
 
-double Database::getPrice(int item)
+double Database::getPrice(QString item)
 {
     double purchaseAmt = 0;
 
     QSqlQuery query;
 
-    QString thisItem = QString::number(item);
+
     //finds item being purchased
        //query database to get price of selected item
-    query.prepare("select price from products where productId = '" + thisItem + "'");
+    query.prepare("select price from products where name = ?");
     //if it does match
         //return price of item
+    query.bindValue(0, item);
     if(query.exec())
     {
 

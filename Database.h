@@ -59,7 +59,7 @@ public:
 
     // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
 
-    double getPrice(int);
+    double getPrice(QString item);
 
     QStringList getNames();
 
