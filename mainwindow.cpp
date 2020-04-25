@@ -166,57 +166,13 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
         QSqlQuery query;
         // Filter expiration by month
-        switch(ui->comboBox_sales_byday->currentIndex())
-        {
-        case TWENTYFOURTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '4/24%'");
-                break;
-        case TWELFTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/12%'");
-                break;
-        case THIRTEENTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/13%'");
-                break;
-        case FOURTEENTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/14%'");
-                break;
-        case FIFTEENTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/15%'");
-                break;
-        case SIXTEENTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/16%'");
-                break;
-        case SEVENTEETH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/17%'");
-                break;
-        case EIGHTEENTH: query.prepare("select datePurchased, memberID, "
-                              "name, price, qty "
-                              "from purchases join products "
-                              "on (products.productID = purchases.productID) "
-                              "where datePurchased like '3/18%'");
-                break;
-        }
+        query.prepare("select purchases.datePurchased, purchases.memberID, "
+                                      "products.name, products.price, purchases.qty "
+                                      "from purchases join products "
+                                      "on (products.productID = purchases.productID) "
+                                      "where datePurchased = ?");
+        qDebug() << "combo box: " << ui->comboBox_sales_byday->currentText();
+        query.bindValue(0, ui->comboBox_sales_byday->currentText());
 
         if (query.exec())
         {
@@ -225,7 +181,8 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         }
         else
         {
-            qDebug() << "Query failed";
+            qDebug() << query.lastError().text();
+
         }
 
         // Initialize tableView_sales_daily using querymodel
@@ -1078,17 +1035,20 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 
 void MainWindow::InitializeSalesTableView()
 {
+
+    QSqlQuery query;
+    query.prepare("select datePurchased from purchases group by datePurchased");
     //sales by day combo box
-    if(ui->comboBox_sales_byday->count() == 0)
+    if(query.exec())
     {
-        ui->comboBox_sales_byday->addItem("Today");
-        ui->comboBox_sales_byday->addItem("3/12");
-        ui->comboBox_sales_byday->addItem("3/13");
-        ui->comboBox_sales_byday->addItem("3/14");
-        ui->comboBox_sales_byday->addItem("3/15");
-        ui->comboBox_sales_byday->addItem("3/16");
-        ui->comboBox_sales_byday->addItem("3/17");
-        ui->comboBox_sales_byday->addItem("3/18");
+       while (query.next())
+       {
+           ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
+       }
+    }
+    else
+    {
+        qDebug() << query.lastError().text();
     }
 
 
