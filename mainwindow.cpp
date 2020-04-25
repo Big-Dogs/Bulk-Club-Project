@@ -1092,11 +1092,6 @@ void MainWindow::InitializeSalesTableView()
     }
 
 
-    // Initialize tableView_sales_daily using SalesTableModel
-    salesModel = new SalesTableModel(this, database);
-    salesModel->InitializeSalesTable();
-    ui->tableView_sales_daily->setModel(salesModel);
-
     // Hide numerical vertical header
     ui->tableView_sales_daily->verticalHeader()->setVisible(false);
     // Make fields uneditable
