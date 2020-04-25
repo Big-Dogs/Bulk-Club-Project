@@ -291,5 +291,116 @@ bool Database::DeleteProduct(QString productID) { return false; }
 // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
 // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
 
+double Database::getPrice(int item)
+{
+    double purchaseAmt = 0;
+
+    QSqlQuery query;
+
+    QString thisItem = QString::number(item);
+    //finds item being purchased
+       //query database to get price of selected item
+    query.prepare("select price from products where productId = '" + thisItem + "'");
+    //if it does match
+        //return price of item
+    if(query.exec())
+    {
+
+        while(query.next())
+        {
+            purchaseAmt = query.value(0).toDouble();
+        }
+
+        qDebug() << "item price: " << purchaseAmt;
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return purchaseAmt;
+}
+
+QStringList Database::getNames()
+{
+    QStringList itemNames;
+    int index = 0;
+
+    QSqlQuery query;
+
+    //retrieves item names
+       //query database to match item name to item number
+    query.prepare("select name from products");
+    //if it does match
+        //return names
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            itemNames.insert(index, query.value(0).toString());
+            index++;
+        }
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return itemNames;
+}
+
+QStringList Database::getPOSMembers()
+{
+    QStringList memberNames;
+    int index = 0;
+
+    QSqlQuery query;
+
+    //retrieves item names
+       //query database to match item name to item number
+    query.prepare("select memberID from members");
+    //if it does match
+        //return names
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            memberNames.insert(index, query.value(0).toString());
+            index++;
+        }
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return memberNames;
+}
+
+void Database::addPurchase(int memberID, int productID, QString datePurchased, int qty)
+{
+
+    QSqlQuery query;
+
+    query.prepare("INSERT INTO purchases "
+                  "(memberID, productID, "
+                  "datePurchased, qty)"
+                  "VALUES(?,?,?,?)");
+
+    query.addBindValue(memberID);
+    query.addBindValue(productID);
+    query.addBindValue(datePurchased);
+    query.addBindValue(qty);
+
+    if(!query.exec())
+        qDebug() << "Purchase could not be added.";
+}
+
 // Destructor
 Database::~Database() {}

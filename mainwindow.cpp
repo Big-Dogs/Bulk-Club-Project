@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     formatPrice = new MoneyDelegate;
 
 
+    InitializePosTable();
 
 
     // Create Executive Member Vector
@@ -40,12 +41,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
+
+
     ui->tableWidget_membership->hide();
 
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
 
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->pushButton_pos_purchase->setEnabled(false);
 
     ui->label_home_warning->hide();
 
@@ -149,6 +154,7 @@ void MainWindow::on_pushButton_POS_clicked() // POS page
     ui->stackedWidget_main->setCurrentIndex(POS);
 
 }
+
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
@@ -765,6 +771,45 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
 void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 {
 
+    ui->comboBox_pos_itemlist->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->label_pos_price->setText("");
+
+    printReceipt();
+
+//    QDate::currentDate().toString("m/dd/yyyy");
+
+    int addPurchaseID = posMemberID;
+
+    int purchaseQty = posQty;
+
+    this->database->addPurchase(addPurchaseID, posItem, QDate::currentDate().toString("M/dd/yyyy"), purchaseQty);
+
+    ui->pushButton_pos_purchase->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
+}
+
+void MainWindow::on_comboBox_pos_memberlist_activated(int index)
+{
+    posMemberID = ui->comboBox_pos_memberlist->currentText().toInt();
+    ui->comboBox_pos_itemlist->setEnabled(true);
+}
+
+void MainWindow::on_comboBox_pos_itemlist_activated(int index)
+{
+    posItem = index+1;
+    posItemName = ui->comboBox_pos_itemlist->currentText();
+    ui->comboBox_pos_qty->setEnabled(true);
+
+}
+void MainWindow::on_comboBox_pos_qty_activated(int index)
+{
+    posQty = index + 1;
+    posPrice = this->database->getPrice(posItem);
+    posTotal = posPrice * posQty;
+    ui->label_pos_price->setText(QString::number(posTotal));
+    ui->pushButton_pos_purchase->setEnabled(true);
 }
 
 
@@ -1033,6 +1078,7 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 
 }
 
+
 void MainWindow::InitializeSalesTableView()
 {
 
@@ -1057,3 +1103,74 @@ void MainWindow::InitializeSalesTableView()
     // Make fields uneditable
     ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
 }
+
+//initialize pos table
+void MainWindow::InitializePosTable()
+{
+    QStringList TableHeader;
+    ui->tableWidget_pos_receipts->setColumnCount(5);
+    TableHeader << "Member ID" << "Item" << "Price" << "qty" << "Total";
+    ui->tableWidget_pos_receipts->setHorizontalHeaderLabels(TableHeader);
+    ui->tableWidget_pos_receipts->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget_pos_receipts->setShowGrid(false);
+    ui->tableWidget_pos_receipts->verticalHeader()->setVisible(false);
+    ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
+    receiptRow = 0;
+
+    //initializing combo boxes
+    QStringList members = this->database->getPOSMembers();
+    qDebug() << members.length() << " items";
+    //item number combo box
+    if(ui->comboBox_pos_memberlist->count() == 0)
+    {
+        for (int i = 0; i < members.length(); i++)
+        {
+            ui->comboBox_pos_memberlist->addItem(members.at(i));
+        }
+    }
+    QStringList items = this->database->getNames();
+    qDebug() << items.length() << " items";
+    //item number combo box
+    if(ui->comboBox_pos_itemlist->count() == 0)
+    {
+        for (int i = 0; i < items.length(); i++)
+        {
+            ui->comboBox_pos_itemlist->addItem(items.at(i));
+        }
+    }
+    if(ui->comboBox_pos_qty->count() == 0)
+    {
+        for (int i = 1; i <= 10; i++)
+        {
+            ui->comboBox_pos_qty->addItem(QString::number(i));
+        }
+    }
+}
+
+void MainWindow::printReceipt()
+{
+    QTableWidgetItem *member = new QTableWidgetItem;
+    QTableWidgetItem *item = new QTableWidgetItem;
+    QTableWidgetItem *price = new QTableWidgetItem;
+    QTableWidgetItem *qty = new QTableWidgetItem;
+    QTableWidgetItem *total = new QTableWidgetItem;
+
+    member->setText(QString::number(posMemberID));
+    item->setText(posItemName);
+    price->setText(QString::number(posPrice));
+    qty->setText(QString::number(posQty));
+    total->setText(QString::number(posTotal));
+
+    ui->tableWidget_pos_receipts->insertRow(receiptRow);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 0, member);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 1, item);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 2, price);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 3, qty);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 4, total);
+    receiptRow++;
+
+}
+
+
+
+
