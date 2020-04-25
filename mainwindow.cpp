@@ -172,11 +172,11 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
         QSqlQuery query;
         // Filter expiration by month
-        query.prepare("select purchases.datePurchased, purchases.memberID, "
-                                      "products.name, products.price, purchases.qty "
-                                      "from purchases join products "
-                                      "on (products.productID = purchases.productID) "
-                                      "where datePurchased = ?");
+        query.prepare("SELECT purchases.datePurchased, purchases.memberID, "
+                                      "products.name, products.price, purchases.qty, products.price * purchases.qty "
+                                      "FROM purchases join products "
+                                      "ON (products.productID = purchases.productID) "
+                                      "WHERE datePurchased = ?");
         qDebug() << "combo box: " << ui->comboBox_sales_byday->currentText();
         query.bindValue(0, ui->comboBox_sales_byday->currentText());
 
@@ -199,6 +199,7 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
         dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
         dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
+        dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
 
         ui->tableView_sales_daily->resizeColumnToContents(2);
 

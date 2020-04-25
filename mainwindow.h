@@ -253,6 +253,7 @@ private:
         DAILY_ITEM,
         DAILY_PRICE,
         DAILY_QTY,
+        DAILY_TOTAL,
     };
 
 
