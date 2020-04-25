@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_admin->setEnabled(false);
 
     ui->comboBox_pos_qty->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
     ui->pushButton_pos_purchase->setEnabled(false);
 
     ui->label_home_warning->hide();
@@ -1174,3 +1175,9 @@ void MainWindow::printReceipt()
 
 
 
+
+void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
+{
+    ui->tableWidget_pos_receipts->clear();
+    InitializePosTable();
+}

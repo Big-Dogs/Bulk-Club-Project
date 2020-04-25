@@ -133,6 +133,8 @@ private slots:
 
     void on_comboBox_pos_memberlist_activated(int index);
 
+    void on_comboBox_pos_memberlist_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
