@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //id
     productIdValidator = new QIntValidator;
-    productIdValidator->setBottom(1);
+    productIdValidator->setTop(1000);
     ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
 
     //price
@@ -83,6 +83,10 @@ MainWindow::MainWindow(QWidget *parent)
     productPriceValidator->setDecimals(2);
     productIdValidator->setBottom(0.01);
     ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
+    ui->lineEdit_admin_itemsubmission_price->setMaxLength(6);
+
+    //name
+    ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
@@ -390,6 +394,8 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
 
         ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
 
+        ui->tableView_admin_inventory->setWordWrap(false);
+
         //connecting to dataChanged and currentChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
         QObject::connect(ui->tableView_admin_inventory, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
@@ -650,9 +656,12 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
         else
         {
             ui->gridWidget_admin_itemdatafields->hide();
-            ui->pushButton_admin_deleteitem->setEnabled(true);
+            ui->pushButton_admin_deleteitem->setEnabled(false); //no item is selected
             ui->pushButton_admin_additem->setEnabled(true);
-            ui->pushButton_admin_edititem->setEnabled(true);
+            ui->pushButton_admin_edititem->setEnabled(false); //no item is selected
+
+            //making sure no items are selected
+            ui->tableView_admin_inventory->clearSelection();
 
             //Clearing line edits
             ui->lineEdit_admin_itemsubmission_id->setText(QString());
@@ -677,6 +686,10 @@ void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels 
 {
     ui->gridWidget_admin_itemdatafields->hide();
     ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(false); //no item is selected
+
+    //making sure no items are selected
+    ui->tableView_admin_inventory->clearSelection();
 
     //Clearing line edits
     ui->lineEdit_admin_itemsubmission_id->setText(QString());
