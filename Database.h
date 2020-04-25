@@ -61,6 +61,8 @@ public:
 
     double getPrice(QString item);
 
+    int getItem(QString item);
+
     QStringList getNames();
 
     QStringList getPOSMembers();

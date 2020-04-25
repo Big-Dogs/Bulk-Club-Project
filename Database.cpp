@@ -324,6 +324,39 @@ double Database::getPrice(QString item)
     return purchaseAmt;
 }
 
+int Database::getItem(QString item)
+{
+    int purchaseAmt = 0;
+
+    QSqlQuery query;
+
+
+    //finds item being purchased
+       //query database to get price of selected item
+    query.prepare("select productID from products where name = ?");
+    //if it does match
+        //return price of item
+    query.bindValue(0, item);
+    if(query.exec())
+    {
+
+        while(query.next())
+        {
+            purchaseAmt = query.value(0).toDouble();
+        }
+
+        qDebug() << "item price: " << purchaseAmt;
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return purchaseAmt;
+}
+
 QStringList Database::getNames()
 {
     QStringList itemNames;

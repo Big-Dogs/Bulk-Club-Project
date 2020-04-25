@@ -166,11 +166,11 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+        InitializeSalesTableView();
     }
 
     void MainWindow::on_pushButton_sale_byday_clicked()
-    {
-        InitializeSalesTableView();
+    {        
         QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
         QSqlQuery query;
         // Filter expiration by month
@@ -800,8 +800,8 @@ void MainWindow::on_comboBox_pos_memberlist_activated(int index)
 
 void MainWindow::on_comboBox_pos_itemlist_activated(int index)
 {
-    posItem = index+1;
     posItemName = ui->comboBox_pos_itemlist->currentText();
+    posItem = this->database->getItem(posItemName);
     ui->comboBox_pos_qty->setEnabled(true);
 
 }
@@ -1084,6 +1084,7 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 void MainWindow::InitializeSalesTableView()
 {
 
+    ui->comboBox_sales_byday->clear();
     QSqlQuery query;
     query.prepare("select datePurchased from purchases group by datePurchased");
     //sales by day combo box
