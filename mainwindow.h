@@ -7,7 +7,6 @@
 #include <QSqlDriver>
 #include "Database.h"
 #include "MembershipTableModel.h"
-#include "SalesTableModel.h"
 #include "debugflags.h"
 #include "moneydelegate.h"
 
@@ -179,8 +178,7 @@ private:
         "Rebate Amount"
     };
 
-    // For use in daily sales
-    SalesTableModel *salesModel;
+
 
     // Enum to keep track of all program pages
     enum Pages
@@ -218,6 +216,28 @@ private:
         REBATE_AMOUNT
     };
 
+    // Enum to keep track of daily sales dates
+    enum DATES
+    {
+        TWENTYFOURTH,
+        TWELFTH,
+        THIRTEENTH,
+        FOURTEENTH,
+        FIFTEENTH,
+        SIXTEENTH,
+        SEVENTEETH,
+        EIGHTEENTH,
+    };
+
+    // Enum to keep track of daily sales columns
+    enum DAILYSALES
+    {
+        DAILY_DATE,
+        DAILY_ID,
+        DAILY_ITEM,
+        DAILY_PRICE,
+        DAILY_QTY,
+    };
 
 
 

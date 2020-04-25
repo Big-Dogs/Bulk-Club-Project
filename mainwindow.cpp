@@ -163,24 +163,88 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sale_byday_clicked()
     {
+        QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
+        QSqlQuery query;
         // Filter expiration by month
         switch(ui->comboBox_sales_byday->currentIndex())
         {
-            case SalesTableModel::TWELFTH       : salesModel->setFilter("datePurchased like '3/12%'");
-                                                   break;
-            case SalesTableModel::THIRTEENTH    : salesModel->setFilter("datePurchased like '3/13%'");
-                                                   break;
-            case SalesTableModel::FOURTEENTH    : salesModel->setFilter("datePurchased like '3/14%'");
-                                                   break;
-            case SalesTableModel::FIFTEENTH     : salesModel->setFilter("datePurchased like '3/15%'");
-                                                   break;
-            case SalesTableModel::SIXTEENTH     : salesModel->setFilter("datePurchased like '3/16%'");
-                                                   break;
-            case SalesTableModel::SEVENTEENTH   : salesModel->setFilter("datePurchased like '3/17%'");
-                                                   break;
-            case SalesTableModel::EIGHTEENTH    : salesModel->setFilter("datePurchased like '3/18%'");
-                                                   break;
+        case TWENTYFOURTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '4/24%'");
+                break;
+        case TWELFTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/12%'");
+                break;
+        case THIRTEENTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/13%'");
+                break;
+        case FOURTEENTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/14%'");
+                break;
+        case FIFTEENTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/15%'");
+                break;
+        case SIXTEENTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/16%'");
+                break;
+        case SEVENTEETH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/17%'");
+                break;
+        case EIGHTEENTH: query.prepare("select datePurchased, memberID, "
+                              "name, price, qty "
+                              "from purchases join products "
+                              "on (products.productID = purchases.productID) "
+                              "where datePurchased like '3/18%'");
+                break;
         }
+
+        if (query.exec())
+        {
+            dailySalesModel->setQuery(query);
+
+        }
+        else
+        {
+            qDebug() << "Query failed";
+        }
+
+        // Initialize tableView_sales_daily using querymodel
+
+        ui->tableView_sales_daily->setModel(dailySalesModel);
+        dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
+        dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
+        dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
+        dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
+        dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
+
+        ui->tableView_sales_daily->resizeColumnToContents(2);
+
+        // Hide numerical vertical header
+        ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+        // Make fields uneditable
+        ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+
+        
 
     }
 
@@ -1017,6 +1081,7 @@ void MainWindow::InitializeSalesTableView()
     //sales by day combo box
     if(ui->comboBox_sales_byday->count() == 0)
     {
+        ui->comboBox_sales_byday->addItem("Today");
         ui->comboBox_sales_byday->addItem("3/12");
         ui->comboBox_sales_byday->addItem("3/13");
         ui->comboBox_sales_byday->addItem("3/14");
