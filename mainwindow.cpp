@@ -170,6 +170,7 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
     void MainWindow::on_pushButton_sale_byday_clicked()
     {
+        InitializeSalesTableView();
         QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
         QSqlQuery query;
         // Filter expiration by month
