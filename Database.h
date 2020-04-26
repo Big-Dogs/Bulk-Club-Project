@@ -59,6 +59,9 @@ public:
 
     // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
 
+    // ---------- START PROTOTYPES (by noah) ---------- //
+    int checkLogin(QString username, QString password);
+    // ---------- END PROTOTYPES (by noah) ---------- //
     // Destructor
     ~Database();
 
