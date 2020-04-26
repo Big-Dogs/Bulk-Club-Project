@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     setPermissions(NONE);
 
     ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
+
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
 
     ui->gridWidget_admin_memberdatafields->hide();
@@ -75,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //id
     productIdValidator = new QIntValidator;
-    productIdValidator->setBottom(1);
+    productIdValidator->setTop(1000);
     ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
 
     //price
@@ -83,6 +84,10 @@ MainWindow::MainWindow(QWidget *parent)
     productPriceValidator->setDecimals(2);
     productIdValidator->setBottom(0.01);
     ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
+    ui->lineEdit_admin_itemsubmission_price->setMaxLength(6);
+
+    //name
+    ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
@@ -389,8 +394,16 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
       
         ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
 
-        //connecting to dataChanged
+        ui->tableView_admin_inventory->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+        ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
+
+        ui->tableView_admin_inventory->setWordWrap(false);
+
+        //connecting to dataChanged and currentChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
+        QObject::connect(ui->tableView_admin_inventory, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
+
 
         //Disabling edit and delete functionality since no item is selected
         ui->pushButton_admin_edititem->setEnabled(false);
@@ -531,6 +544,13 @@ void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
     ui->gridWidget_admin_itemdatafields->show();
     ui->pushButton_admin_deleteitem->setEnabled(false);
     ui->pushButton_admin_additem->setEnabled(false);
+    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+
+    //setting up line edit for input
+    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 }
 
 void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
@@ -538,6 +558,8 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
     //Variables
     QString     confirmDeleteMessage; //The message display to confirm the deletion
     QModelIndex deleteProduct;        //The index of the product being deleted
+
+    currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
 
     ui->gridWidget_admin_confirmdeleteitem->show();
     ui->pushButton_admin_edititem->setEnabled(false);
@@ -638,9 +660,12 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
         else
         {
             ui->gridWidget_admin_itemdatafields->hide();
-            ui->pushButton_admin_deleteitem->setEnabled(true);
+            ui->pushButton_admin_deleteitem->setEnabled(false); //no item is selected
             ui->pushButton_admin_additem->setEnabled(true);
-            ui->pushButton_admin_edititem->setEnabled(true);
+            ui->pushButton_admin_edititem->setEnabled(false); //no item is selected
+
+            //making sure no items are selected
+            ui->tableView_admin_inventory->clearSelection();
 
             //Clearing line edits
             ui->lineEdit_admin_itemsubmission_id->setText(QString());
@@ -665,6 +690,10 @@ void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels 
 {
     ui->gridWidget_admin_itemdatafields->hide();
     ui->pushButton_admin_additem->setEnabled(true);
+    ui->pushButton_admin_edititem->setEnabled(false); //no item is selected
+
+    //making sure no items are selected
+    ui->tableView_admin_inventory->clearSelection();
 
     //Clearing line edits
     ui->lineEdit_admin_itemsubmission_id->setText(QString());
@@ -685,6 +714,8 @@ void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms del
     ui->pushButton_admin_deleteitem->setEnabled(false); //no item will be selected
     ui->pushButton_admin_additem->setEnabled(true);
 
+    ui->label_admin_products_errormessage->setVisible(false);
+
     itemModel->submitAll();
 }
 
@@ -695,6 +726,8 @@ void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delet
     ui->pushButton_admin_deleteitem->setEnabled(false); //no item will be selected
     ui->pushButton_admin_additem->setEnabled(true);
 
+    ui->label_admin_products_errormessage->setVisible(false);
+
     itemModel->revertAll();
 
     itemModel->select();
@@ -702,7 +735,6 @@ void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delet
 
 void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &index) // double click admin inventory table
 {
-    ui->pushButton_admin_confirmdeleteitem->setEnabled(true);
     // set text for label_admin_confirmdeleteitem and change initial value to empty
 }
 
@@ -1110,6 +1142,7 @@ void MainWindow::on_pushButton_home_login_clicked()
     if (permissionIndex > NONE)
     {
         setPermissions(permissionIndex);
+
     }
     else
     {
@@ -1219,7 +1252,10 @@ void MainWindow::on_stackedWidget_sales_currentChanged(int arg1)
 
 void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index)
 {
-    qDebug() << "Activated";
+    //Variables
+    QModelIndex     idIndex;       //The index at the id column in the same row as index
+    QModelIndexList previousIndex; //A QModelIndex to store the previous index if necessary
+
     //checking if table model is clean or dirty
     //dirty means data is being added, updated, or deleted
     if (!itemModel->isDirty())
@@ -1228,7 +1264,6 @@ void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index
     }
     else
     {
-        qDebug() << "detected as dirty";
         //Data is being added, updated, or deleted
         //The button that is enable tells me which one it is
 
@@ -1237,13 +1272,12 @@ void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index
             qDebug() << "Detects add item";
             if (index.row() != itemModel->rowCount() - 1)
             {
-                qDebug() << "Dectect selecting other row";
                 //display error message
                 ui->label_admin_products_errormessage->setText("Warning, The item you are adding is not saved. \n "
                                                                "Please either submit or cancel the addition of this item before moving on.");
                 ui->label_admin_products_errormessage->setVisible(true);
 
-                ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+                ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, itemModel->fieldIndex("productID")));
             }
         }
 
@@ -1254,8 +1288,27 @@ void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index
 
         if (ui->pushButton_admin_deleteitem->isEnabled());
         {
+            idIndex = index.sibling(index.row(), itemModel->fieldIndex("productID"));
+            if (idIndex.data().toString() == ui->label_admin_itemsubmission_id->text())
+            {
+                //display error message
+                ui->label_admin_products_errormessage->setText("Warning, Please confirm or cancel the current deletion \n "
+                                                               "before editing or adding another product.");
 
-        }
+                ui->label_admin_products_errormessage->setVisible(true);
+
+                previousIndex = itemModel->match(idIndex, Qt::EditRole, QVariant(ui->label_admin_itemsubmission_id->text()));
+
+                if (!previousIndex.isEmpty())
+                {
+                    ui->tableView_admin_inventory->setCurrentIndex(previousIndex.first());
+                }
+                else
+                {
+                    qDebug() << "Something went wrong";
+                }
+            }//end if (index.data().toString() == ui->label_admin_itemsubmission_id->text())
+        }//end if (ui->pushButton_admin_deleteitem->isEnabled());
     }
 }
 
@@ -1337,8 +1390,9 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
     //Variables
     QModelIndex productData; //The QModelIndex use to reflect the product
                              //data currently being processed
+    QModelIndexList previousIndex; //A QModelIndex to store the previous index if necessary
 
-    qDebug() << "Activated";
+
     //checking if table model is clean or dirty
     //dirty means data is being added, updated, or deleted
     if (!itemModel->isDirty())
@@ -1393,10 +1447,22 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 
         if (ui->pushButton_admin_deleteitem->isEnabled())
         {
-            qDebug() << "current: " << ui->tableView_admin_inventory->currentIndex().row();
+            qDebug() << "detected deletion";
+            productData = index.sibling(index.row(), itemModel->fieldIndex("productID"));
 
-            qDebug() << "index: " << index.row();
-        }
+            if (productData != currentProcessIndex.sibling(currentProcessIndex.row(), itemModel->fieldIndex("productID")))
+            {
+                //display error message
+                ui->label_admin_products_errormessage->setText("Warning, Please confirm or cancel the current \n"
+                                                               "deletion before editing or adding another \n"
+                                                               "product.");
+
+                ui->label_admin_products_errormessage->setVisible(true);
+
+                ui->tableView_admin_inventory->setCurrentIndex(currentProcessIndex);
+
+            }//end if (index.data().toString() == ui->label_admin_itemsubmission_id->text())
+        }//end if (ui->pushButton_admin_deleteitem->isEnabled());
     }
 }
 
@@ -1466,3 +1532,26 @@ void MainWindow::on_tableView_admin_inventory_pressed(const QModelIndex &index)
 {
     qDebug() << "pressed";
 }
+
+void MainWindow::on_tableView_item_currentChanged(int row)
+{
+    qDebug() << "current changed";
+}
+
+//void restrictSelectToRow(const QModelIndex &selectedRow)
+//{
+//    //Variable
+//    QAbstractItemModel *model = selectedRow.model(); //The model selectedRow exist in
+
+//    for (int columnIndex = 0; columnIndex < model->columnCount(); columnIndex++)
+//    {
+//        for (int rowIndex = 0; rowIndex < model->rowCount(); rowIndex++)
+//        {
+//            //skipping selectedRow's row
+//            if (rowIndex != selectedRow.row())
+//            {
+//                model
+//            }
+//        }
+//    }
+//}

@@ -122,7 +122,7 @@ private slots:
             void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
-
+    
     void on_stackedWidget_admin_currentChanged(int arg1);
 
     void on_stackedWidget_admin_widgetRemoved(int index);
@@ -149,9 +149,12 @@ private slots:
     void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                    const QVector<int> &roles);
 
+    void on_tableView_item_currentChanged(int row);
+
     void on_tableView_admin_inventory_pressed(const QModelIndex &index);
 
     void on_pushButton_home_login_clicked();
+
 
 private:
     /* This function capitalize the first letter of
@@ -159,6 +162,22 @@ private:
      * case.
      */
     QString normalizeCapitalization(QString text);
+
+    /* restrictSelectToRow
+     *      Restricts the user ability to select a tableview item to
+     *      only the items in the same row of selectedRow
+     *
+     * Precondition:
+     *      pass in const QModelIndex &
+     *          const QModelIndex &selectedRow - An item in the row the user is allow
+     *                                           to select items from. It is
+     *                                           intendended that you pass in the current
+     *                                           index from you tableview
+     *
+     *  Postcondition:
+     *      The user can only selects items in the same row as selectedRow
+     */
+    void restrictSelectToRow(const QModelIndex &selectedRow);
 
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
@@ -240,6 +259,10 @@ private:
         ADMIN_ITEM,
     };
 
+
+    QModelIndex currentProcessIndex; //The current index being processed
+
+
     // Enum to keep track of upgrade/downgrade feature columns
     enum MembershipTableWidgetColumns
     {
@@ -249,6 +272,7 @@ private:
         REBATE_AMOUNT
     };
 
+
     // Enum to keep track of permission level
     enum PermissionLevel
     {
@@ -257,8 +281,6 @@ private:
         MANAGER,
         ADMINISTRATOR,
     };
-
-
 
 
     // Helper Function Prototypes
