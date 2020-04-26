@@ -259,7 +259,9 @@ private:
         ADMIN_ITEM,
     };
 
+
     QModelIndex currentProcessIndex; //The current index being processed
+
 
     // Enum to keep track of upgrade/downgrade feature columns
     enum MembershipTableWidgetColumns
@@ -271,6 +273,14 @@ private:
     };
 
 
+    // Enum to keep track of permission level
+    enum PermissionLevel
+    {
+        NONE,
+        EMPLOYEE,
+        MANAGER,
+        ADMINISTRATOR,
+    };
 
 
     // Helper Function Prototypes

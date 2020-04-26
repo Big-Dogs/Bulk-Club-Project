@@ -48,8 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->label_home_warning->hide();
 
-    index = 0;
-    setPermissions(index);
+    setPermissions(NONE);
+
+    ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
 
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
 
@@ -114,52 +115,55 @@ MainWindow::~MainWindow()
 /*----Testing Permissions----*/
 void MainWindow::setPermissions(int permission)
 {
-    if(permission == 0)
+
+
+    if(permission == NONE)
     {
         ui->pushButton_POS->setEnabled(false);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(HOME);
     }
-    else if (permission == 1)
+    else if (permission == EMPLOYEE)
     {
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(POS);
     }
-    else if (permission == 2)
+    else if (permission == MANAGER)
     {
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
     }
-    else if (permission == 3)
+    else if (permission == ADMINISTRATOR)
     {
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(true);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
     }
 }
 
 void MainWindow::on_pushButton_employeepermissions_clicked()
 {
-    index = 1;
-    setPermissions(index);
+    setPermissions(EMPLOYEE);
 }
 
 void MainWindow::on_pushButton_managerpermissions_clicked()
 {
-    index = 2;
-    setPermissions(index);
+    setPermissions(MANAGER);
 }
 
 void MainWindow::on_pushButton_adminpermissions_clicked()
 {
-    index = 3;
-    setPermissions(index);
+    setPermissions(ADMINISTRATOR);
 }
 
 
@@ -1128,31 +1132,17 @@ void MainWindow::ClearMemberFields()
 /*----Home Page push buttons----*/
 void MainWindow::on_pushButton_home_login_clicked()
 {
+    ui->label_home_warning->hide();
+
     QString username = ui->lineEdit_home_username->text();
     QString password = ui->lineEdit_home_password->text();
 
-    ui->label_home_warning->hide();
+    int permissionIndex = this->database->checkLogin(username, password);
 
-    if (username == "employee" &&
-        password == "test")
+    if (permissionIndex > NONE)
     {
-        index = 1;
-        setPermissions(index);
-        ui->stackedWidget_main->setCurrentIndex(POS);
-    }
-    else if (username == "manager" &&
-        password == "test")
-    {
-        index = 2;
-        setPermissions(index);
-        ui->stackedWidget_main->setCurrentIndex(SALES);
-    }
-    else if (username == "admin" &&
-        password == "test")
-    {
-        index = 3;
-        setPermissions(index);
-        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+        setPermissions(permissionIndex);
+
     }
     else
     {

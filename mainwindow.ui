@@ -73,7 +73,7 @@
        <rect>
         <x>500</x>
         <y>150</y>
-        <width>363</width>
+        <width>295</width>
         <height>102</height>
        </rect>
       </property>
@@ -134,7 +134,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>username: manager pw: test</string>
+       <string>USERNAME: man PW: man</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_home_admintest">
@@ -142,12 +142,12 @@
        <rect>
         <x>50</x>
         <y>280</y>
-        <width>171</width>
+        <width>181</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>username: admin pw: test</string>
+       <string>USERNAME: admin PW: admin</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_home_employeetest">
@@ -160,20 +160,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>username: employee pw: test</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_home_test">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>220</y>
-        <width>381</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>FOR TESTING PURPOSES full functionality will pull from database</string>
+       <string>USERNAME: emp PW: emp</string>
       </property>
      </widget>
     </widget>
@@ -653,7 +640,7 @@ color: rgb(239, 41, 41);</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page_admin_member">
        <widget class="QTableView" name="tableView_admin_members">
@@ -1121,7 +1108,7 @@ color: rgb(239, 41, 41);</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
