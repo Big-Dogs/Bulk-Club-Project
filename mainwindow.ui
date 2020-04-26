@@ -134,7 +134,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>username: manager pw: test</string>
+       <string>USERNAME: man PW: man</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_home_admintest">
@@ -142,12 +142,12 @@
        <rect>
         <x>50</x>
         <y>280</y>
-        <width>171</width>
+        <width>181</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>username: admin pw: test</string>
+       <string>USERNAME: admin PW: admin</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_home_employeetest">
@@ -160,20 +160,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>username: employee pw: test</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_home_test">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>220</y>
-        <width>381</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>FOR TESTING PURPOSES full functionality will pull from database</string>
+       <string>USERNAME: emp PW: emp</string>
       </property>
      </widget>
     </widget>
@@ -887,7 +874,7 @@ color: rgb(239, 41, 41);</string>
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>30</y>
+          <y>10</y>
           <width>591</width>
           <height>471</height>
          </rect>
@@ -987,7 +974,7 @@ color: rgb(239, 41, 41);</string>
          <rect>
           <x>620</x>
           <y>150</y>
-          <width>400</width>
+          <width>431</width>
           <height>80</height>
          </rect>
         </property>
@@ -1026,6 +1013,22 @@ color: rgb(239, 41, 41);</string>
         </property>
         <property name="text">
          <string>confirm delete button should be enabled when you double click an item but i can't test until the list is populated</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_admin_products_errormessage">
+        <property name="geometry">
+         <rect>
+          <x>760</x>
+          <y>40</y>
+          <width>321</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(239, 41, 41);</string>
+        </property>
+        <property name="text">
+         <string>Error Message</string>
         </property>
        </widget>
       </widget>

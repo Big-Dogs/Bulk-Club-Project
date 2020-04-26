@@ -59,6 +59,7 @@ public:
 
     // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
 
+    // ---------- START PROTOTYPES (by noah) ---------- //
     double getPrice(QString item);
 
     int getItem(QString item);
@@ -68,6 +69,9 @@ public:
     QStringList getPOSMembers();
 
     void addPurchase(int memberID, int productID, QString datePurchased, int qty);
+   
+    int checkLogin(QString username, QString password);
+    // ---------- END PROTOTYPES (by noah) ---------- //
 
     // Destructor
     ~Database();
