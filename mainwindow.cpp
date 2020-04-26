@@ -59,8 +59,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     setPermissions(NONE);
 
-    ui->pushButton_admin_confirmdeleteitem->setEnabled(false);
-
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
 
     ui->gridWidget_admin_memberdatafields->hide();
