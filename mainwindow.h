@@ -123,13 +123,49 @@ private slots:
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
+    void on_stackedWidget_admin_currentChanged(int arg1);
+
+    void on_stackedWidget_admin_widgetRemoved(int index);
+
+    void on_stackedWidget_main_currentChanged(int arg1);
+
+    void on_stackedWidget_sales_currentChanged(int arg1);
+
+    void on_tableView_admin_inventory_activated(const QModelIndex &index);
+
+    void on_lineEdit_admin_itemsubmission_id_textEdited(const QString &arg1);
+
+    void on_lineEdit_admin_itemsubmission_name_textEdited(const QString &arg1);
+
+    void on_lineEdit_admin_itemsubmission_price_textEdited(const QString &arg1);
+
+    void on_tableView_admin_inventory_clicked(const QModelIndex &index);
+
+    /* This is a custom slot that is connected to the dataChanged
+     * signal for itemModel when the inventory management button is
+     * clicked. It is used to update the data in the item submission
+     * line edits when the user changes the data in the table.
+     */
+    void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                                   const QVector<int> &roles);
+
+    void on_tableView_admin_inventory_pressed(const QModelIndex &index);
+
     void on_pushButton_home_login_clicked();
 
 private:
+    /* This function capitalize the first letter of
+     * every word and set all other letters to lower
+     * case.
+     */
+    QString normalizeCapitalization(QString text);
+
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
     Database *database; // Pointer to database
+
+    QSqlTableModel *itemModel; //The table model use to display the products table
 
     MoneyDelegate *formatPrice; //A pointer to the delegate used to format
                                 //items in table for money
