@@ -49,6 +49,8 @@ private slots:
 
         void on_pushButton_sales_daily_clicked();
 
+            void on_pushButton_sale_byday_clicked();
+
         void on_pushButton_sales_sortmember_clicked();
 
         void on_pushButton_sales_sortitem_clicked();
@@ -115,7 +117,7 @@ private slots:
 
 
 
-            void on_pushButton_sale_byday_clicked();
+
 
             void on_pushButton_membership_expire_clicked();
 
@@ -156,6 +158,15 @@ private slots:
     void on_pushButton_home_login_clicked();
 
 
+    void on_comboBox_pos_itemlist_activated(int index);
+
+    void on_comboBox_pos_qty_activated(int index);
+
+    void on_comboBox_pos_memberlist_activated(int index);
+
+    void on_comboBox_pos_memberlist_currentIndexChanged(int index);
+
+
 private:
     /* This function capitalize the first letter of
      * every word and set all other letters to lower
@@ -194,8 +205,6 @@ private:
     QString salesReportProduct; // Product manager wishes to view for sales report
 
 
-
-
     //For use in 'Display Member Rebates' feature
     //this is a comment
     struct ExecutiveMemberRebate
@@ -230,6 +239,19 @@ private:
         "Amount Spent",
         "Rebate Amount"
     };
+
+
+
+    // For use in POS page
+    QString posItemName;
+    QString posDate;
+    int posMemberID;
+    int posItem;
+    int posQty;
+    double posPrice;
+    double posTotal;
+    int receiptRow;
+
 
 
     // Enum to keep track of all program pages
@@ -272,6 +294,28 @@ private:
         REBATE_AMOUNT
     };
 
+    // Enum to keep track of daily sales dates
+    enum DATES
+    {
+        TWENTYFOURTH,
+        TWELFTH,
+        THIRTEENTH,
+        FOURTEENTH,
+        FIFTEENTH,
+        SIXTEENTH,
+        SEVENTEETH,
+        EIGHTEENTH,
+    };
+
+    // Enum to keep track of daily sales columns
+    enum DAILYSALES
+    {
+        DAILY_DATE,
+        DAILY_ID,
+        DAILY_ITEM,
+        DAILY_PRICE,
+        DAILY_QTY,
+    };
 
     // Enum to keep track of permission level
     enum PermissionLevel
@@ -293,6 +337,18 @@ private:
 
         // Print suggested downgrades report
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
+
+
+        //initializes sales by day table view
+    void InitializeSalesTableView();
+
+        //initialize pos table
+    void InitializePosTable();
+
+        //prints a receipt in pos page
+    void printReceipt();
+
+
 
 
 };

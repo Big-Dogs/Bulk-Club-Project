@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     formatPrice = new MoneyDelegate;
 
 
+    InitializePosTable();
 
 
     // Create Executive Member Vector
@@ -40,11 +41,19 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
+
+
     ui->tableWidget_membership->hide();
 
     ui->pushButton_sales->setEnabled(false); // hiding and greying stuff
     ui->pushButton_members->setEnabled(false);
     ui->pushButton_admin->setEnabled(false);
+
+
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
+    ui->pushButton_pos_purchase->setEnabled(false);
+
 
     ui->label_home_warning->hide();
 
@@ -65,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_sales_searchmembererrormessage->setVisible(false);
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
+
+    InitializeSalesTableView(); //initializes daily sales report
+      
     ui->label_admin_products_errormessage->setVisible(false);
 
     itemModel = nullptr;
@@ -88,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //name
     ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
+
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
@@ -178,15 +191,64 @@ void MainWindow::on_pushButton_home_clicked() // home page
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
+
 }
+
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
+
+/*----Sales Window push buttons----*/
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+        InitializeSalesTableView();
+    }
+
+    void MainWindow::on_pushButton_sale_byday_clicked()
+    {        
+        QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
+        QSqlQuery query;
+        // Filter expiration by month
+        query.prepare("select purchases.datePurchased, purchases.memberID, "
+                                      "products.name, products.price, purchases.qty "
+                                      "from purchases join products "
+                                      "on (products.productID = purchases.productID) "
+                                      "where datePurchased = ?");
+        qDebug() << "combo box: " << ui->comboBox_sales_byday->currentText();
+        query.bindValue(0, ui->comboBox_sales_byday->currentText());
+
+        if (query.exec())
+        {
+            dailySalesModel->setQuery(query);
+
+        }
+        else
+        {
+            qDebug() << query.lastError().text();
+
+        }
+
+        // Initialize tableView_sales_daily using querymodel
+
+        ui->tableView_sales_daily->setModel(dailySalesModel);
+        dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
+        dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
+        dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
+        dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
+        dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
+
+        ui->tableView_sales_daily->resizeColumnToContents(2);
+
+        // Hide numerical vertical header
+        ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+        // Make fields uneditable
+        ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+
+        
+
     }
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
@@ -968,6 +1030,45 @@ void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgra
 void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 {
 
+    ui->comboBox_pos_itemlist->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setCurrentIndex(0);
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->label_pos_price->setText("");
+
+    printReceipt();
+
+//    QDate::currentDate().toString("m/dd/yyyy");
+
+    int addPurchaseID = posMemberID;
+
+    int purchaseQty = posQty;
+
+    this->database->addPurchase(addPurchaseID, posItem, QDate::currentDate().toString("M/dd/yyyy"), purchaseQty);
+
+    ui->pushButton_pos_purchase->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
+}
+
+void MainWindow::on_comboBox_pos_memberlist_activated(int index)
+{
+    posMemberID = ui->comboBox_pos_memberlist->currentText().toInt();
+    ui->comboBox_pos_itemlist->setEnabled(true);
+}
+
+void MainWindow::on_comboBox_pos_itemlist_activated(int index)
+{
+    posItemName = ui->comboBox_pos_itemlist->currentText();
+    posItem = this->database->getItem(posItemName);
+    ui->comboBox_pos_qty->setEnabled(true);
+
+}
+void MainWindow::on_comboBox_pos_qty_activated(int index)
+{
+    posQty = index + 1;
+    posPrice = this->database->getPrice(posItemName);
+    posTotal = posPrice * posQty;
+    ui->label_pos_price->setText(QString::number(posTotal));
+    ui->pushButton_pos_purchase->setEnabled(true);
 }
 
 
@@ -1102,10 +1203,7 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
     ui->tableView_sales_searchitem->setModel(model);
 }
 
-void MainWindow::on_pushButton_sale_byday_clicked()
-{
 
-}
 
 /**
  * @brief MainWindow::TextCompleter
@@ -1223,6 +1321,111 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
     ui->label_membership_recommendation_status->setText(labelText);
 
+}
+
+
+
+void MainWindow::InitializeSalesTableView()
+{
+
+    ui->comboBox_sales_byday->clear();
+    QSqlQuery query;
+    query.prepare("select datePurchased from purchases group by datePurchased");
+    //sales by day combo box
+    if(query.exec())
+    {
+       while (query.next())
+       {
+           ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
+       }
+    }
+    else
+    {
+        qDebug() << query.lastError().text();
+    }
+
+
+    // Hide numerical vertical header
+    ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+    // Make fields uneditable
+    ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
+}
+
+//initialize pos table
+void MainWindow::InitializePosTable()
+{
+    QStringList TableHeader;
+    ui->tableWidget_pos_receipts->setColumnCount(5);
+    TableHeader << "Member ID" << "Item" << "Price" << "qty" << "Total";
+    ui->tableWidget_pos_receipts->setHorizontalHeaderLabels(TableHeader);
+    ui->tableWidget_pos_receipts->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget_pos_receipts->setShowGrid(false);
+    ui->tableWidget_pos_receipts->verticalHeader()->setVisible(false);
+    ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
+    receiptRow = 0;
+
+    //initializing combo boxes
+    QStringList members = this->database->getPOSMembers();
+    qDebug() << members.length() << " items";
+    //item number combo box
+    if(ui->comboBox_pos_memberlist->count() == 0)
+    {
+        for (int i = 0; i < members.length(); i++)
+        {
+            ui->comboBox_pos_memberlist->addItem(members.at(i));
+        }
+    }
+    QStringList items = this->database->getNames();
+    qDebug() << items.length() << " items";
+    //item number combo box
+    if(ui->comboBox_pos_itemlist->count() == 0)
+    {
+        for (int i = 0; i < items.length(); i++)
+        {
+            ui->comboBox_pos_itemlist->addItem(items.at(i));
+        }
+    }
+    if(ui->comboBox_pos_qty->count() == 0)
+    {
+        for (int i = 1; i <= 10; i++)
+        {
+            ui->comboBox_pos_qty->addItem(QString::number(i));
+        }
+    }
+}
+
+void MainWindow::printReceipt()
+{
+    QTableWidgetItem *member = new QTableWidgetItem;
+    QTableWidgetItem *item = new QTableWidgetItem;
+    QTableWidgetItem *price = new QTableWidgetItem;
+    QTableWidgetItem *qty = new QTableWidgetItem;
+    QTableWidgetItem *total = new QTableWidgetItem;
+
+    member->setText(QString::number(posMemberID));
+    item->setText(posItemName);
+    price->setText(QString::number(posPrice));
+    qty->setText(QString::number(posQty));
+    total->setText(QString::number(posTotal));
+
+    ui->tableWidget_pos_receipts->insertRow(receiptRow);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 0, member);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 1, item);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 2, price);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 3, qty);
+    ui->tableWidget_pos_receipts->setItem(receiptRow, 4, total);
+    receiptRow++;
+
+}
+
+
+
+
+
+void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
+{
+    ui->tableWidget_pos_receipts->clear();
+    InitializePosTable();
 }
 
 void MainWindow::on_stackedWidget_admin_currentChanged(int arg1)

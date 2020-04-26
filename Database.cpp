@@ -291,6 +291,153 @@ bool Database::DeleteProduct(QString productID) { return false; }
 // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
 // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
 
+double Database::getPrice(QString item)
+{
+    double purchaseAmt = 0;
+
+    QSqlQuery query;
+
+
+    //finds item being purchased
+       //query database to get price of selected item
+    query.prepare("select price from products where name = ?");
+    //if it does match
+        //return price of item
+    query.bindValue(0, item);
+    if(query.exec())
+    {
+
+        while(query.next())
+        {
+            purchaseAmt = query.value(0).toDouble();
+        }
+
+        qDebug() << "item price: " << purchaseAmt;
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return purchaseAmt;
+}
+
+int Database::getItem(QString item)
+{
+    int purchaseAmt = 0;
+
+    QSqlQuery query;
+
+
+    //finds item being purchased
+       //query database to get price of selected item
+    query.prepare("select productID from products where name = ?");
+    //if it does match
+        //return price of item
+    query.bindValue(0, item);
+
+    if(query.exec())
+    {
+
+        while(query.next())
+        {
+            purchaseAmt = query.value(0).toDouble();
+        }
+
+        qDebug() << "item price: " << purchaseAmt;
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return purchaseAmt;
+}
+
+QStringList Database::getNames()
+{
+    QStringList itemNames;
+    int index = 0;
+
+    QSqlQuery query;
+
+    //retrieves item names
+       //query database to match item name to item number
+    query.prepare("select name from products");
+    //if it does match
+        //return names
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            itemNames.insert(index, query.value(0).toString());
+            index++;
+        }
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+    return itemNames;
+}
+
+QStringList Database::getPOSMembers()
+{
+    QStringList memberNames;
+    int index = 0;
+
+    QSqlQuery query;
+
+    //retrieves item names
+       //query database to match item name to item number
+    query.prepare("select memberID from members");
+    //if it does match
+        //return names
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            memberNames.insert(index, query.value(0).toString());
+            index++;
+        }
+    }
+    //else
+         //display errormessage
+    else // if unsuccessful, print error
+    {
+        qDebug() << "no match found";
+    }
+
+
+    return memberNames;
+}
+
+void Database::addPurchase(int memberID, int productID, QString datePurchased, int qty)
+{
+
+    QSqlQuery query;
+
+    query.prepare("INSERT INTO purchases "
+                  "(memberID, productID, "
+                  "datePurchased, qty)"
+                  "VALUES(?,?,?,?)");
+
+    query.addBindValue(memberID);
+    query.addBindValue(productID);
+    query.addBindValue(datePurchased);
+    query.addBindValue(qty);
+
+    if(!query.exec())
+        qDebug() << "Purchase could not be added.";
+
+}
 //check login
 int Database::checkLogin(QString username, QString password)
 {
@@ -309,7 +456,7 @@ int Database::checkLogin(QString username, QString password)
 
         while(query.next())
         {
-            permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
+                      permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
         }
 
         qDebug() << " permission level: " << permissionLevel;
@@ -320,9 +467,9 @@ int Database::checkLogin(QString username, QString password)
     {
         qDebug() << "no match found";
     }
-
-    return permissionLevel;
+      return permissionLevel;
 }
+
 
 // Destructor
 Database::~Database() {}
