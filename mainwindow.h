@@ -315,6 +315,7 @@ private:
         DAILY_ITEM,
         DAILY_PRICE,
         DAILY_QTY,
+        DAILY_TOTAL,
     };
 
     // Enum to keep track of permission level
