@@ -143,6 +143,15 @@ private:
     QSqlTableModel *memberModel;
     QModelIndex deleteMemberIndex;
 
+    enum memberTableHeaders
+    {
+        memberID,
+        name,
+        membershipType,
+        expirationDate,
+        membershipCost
+    };
+
     //For use in 'Display Member Rebates' feature
     //this is a comment
     struct ExecutiveMemberRebate

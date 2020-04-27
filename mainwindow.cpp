@@ -266,37 +266,40 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
 {
     ui->stackedWidget_main->setCurrentIndex(ADMIN);
 }
-    void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
+void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
+{
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
+    ui->pushButton_admin_editmember->setEnabled(false);
+    ui->pushButton_admin_deletemember->setEnabled(false);
+
+    if(memberModel != nullptr)
     {
-        ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
-
-        if(memberModel != nullptr)
-            delete memberModel;
-
-        memberModel = new QSqlTableModel;
-        memberModel->setTable("members");
-        memberModel->setSort(1, Qt::AscendingOrder);
-        memberModel->setHeaderData(0, Qt::Horizontal, QVariant("Member ID"));
-        memberModel->setHeaderData(1, Qt::Horizontal, QVariant("Name"));
-        memberModel->setHeaderData(2, Qt::Horizontal, QVariant("3"));
-        memberModel->setHeaderData(3, Qt::Horizontal, QVariant("4"));
-        memberModel->setHeaderData(4, Qt::Horizontal, QVariant("5"));
-
-        memberModel->select();
-
-        ui->tableView_admin_members->setModel(memberModel);
-        ui->tableView_admin_members->resizeColumnToContents(1);
-        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-//        QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-//        QObject::connect(ui->tableView_admin_members, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
-
-        ui->pushButton_admin_editmember->setEnabled(false);
-        ui->pushButton_admin_deletemember->setEnabled(false);
-
-
+        delete memberModel;
     }
+    memberModel = new QSqlTableModel;
+    memberModel->setTable("members");
+    memberModel->setSort(name, Qt::AscendingOrder);
+
+    memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    memberModel->setHeaderData(memberID, Qt::Horizontal, QVariant("Member ID"));
+    memberModel->setHeaderData(name, Qt::Horizontal, QVariant("Name"));
+    memberModel->setHeaderData(membershipType, Qt::Horizontal, QVariant("Member Type"));
+    memberModel->setHeaderData(expirationDate, Qt::Horizontal, QVariant("Expiration Date"));
+    memberModel->setHeaderData(membershipCost, Qt::Horizontal, QVariant("Member Cost"));
+
+    memberModel->select();
+
+    ui->tableView_admin_members->setModel(memberModel);
+    ui->tableView_admin_members->resizeColumnToContents(name);
+    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
+    ui->tableView_admin_inventory->setWordWrap(false);
+//  QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
+//  QObject::connect(ui->tableView_admin_members, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
+
+}
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
     {
@@ -332,7 +335,8 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 
     deleteMemberIndex = ui->tableView_membership->currentIndex();
     deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("name"));
-    if(!(memberModel->removeRow(deleteMemberIndex.row())))
+    bool deleteSuccess = memberModel->removeRow(deleteMemberIndex.row());
+    if(!deleteSuccess)
     {
         qDebug() << memberModel->lastError().text();
     }
@@ -401,7 +405,10 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
-    memberModel->submitAll();
+    if(!(memberModel->submitAll()))
+    {
+        qDebug() << "\nFailed to submit the deleteion request\n";
+    }
 }
 
 void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
