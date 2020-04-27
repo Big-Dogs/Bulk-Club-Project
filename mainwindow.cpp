@@ -270,21 +270,32 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
     {
         ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
+        if(memberModel != nullptr)
+            delete memberModel;
 
-        QSqlQueryModel *model = new QSqlQueryModel();
-        QSqlQuery * query = new QSqlQuery;
-        query->prepare("select * from members");
+        memberModel = new QSqlTableModel;
+        memberModel->setTable("members");
+        memberModel->setSort(1, Qt::AscendingOrder);
+        memberModel->setHeaderData(0, Qt::Horizontal, QVariant("Member ID"));
+        memberModel->setHeaderData(1, Qt::Horizontal, QVariant("Name"));
+        memberModel->setHeaderData(2, Qt::Horizontal, QVariant("3"));
+        memberModel->setHeaderData(3, Qt::Horizontal, QVariant("4"));
+        memberModel->setHeaderData(4, Qt::Horizontal, QVariant("5"));
 
-        if(!query->exec())
-        {
-            qDebug() << query->lastError().text();
-        }
-        else
-        {
-            model->setQuery(*query);
-            ui->tableView_admin_members->setModel(model);
-        }
-        delete query;
+        memberModel->select();
+
+        ui->tableView_admin_members->setModel(memberModel);
+        ui->tableView_admin_members->resizeColumnToContents(1);
+        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+//        QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
+//        QObject::connect(ui->tableView_admin_members, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
+
+        ui->pushButton_admin_editmember->setEnabled(false);
+        ui->pushButton_admin_deletemember->setEnabled(false);
+
+
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
@@ -315,8 +326,16 @@ void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
 void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member button
 {
     ui->gridWidget_admin_confirmdeletemember->show();
+    ui->pushButton_admin_confirmdeletemember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(false);
+
+    deleteMemberIndex = ui->tableView_membership->currentIndex();
+    deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("name"));
+    if(!(memberModel->removeRow(deleteMemberIndex.row())))
+    {
+        qDebug() << memberModel->lastError().text();
+    }
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
@@ -381,6 +400,8 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
+
+    memberModel->submitAll();
 }
 
 void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
@@ -1082,4 +1103,9 @@ void MainWindow::ClearMemberFields()
     ui->lineEdit_admin_membersubmission_name->clear();
     ui->lineEdit_admin_membersubmission_executive->clear();
     ui->lineEdit_admin_membersubmission_date->clear();
+}
+
+void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
+{
+    ui->pushButton_admin_deletemember->setEnabled(true);
 }

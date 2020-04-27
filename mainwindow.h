@@ -123,6 +123,8 @@ private slots:
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
+    void on_tableView_admin_members_clicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     int index = 0; // Testing Permissions
@@ -137,7 +139,9 @@ private:
     QString salesReportProduct; // Product manager wishes to view for sales report
 
 
-
+    //For use in the admin member management functions
+    QSqlTableModel *memberModel;
+    QModelIndex deleteMemberIndex;
 
     //For use in 'Display Member Rebates' feature
     //this is a comment
