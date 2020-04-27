@@ -292,8 +292,8 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
 
     ui->tableView_admin_members->setModel(memberModel);
     ui->tableView_admin_members->resizeColumnToContents(name);
-    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+    //ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
     ui->tableView_admin_inventory->setWordWrap(false);
 //  QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
@@ -334,6 +334,21 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
     ui->pushButton_admin_addmember->setEnabled(false);
 
     deleteMemberIndex = ui->tableView_membership->currentIndex();
+    QString memberValue = ui->tableView_membership->model()->data(deleteMemberIndex).toString();
+
+//    QSqlQuery memberQuery;
+//    memberQuery.prepare("DELETE FROM members WHERE employeeID='"+memberValue+"'");
+
+//    if(!memberQuery.exec())
+//    {
+//        qDebug() << "\nfailed to delete member \n" << memberQuery.lastError();
+//    }
+
+
+
+
+
+
     deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("name"));
     bool deleteSuccess = memberModel->removeRow(deleteMemberIndex.row());
     if(!deleteSuccess)
