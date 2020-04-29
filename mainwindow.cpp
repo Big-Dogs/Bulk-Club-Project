@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     formatPrice = new MoneyDelegate;
 
+    sortItemModel = new QSqlTableModel;
 
     InitializePosTable();
 
@@ -311,6 +312,33 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
     void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_ITEM);
+
+     //   ui->tableView_sales_sortitem
+
+        //set up model
+        if (sortItemModel != nullptr)
+        {
+            delete sortItemModel;
+        }
+        sortItemModel = new QSqlTableModel;
+        sortItemModel->setTable("products");
+        sortItemModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        sortItemModel->setSort(ITEM_ID, Qt::AscendingOrder);
+        sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("Product ID"));
+        sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
+        sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Price"));
+        sortItemModel->select();
+
+        //set up view
+        ui->tableView_sales_sortitem->setModel(sortItemModel);
+        ui->tableView_sales_sortitem->resizeColumnToContents(ITEM_NAME);
+        ui->tableView_sales_sortitem->setItemDelegateForColumn(ITEM_PRICE, formatPrice);
+        ui->tableView_sales_sortitem->setEditTriggers(QAbstractItemView::AnyKeyPressed);
+        ui->tableView_sales_sortitem->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tableView_sales_sortitem->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tableView_sales_sortitem->setFocusPolicy(Qt::NoFocus);
+        ui->tableView_sales_sortitem->setWordWrap(false);
+        ui->tableView_sales_sortitem->show();
     }
 
     void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
