@@ -73,6 +73,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
 
+    //preparing the line edit integer validations for sort item
+    idCheck = new QIntValidator;
+    idCheck->setRange(0,100000);
+    ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
+    monthCheck = new QIntValidator;
+    monthCheck->setRange(0,12);
+    ui->lineEdit_admin_membersubmission_month->setValidator(monthCheck);
+    dayCheck = new QIntValidator;
+    dayCheck->setTop(31);
+    dayCheck->setBottom(1);
+    ui->lineEdit_admin_membersubmission_day->setValidator(dayCheck);
+    yearCheck = new QIntValidator;
+    yearCheck->setRange(1890,2021);
+    ui->lineEdit_admin_membersubmission_year->setValidator(yearCheck);
+
+
     InitializeSalesTableView(); //initializes daily sales report
       
     ui->label_admin_products_errormessage->setVisible(false);
@@ -482,6 +498,13 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
     ui->pushButton_admin_deletemember->setEnabled(false);
 
      MainWindow::on_pushButton_admin_member_clicked();
+
+     //preparing the line edits to have a max character amount
+     ui->lineEdit_admin_membersubmission_month->setMaxLength(2);
+     ui->lineEdit_admin_membersubmission_day->setMaxLength(2);
+     ui->lineEdit_admin_membersubmission_year->setMaxLength(4);
+
+
 }
 
 void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
@@ -510,23 +533,50 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     TempMember tempMemberAdd;
 
 
+    //Populates the tempMember struct instance with the new member information.
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
     tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
-    if(tempMemberAdd.executiveStatus == "executive")
-        memberType = "Executive";
+    if(ui->radioButton_admin_member->isChecked())
+        tempMemberAdd.executiveStatus = "Executive";
+    else
+        tempMemberAdd.executiveStatus = "Regular";
 
-    QSqlQuery query;
+    tempMemberAdd.expMonth = ui->lineEdit_admin_membersubmission_month->text();
+    tempMemberAdd.expDay = ui->lineEdit_admin_membersubmission_day->text();
+    tempMemberAdd.expYear = ui->lineEdit_admin_membersubmission_year->text();
 
-    int renewalPrice;
+    //creates the expiration date string that
+    tempMemberAdd.expDate = tempMemberAdd.expMonth + "/"
+                          + tempMemberAdd.expDay   + "/"
+                          + tempMemberAdd.expYear;
 
+    //sets the renewal price for the member based on executive status
+    int renewalPrice = 0;
     if(memberType == "Executive")
         renewalPrice = 120;
-    else
+    else if(memberType == "Regular")
         renewalPrice = 60;
+    if(!((ui->lineEdit_admin_membersubmission_year->text()).toInt() > 2020 ||
+       (ui->lineEdit_admin_membersubmission_year->text()).toInt() <= 1890))
+    {
+//        if(!((ui->lineEdit_admin_membersubmission_month->text()).toInt() > 12))
+//        {
+//            if(!((ui->lineEdit_admin_membersubmission_day->text()).toInt() > 28 &&
+//                 (ui->lineEdit_admin_membersubmission_month->text()).toInt() == 2) ||
+//                 (ui->lineEdit_admin_membersubmission_day->text()).toInt() >  &&
+//                                     (ui->lineEdit_admin_membersubmission_month->text()).toInt() == 2)))
+//            {
 
+//            }
+//        }
+    }
+    else
+    {
+        ui->label_admin_membersubmission_date_warning->show();
+    }
+    //inserts the member into the database
+    QSqlQuery query;  
     query.prepare("INSERT INTO members "
                   "(memberID, name, "
                   "memberType, expireDate,"
@@ -535,7 +585,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     query.addBindValue(tempMemberAdd.id);
     query.addBindValue(tempMemberAdd.name);
     query.addBindValue(memberType);
-    query.addBindValue(tempMemberAdd.expirationDate);
+    query.addBindValue(tempMemberAdd.expDate);
     query.addBindValue(QString::number(renewalPrice));
 
     if(!query.exec())
@@ -1221,8 +1271,10 @@ void MainWindow::ClearMemberFields()
 {
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
-    //ui->lineEdit_admin_membersubmission_executive->clear();
-    //ui->lineEdit_admin_membersubmission_date->clear();
+    ui->radioButton_admin_member->setChecked(false);
+    ui->lineEdit_admin_membersubmission_month->clear();
+    ui->lineEdit_admin_membersubmission_day->clear();
+     ui->lineEdit_admin_membersubmission_year->clear();
 }
 
 

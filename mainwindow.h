@@ -222,8 +222,15 @@ private:
         QString id;
         QString name;
         QString executiveStatus;
-        QString expirationDate;
+        QString expMonth;
+        QString expDay;
+        QString expYear;
+        QString expDate;
     };
+    QIntValidator *idCheck;
+    QIntValidator *monthCheck;
+    QIntValidator *dayCheck;
+    QIntValidator *yearCheck;
 
 
     // For use in upgrade/downgrade features
