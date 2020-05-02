@@ -445,6 +445,7 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
         memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
         memberModel->select();
 
+
         //set up view
         ui->tableView_admin_members->setModel(memberModel);
         ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
@@ -453,6 +454,7 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
         ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
         ui->tableView_admin_members->setWordWrap(false);
+
 //        QSqlQueryModel *model = new QSqlQueryModel();
 //        QSqlQuery * query = new QSqlQuery;
 //        query->prepare("select * from members");
@@ -583,11 +585,20 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 
     TempMember tempMemberAdd;
 
-
     //Populates the tempMember struct instance with the new member information.
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
-    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
 
+    //Formats the name to make sure the first letter is always capitalized, and the rest are lower case
+    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
+    QString tempName = tempMemberAdd.name;
+    tempName = tempName.toLower();
+    tempName[0] = tempMemberAdd.name[0].toUpper();
+    tempMemberAdd.name = tempName;
+
+
+       //     QString(QChar::fromLatin1(firstLetterName);
+
+    qDebug() << tempMemberAdd.name;
     if(ui->radioButton_admin_member->isChecked())
         tempMemberAdd.executiveStatus = "Executive";
     else
@@ -1035,6 +1046,8 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
         ui->label_membership_recommendation_status->setText(labelText);
 
+        //resets the table
+        on_pushButton_admin_member_clicked();
 
 }
 
