@@ -818,6 +818,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 
     QSqlQuery query;
     QSqlQuery zeroQuery;
+    QVector<ExecutiveMemberRebate> memberList;
 
 
     query.prepare("SELECT members.memberID, members.name, "
@@ -827,66 +828,68 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
                   "AND purchases.productID = products.productID "
                   "AND members.memberID = :memberID");
 
-    zeroQuery.prepare("SELECT DISTINCT members.memberID, members.name, 0, 0 "
-                  "FROM members, purchases"
-                  "WHERE members.memberID NOT IN "
-                  "(SELECT memberID from purchases)");
 
-    QVector<ExecutiveMemberRebate> memberList;
-
-    // If member list is empty
-    if(memberList.empty())
+    // Iterate through ID list, calling each member's purchases
+    for(int i = 0; i < memberIDList.size(); i++)
     {
-        // Iterate through ID list, calling each member's purchases
-        for(int i = 0; i < memberIDList.size(); i++)
+        query.bindValue(":memberID", memberIDList[i]);
+        // Execute Query
+        if(query.exec())
         {
-            query.bindValue(":memberID", memberIDList[i]);
-            zeroQuery.bindValue(":memberID", memberIDList[i]);
-            // Execute Query
-            if(query.exec())
+            // Iterate through query data and pull purchase information into vector
+            while(query.next())
             {
-                // Iterate through query data and pull purchase information into vector
-                while(query.next())
+                if(query.value(0).toString() != "")
                 {
-                    if(query.value(0).toString() != "")
-                    {
-                        // Copy into temp object
-                        tempMember.memberID = query.value(0).toString();
-                        tempMember.name = query.value(1).toString();
-                        tempMember.amountSpent = query.value(2).toString();
-                        tempMember.rebate = QString::number((tempMember.amountSpent.toFloat()) * .02);
-                        // Add object to member list
-                        memberList.append(tempMember);
-                    }
+                    // Copy into temp object
+                    tempMember.memberID = query.value(0).toString();
+                    tempMember.name = query.value(1).toString();
+                    tempMember.amountSpent = query.value(2).toString();
+                    tempMember.rebate = QString::number((tempMember.amountSpent.toFloat()) * .02);
+                    // Add object to member list
+                    memberList.append(tempMember);
                 }
             }
-            else // if unsuccessful, print error
-            {
-                qDebug() << query.lastError().text();
-            }
-            if(zeroQuery.exec())
-            {
-                // Iterate through query data and pull purchase information into vector
-                while(zeroQuery.next())
-                {
-                    if(zeroQuery.value(0).toString() != "")
-                    {
-                        // Copy into temp object
-                        tempMember.memberID = zeroQuery.value(0).toString();
-                        tempMember.name = zeroQuery.value(1).toString();
-                        tempMember.amountSpent = zeroQuery.value(2).toString();
-                        tempMember.rebate = QString::number(0.f);
-                        // Add object to member list
-                        memberList.append(tempMember);
-                    }
-                }
-            }
-            else
-            {
+        }
+        else // if unsuccessful, print error
+        {
+            qDebug() << query.lastError().text();
+        }
 
+    }
+    QVector<ExecutiveMemberRebate> zeroMembers;
+    ExecutiveMemberRebate zeroTempMember;
+
+    // Get members who made no purchases
+    query.prepare("SELECT DISTINCT members.memberID, members.name, 0 , 0 "
+                  "FROM members, purchases "
+                  "WHERE members.memberType = 'Executive' "
+                  "AND members.memberID NOT IN "
+                  "(SELECT memberID from purchases)" );
+
+    if(query.exec())
+    {
+        while(query.next())
+        {
+            if(query.value(0).toString() != "")
+            {
+                // Copy into temp object
+                tempMember.memberID = query.value(0).toString();
+                tempMember.name = query.value(1).toString();
+                tempMember.amountSpent = 0.f;
+                tempMember.rebate = 0.f;
+
+                // Add object to vector
+                memberList.append(tempMember);
             }
         }
     }
+    else // if unsuccessful, print error
+    {
+        qDebug() << query.lastError().text();
+    }
+
+
     //printing the list of executive members
     for(int i = 0; i < memberList.size(); i++)
     {
