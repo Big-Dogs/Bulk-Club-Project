@@ -817,7 +817,6 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
     QStringList memberIDList = database->GetExecutiveMemberIDList();
 
     QSqlQuery query;
-    QSqlQuery zeroQuery;
     QVector<ExecutiveMemberRebate> memberList;
 
 
@@ -857,8 +856,6 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         }
 
     }
-    QVector<ExecutiveMemberRebate> zeroMembers;
-    ExecutiveMemberRebate zeroTempMember;
 
     // Get members who made no purchases
     query.prepare("SELECT DISTINCT members.memberID, members.name, 0 , 0 "
