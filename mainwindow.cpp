@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
 
-    //preparing the line edit integer validations for sort item
+    //preparing the line edit integer validations for add member
     idCheck = new QIntValidator;
     idCheck->setRange(0,100000);
     ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
@@ -88,6 +88,17 @@ MainWindow::MainWindow(QWidget *parent)
     yearCheck->setRange(1890,2021);
     ui->lineEdit_admin_membersubmission_year->setValidator(yearCheck);
 
+    //sets up add member
+    memberModel = nullptr;
+    ui->lineEdit_admin_membersubmission_year->hide();
+    ui->label_admin_slash1->hide();
+    ui->lineEdit_admin_membersubmission_day->hide();
+    ui->label_admin_slash2->hide();
+    ui->lineEdit_admin_membersubmission_month->hide();
+    ui->label_admin_membersubmission_date->hide();
+    ui->label_admin_membersubmission_date_warning->hide();
+    ui->label_admin_membersubmission_id_warning->hide();
+    ui->label_admin_membersubmission_name_warning->hide();
 
     InitializeSalesTableView(); //initializes daily sales report
       
@@ -409,21 +420,53 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
     {
         ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
-
-        QSqlQueryModel *model = new QSqlQueryModel();
-        QSqlQuery * query = new QSqlQuery;
-        query->prepare("select * from members");
-
-        if(!query->exec())
+        //set up model
+        if (memberModel != nullptr)
         {
-            qDebug() << query->lastError().text();
+            delete memberModel;
         }
-        else
-        {
-            model->setQuery(*query);
-            ui->tableView_admin_members->setModel(model);
-        }
-        delete query;
+        enum MembershipTableWidgetColumns{
+            ID_COLUMN,
+            NAME_COLUMN,
+            MEMBERSHIP_TYPE_COLUMN,
+            EXPIRATION_DATE_COLUMN,
+            RENEWAL_PRICE_COLUMN
+        };
+
+        memberModel = new QSqlTableModel;
+        memberModel->setTable("members");
+
+        memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
+        memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+        memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+        memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
+        memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
+        memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
+        memberModel->select();
+
+        //set up view
+        ui->tableView_admin_members->setModel(memberModel);
+        ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
+        ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
+        ui->tableView_admin_members->setWordWrap(false);
+//        QSqlQueryModel *model = new QSqlQueryModel();
+//        QSqlQuery * query = new QSqlQuery;
+//        query->prepare("select * from members");
+
+//        if(!query->exec())
+//        {
+//            qDebug() << query->lastError().text();
+//        }
+//        else
+//        {
+//            model->setQuery(*query);
+//            ui->tableView_admin_members->setModel(model);
+//        }
+//        delete query;
     }
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
@@ -523,12 +566,20 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
 {
-    ui->gridWidget_admin_memberdatafields->hide();
+
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
-    QString memberType = "Regular";
+    //Created strings that are used to assign a date to the new member
+    QString thisYear = QDate::currentDate().toString("yyyy");
+    QString thisMonth = QDate::currentDate().toString("M");
+    QString thisDay = QDate::currentDate().toString("dd");
+
+    //Takes care of memberships that start on the 29th of feb
+    if(QDate::isLeapYear(thisYear.toInt()) && QDate::currentDate().toString("M/dd") == "2/29")
+        thisDay = QString::number(thisDay.toInt() - 1);
+    QString nextYear = QString::number(thisYear.toInt() + 1);
 
     TempMember tempMemberAdd;
 
@@ -542,57 +593,66 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     else
         tempMemberAdd.executiveStatus = "Regular";
 
-    tempMemberAdd.expMonth = ui->lineEdit_admin_membersubmission_month->text();
-    tempMemberAdd.expDay = ui->lineEdit_admin_membersubmission_day->text();
-    tempMemberAdd.expYear = ui->lineEdit_admin_membersubmission_year->text();
+    tempMemberAdd.expMonth = thisMonth;
+    tempMemberAdd.expDay = thisDay;
+    tempMemberAdd.expYear = nextYear;
 
-    //creates the expiration date string that
+    //creates the expiration date string
     tempMemberAdd.expDate = tempMemberAdd.expMonth + "/"
                           + tempMemberAdd.expDay   + "/"
                           + tempMemberAdd.expYear;
 
     //sets the renewal price for the member based on executive status
     int renewalPrice = 0;
-    if(memberType == "Executive")
+    if(tempMemberAdd.executiveStatus == "Executive")
         renewalPrice = 120;
-    else if(memberType == "Regular")
+    else if(tempMemberAdd.executiveStatus == "Regular")
         renewalPrice = 60;
-    if(!((ui->lineEdit_admin_membersubmission_year->text()).toInt() > 2020 ||
-       (ui->lineEdit_admin_membersubmission_year->text()).toInt() <= 1890))
-    {
-//        if(!((ui->lineEdit_admin_membersubmission_month->text()).toInt() > 12))
-//        {
-//            if(!((ui->lineEdit_admin_membersubmission_day->text()).toInt() > 28 &&
-//                 (ui->lineEdit_admin_membersubmission_month->text()).toInt() == 2) ||
-//                 (ui->lineEdit_admin_membersubmission_day->text()).toInt() >  &&
-//                                     (ui->lineEdit_admin_membersubmission_month->text()).toInt() == 2)))
-//            {
 
-//            }
-//        }
+    if(tempMemberAdd.name != "")
+    {
+        if(tempMemberAdd.id != "")
+        {
+            //inserts the member into the database
+            QSqlQuery query;
+            query.prepare("INSERT INTO members "
+                          "(memberID, name, "
+                          "memberType, expireDate,"
+                          "renewalPrice) VALUES(?,?,?,?,?)");
+
+            query.addBindValue(tempMemberAdd.id);
+            query.addBindValue(tempMemberAdd.name);
+            query.addBindValue(tempMemberAdd.executiveStatus);
+            query.addBindValue(tempMemberAdd.expDate);
+            query.addBindValue(QString::number(renewalPrice));
+
+            if(!query.exec())
+                qDebug() << "Member failed to save";
+
+            //clears out all of the member fields, hides the add member widgets, and warnings
+            MainWindow::on_pushButton_admin_member_clicked();
+            MainWindow::ClearMemberFields();
+            ui->gridWidget_admin_memberdatafields->hide();
+            ui->label_admin_membersubmission_date_warning->hide();
+            ui->label_admin_membersubmission_id_warning->hide();
+            ui->label_admin_membersubmission_name_warning->hide();
+            qDebug() << tempMemberAdd.expYear.toInt(),
+                        tempMemberAdd.expMonth.toInt(),
+                        tempMemberAdd.expDay.toInt();
+        }
+        else
+        {   //sets the correct warning messages
+            ui->label_admin_membersubmission_id_warning->show();
+            ui->label_admin_membersubmission_name_warning->hide();
+        }
     }
     else
-    {
-        ui->label_admin_membersubmission_date_warning->show();
+    {   //sets the correct warning messages
+        ui->label_admin_membersubmission_name_warning->show();
+
+        if(tempMemberAdd.id == "")
+            ui->label_admin_membersubmission_id_warning->show();
     }
-    //inserts the member into the database
-    QSqlQuery query;  
-    query.prepare("INSERT INTO members "
-                  "(memberID, name, "
-                  "memberType, expireDate,"
-                  "renewalPrice) VALUES(?,?,?,?,?)");
-
-    query.addBindValue(tempMemberAdd.id);
-    query.addBindValue(tempMemberAdd.name);
-    query.addBindValue(memberType);
-    query.addBindValue(tempMemberAdd.expDate);
-    query.addBindValue(QString::number(renewalPrice));
-
-    if(!query.exec())
-        qDebug() << "Member failed to save";
-
-     MainWindow::on_pushButton_admin_member_clicked();
-     MainWindow::ClearMemberFields();
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -603,6 +663,9 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_editmember->setEnabled(true);
 
     MainWindow::ClearMemberFields();
+    ui->label_admin_membersubmission_date_warning->hide();
+    ui->label_admin_membersubmission_id_warning->hide();
+    ui->label_admin_membersubmission_name_warning->hide();
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -1792,6 +1855,7 @@ void MainWindow::on_tableView_item_currentChanged(int row)
     qDebug() << "current changed";
 }
 
+//
 //void restrictSelectToRow(const QModelIndex &selectedRow)
 //{
 //    //Variable
