@@ -451,6 +451,7 @@ void MainWindow::on_pushButton_admin_clicked() // administrator tools
         ui->tableView_admin_members->setModel(memberModel);
         ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
         ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+        ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
         ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
@@ -549,6 +550,7 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
      ui->lineEdit_admin_membersubmission_month->setMaxLength(2);
      ui->lineEdit_admin_membersubmission_day->setMaxLength(2);
      ui->lineEdit_admin_membersubmission_year->setMaxLength(4);
+     ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
 
 
 }
