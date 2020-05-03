@@ -124,7 +124,7 @@ private slots:
             void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
-    
+
     void on_stackedWidget_admin_currentChanged(int arg1);
 
     void on_stackedWidget_admin_widgetRemoved(int index);
