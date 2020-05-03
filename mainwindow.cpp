@@ -202,7 +202,6 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
-        InitializeSalesTableView();
     }
 
     void MainWindow::on_pushButton_sale_byday_clicked()
@@ -1046,6 +1045,8 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 
     ui->pushButton_pos_purchase->setEnabled(false);
     ui->comboBox_pos_itemlist->setEnabled(false);
+
+    InitializeSalesTableView();
 }
 
 void MainWindow::on_comboBox_pos_memberlist_activated(int index)
@@ -1245,6 +1246,9 @@ void MainWindow::on_pushButton_home_login_clicked()
     {
         ui->label_home_warning->show();
     }
+
+    ui->lineEdit_home_username->clear();
+    ui->lineEdit_home_password->clear();
 }
 
 // Helper Function Definitions
