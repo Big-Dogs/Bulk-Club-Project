@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     formatPrice = new MoneyDelegate;
 
+    memberModel = nullptr;
+
     // Create Executive Member Vector
 
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
@@ -292,8 +294,8 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
 
     ui->tableView_admin_members->setModel(memberModel);
     ui->tableView_admin_members->resizeColumnToContents(name);
-    //ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-    //ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
     ui->tableView_admin_inventory->setWordWrap(false);
 //  QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
@@ -333,28 +335,28 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(false);
 
-    deleteMemberIndex = ui->tableView_membership->currentIndex();
-    QString memberValue = ui->tableView_membership->model()->data(deleteMemberIndex).toString();
+    deleteMemberIndex = ui->tableView_admin_members->currentIndex();
 
-//    QSqlQuery memberQuery;
-//    memberQuery.prepare("DELETE FROM members WHERE employeeID='"+memberValue+"'");
+    QString testIndex = QVariant(ui->tableView_admin_members->currentIndex()).toString();
+    qDebug() << testIndex;
 
-//    if(!memberQuery.exec())
-//    {
-//        qDebug() << "\nfailed to delete member \n" << memberQuery.lastError();
-//    }
+
+    qDebug() << "the test index is " <<  testIndex.toInt();
 
 
 
+    QString memberValue = deleteMemberIndex.data().toString();
+    //QString memberValue = ui->tableView_membership->model()->data(deleteMemberIndex).toString();
 
 
+    //qDebug() << deleteSuccess;
+    //    QSqlQuery memberQuery;
+    //    memberQuery.prepare("DELETE FROM members WHERE employeeID='"+memberValue+"'");
 
-    deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("name"));
-    bool deleteSuccess = memberModel->removeRow(deleteMemberIndex.row());
-    if(!deleteSuccess)
-    {
-        qDebug() << memberModel->lastError().text();
-    }
+    //    if(!memberQuery.exec())
+    //    {
+    //        qDebug() << "\nfailed to delete member \n" << memberQuery.lastError();
+    //    }
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
@@ -420,6 +422,13 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
+    deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("memberID"));
+    bool deleteSuccess = memberModel->removeRow(deleteMemberIndex.row());
+    memberModel->isDirty();
+    if(!deleteSuccess)
+    {
+        qDebug() << "The member failed to delete. " << deleteSuccess << memberModel->lastError().text();
+    }
     if(!(memberModel->submitAll()))
     {
         qDebug() << "\nFailed to submit the deleteion request\n";
