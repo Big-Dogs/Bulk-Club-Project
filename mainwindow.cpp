@@ -335,28 +335,8 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(false);
 
+    //obtains the index of the currently selected row on the table view
     deleteMemberIndex = ui->tableView_admin_members->currentIndex();
-
-    QString testIndex = QVariant(ui->tableView_admin_members->currentIndex()).toString();
-    qDebug() << testIndex;
-
-
-    qDebug() << "the test index is " <<  testIndex.toInt();
-
-
-
-    QString memberValue = deleteMemberIndex.data().toString();
-    //QString memberValue = ui->tableView_membership->model()->data(deleteMemberIndex).toString();
-
-
-    //qDebug() << deleteSuccess;
-    //    QSqlQuery memberQuery;
-    //    memberQuery.prepare("DELETE FROM members WHERE employeeID='"+memberValue+"'");
-
-    //    if(!memberQuery.exec())
-    //    {
-    //        qDebug() << "\nfailed to delete member \n" << memberQuery.lastError();
-    //    }
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
@@ -422,12 +402,11 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
+    //removes the row at the currently selected index based on member id.
     deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("memberID"));
-    bool deleteSuccess = memberModel->removeRow(deleteMemberIndex.row());
-    memberModel->isDirty();
-    if(!deleteSuccess)
+    if(memberModel->removeRow(deleteMemberIndex.row()))
     {
-        qDebug() << "The member failed to delete. " << deleteSuccess << memberModel->lastError().text();
+        qDebug() << "The member failed to delete. " << memberModel->lastError().text();
     }
     if(!(memberModel->submitAll()))
     {
