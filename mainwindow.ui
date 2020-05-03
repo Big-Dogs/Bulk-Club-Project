@@ -907,6 +907,19 @@ color: rgb(239, 41, 41);</string>
          <string>WARNING: Please enter a member ID</string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_admin_membersubmission_nameID_warning">
+        <property name="geometry">
+         <rect>
+          <x>780</x>
+          <y>90</y>
+          <width>231</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>WARNING: Please enter a unique name and ID</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_admin_inventory">
        <widget class="QTableView" name="tableView_admin_inventory">

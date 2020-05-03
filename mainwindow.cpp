@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_admin_membersubmission_date_warning->hide();
     ui->label_admin_membersubmission_id_warning->hide();
     ui->label_admin_membersubmission_name_warning->hide();
+    ui->label_admin_membersubmission_nameID_warning->hide();
 
     InitializeSalesTableView(); //initializes daily sales report
       
@@ -638,23 +639,31 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
             query.addBindValue(QString::number(renewalPrice));
 
             if(!query.exec())
-                qDebug() << "Member failed to save";
+            {
+                qDebug() << "Member failed to save" << memberModel->lastError();
+                ui->label_admin_membersubmission_nameID_warning->show();
 
-            //clears out all of the member fields, hides the add member widgets, and warnings
-            MainWindow::on_pushButton_admin_member_clicked();
-            MainWindow::ClearMemberFields();
-            ui->gridWidget_admin_memberdatafields->hide();
-            ui->label_admin_membersubmission_date_warning->hide();
-            ui->label_admin_membersubmission_id_warning->hide();
-            ui->label_admin_membersubmission_name_warning->hide();
-            qDebug() << tempMemberAdd.expYear.toInt(),
-                        tempMemberAdd.expMonth.toInt(),
-                        tempMemberAdd.expDay.toInt();
+            }
+            else
+            {
+                //clears out all of the member fields, hides the add member widgets, and warnings
+                MainWindow::on_pushButton_admin_member_clicked();
+                MainWindow::ClearMemberFields();
+                ui->gridWidget_admin_memberdatafields->hide();
+                ui->label_admin_membersubmission_date_warning->hide();
+                ui->label_admin_membersubmission_id_warning->hide();
+                ui->label_admin_membersubmission_name_warning->hide();
+                ui->label_admin_membersubmission_nameID_warning->hide();
+                qDebug() << tempMemberAdd.expYear.toInt(),
+                            tempMemberAdd.expMonth.toInt(),
+                            tempMemberAdd.expDay.toInt();
+            }
         }
         else
         {   //sets the correct warning messages
             ui->label_admin_membersubmission_id_warning->show();
             ui->label_admin_membersubmission_name_warning->hide();
+            qDebug() << itemModel->lastError().text();
         }
     }
     else
@@ -677,6 +686,7 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->label_admin_membersubmission_date_warning->hide();
     ui->label_admin_membersubmission_id_warning->hide();
     ui->label_admin_membersubmission_name_warning->hide();
+    ui->label_admin_membersubmission_nameID_warning->hide();
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
