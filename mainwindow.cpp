@@ -965,7 +965,7 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
 
 void MainWindow::on_pushButton_membership_expire_clicked()
 {
-    ui->tableWidget_membership->show();
+
     // Filter expiration by month
     switch(ui->comboBox_membership_expire->currentIndex())
     {
@@ -994,7 +994,7 @@ void MainWindow::on_pushButton_membership_expire_clicked()
         case MembershipTableModel::DECEMBER  : membershipModel->setFilter("substr(expireDate, 0, 3) = '12'");
                                                break;
     }
-
+     ui->gridWidget_membership_expire->show();
 }
 
 
