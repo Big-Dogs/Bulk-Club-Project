@@ -234,8 +234,8 @@ private:
     const float REBATE_RATE = 0.02;      // rebate rate for calculation
     const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
     QStringList tableWidgetColumnNames = {
-        "Membership Number",
-        "Member Name",
+        "ID",
+        "Name",
         "Amount Spent",
         "Rebate Amount"
     };

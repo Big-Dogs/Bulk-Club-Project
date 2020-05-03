@@ -955,6 +955,9 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
     membershipModel->InitializeTable();
     ui->tableView_membership->setModel(membershipModel);
 
+    // Resize Columns
+    ui->tableView_membership->resizeColumnsToContents();
+
     // Hide numerical vertical header
     ui->tableView_membership->verticalHeader()->setVisible(false);
     // Make fields uneditable
@@ -1264,6 +1267,8 @@ void MainWindow::InitializeMembershipTableWidget()
     rebateAmount = 0.0; // member's rebate received
     ui->tableWidget_membership->setColumnCount(TABLE_WIDGET_COLS);
     ui->tableWidget_membership->setHorizontalHeaderLabels(tableWidgetColumnNames);
+    ui->tableWidget_membership->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableWidget_membership->resizeColumnsToContents();
 }
 
     // Print suggested upgrades report
