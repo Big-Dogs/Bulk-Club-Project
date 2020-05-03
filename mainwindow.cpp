@@ -897,7 +897,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 
     QStringList tableColumns;
     ui->tableWidget_membership->setColumnCount(3);
-    tableColumns << "ID Number" << "Name" << "Rebate";
+    tableColumns << "ID" << "Name" << "Rebate";
     ui->tableWidget_membership->setHorizontalHeaderLabels(tableColumns);
 
 
