@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_pos_purchase->setEnabled(false);
 
 
-    ui->label_home_warning->hide();
+    ui->label_home_warning->setText("");
 
     setPermissions(NONE);
 
@@ -1061,13 +1061,14 @@ void MainWindow::on_comboBox_pos_itemlist_activated(int index)
     posItem = this->database->getItem(posItemName);
     ui->comboBox_pos_qty->setEnabled(true);
 
+
 }
 void MainWindow::on_comboBox_pos_qty_activated(int index)
 {
     posQty = index + 1;
     posPrice = this->database->getPrice(posItemName);
     posTotal = posPrice * posQty;
-    ui->label_pos_price->setText(QString::number(posTotal));
+    ui->label_pos_price->setText(QString::number(posTotal, 'f', 2));
     ui->pushButton_pos_purchase->setEnabled(true);
 }
 
@@ -1230,7 +1231,7 @@ void MainWindow::ClearMemberFields()
 /*----Home Page push buttons----*/
 void MainWindow::on_pushButton_home_login_clicked()
 {
-    ui->label_home_warning->hide();
+    ui->label_home_warning->setText("");
 
     QString username = ui->lineEdit_home_username->text();
     QString password = ui->lineEdit_home_password->text();
@@ -1244,7 +1245,8 @@ void MainWindow::on_pushButton_home_login_clicked()
     }
     else
     {
-        ui->label_home_warning->show();
+        ui->label_home_warning->setText("Invalid username or password. Please try again.");
+        ui->label_home_warning->setStyleSheet("color: red");
     }
 
     ui->lineEdit_home_username->clear();
@@ -1405,11 +1407,12 @@ void MainWindow::printReceipt()
     QTableWidgetItem *qty = new QTableWidgetItem;
     QTableWidgetItem *total = new QTableWidgetItem;
 
+
     member->setText(QString::number(posMemberID));
     item->setText(posItemName);
     price->setText(QString::number(posPrice));
     qty->setText(QString::number(posQty));
-    total->setText(QString::number(posTotal));
+    total->setText(QString::number(posTotal, 'f', 2));
 
     ui->tableWidget_pos_receipts->insertRow(receiptRow);
     ui->tableWidget_pos_receipts->setItem(receiptRow, 0, member);
