@@ -18,7 +18,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     Database.cpp \
     MembershipTableModel.cpp \
-    loginwindow.cpp \
     main.cpp \
     mainwindow.cpp \
     moneydelegate.cpp
@@ -26,13 +25,11 @@ SOURCES += \
 HEADERS += \
     Database.h \
     MembershipTableModel.h \
-    loginwindow.h \
     mainwindow.h \
     debugflags.h \
     moneydelegate.h
 
 FORMS += \
-    loginwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
