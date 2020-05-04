@@ -337,6 +337,13 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 
     //obtains the index of the currently selected row on the table view
     deleteMemberIndex = ui->tableView_admin_members->currentIndex();
+    deleteMemberIndex = deleteMemberIndex.sibling(deleteMemberIndex.row(), memberModel->fieldIndex("name"));
+
+    QString confirmDelete;
+    confirmDelete = "Delete ";
+    confirmDelete.append(deleteMemberIndex.data().toString());
+    confirmDelete.append('?');
+    ui->label_admin_confirmdeletemember->setText(confirmDelete);
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
