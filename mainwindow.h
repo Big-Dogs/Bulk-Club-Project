@@ -217,7 +217,7 @@ private:
 
     //For use in 'Sort item' feature
 
-    QSqlTableModel *sortItemModel;
+    QSqlQueryModel *sortItemModel;
     enum sortItemHeaders
     {
         ITEM_ID,

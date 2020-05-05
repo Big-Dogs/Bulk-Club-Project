@@ -320,14 +320,44 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         {
             delete sortItemModel;
         }
-        sortItemModel = new QSqlTableModel;
-        sortItemModel->setTable("products");
-        sortItemModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        sortItemModel->setSort(ITEM_ID, Qt::AscendingOrder);
+//        QSqlQuery query;
+//        query.prepare("SELECT products.productID, products.name, "
+//                      "sum(purchases.qty * products.price) AS Total Revenue"
+//                      "FROM products, purchases"
+//                      "WHERE products.productID = purchases.productID"
+//                      "GROUP BY products.productID"
+//                      );
+//"AND products.productID = :productID"
+
+
+
+//        if(!query.exec())
+//        {
+//            qDebug() << query.lastError();
+//        }
+//        "SELECT products.productID, products.name, "
+//                                        "sum(purchases.qty * products.price) AS Total Revenue"
+//                                        "FROM products, purchases"
+//                                        "WHERE products.productID = purchases.productID"
+//                                        "GROUP BY products.productID"
+//        "SELECT products.productID, products.name,"
+//                                        "sum(products.price * purchases.qty)"
+//                                        "FROM products LEFT OUTER JOIN purchases"
+//                                        "ON products.productID = purchases.procuctID"
+//                                        "GROUP BY products.productID"
+        QSqlQuery query;
+        if(!(query.exec("SELECT products.productID, products.name, sum(products.price * purchases.qty) FROM products LEFT OUTER JOIN purchases ON products.productID = purchases.productID GROUP BY products.productID")))
+        {
+            qDebug() << query.lastError().text();
+        }
+        sortItemModel = new QSqlQueryModel;
+        sortItemModel->setQuery(query);
+
+        sortItemModel->sort(ITEM_PRICE, Qt::AscendingOrder);
         sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("Product ID"));
         sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
-        sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Price"));
-        sortItemModel->select();
+        sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Total Revenue"));
+
 
         //set up view
         ui->tableView_sales_sortitem->setModel(sortItemModel);
@@ -338,6 +368,7 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         ui->tableView_sales_sortitem->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tableView_sales_sortitem->setFocusPolicy(Qt::NoFocus);
         ui->tableView_sales_sortitem->setWordWrap(false);
+        ui->tableView_sales_sortitem->sortByColumn(ITEM_PRICE, Qt::AscendingOrder);
         ui->tableView_sales_sortitem->show();
     }
 
