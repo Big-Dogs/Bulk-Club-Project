@@ -162,21 +162,6 @@ void MainWindow::setPermissions(int permission)
     }
 }
 
-void MainWindow::on_pushButton_employeepermissions_clicked()
-{
-    setPermissions(EMPLOYEE);
-}
-
-void MainWindow::on_pushButton_managerpermissions_clicked()
-{
-    setPermissions(MANAGER);
-}
-
-void MainWindow::on_pushButton_adminpermissions_clicked()
-{
-    setPermissions(ADMINISTRATOR);
-}
-
 
 /*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page
