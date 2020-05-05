@@ -346,7 +346,11 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 //                                        "ON products.productID = purchases.procuctID"
 //                                        "GROUP BY products.productID"
         QSqlQuery query;
-        if(!(query.exec("SELECT products.productID, products.name, sum(products.price * purchases.qty) FROM products LEFT OUTER JOIN purchases ON products.productID = purchases.productID GROUP BY products.productID")))
+        if(!(query.exec("SELECT products.productID, products.name,"
+                        " sum(products.price * purchases.qty) "
+                        "FROM products LEFT OUTER JOIN purchases "
+                        "ON products.productID = purchases.productID "
+                        "GROUP BY products.productID")))
         {
             qDebug() << query.lastError().text();
         }
