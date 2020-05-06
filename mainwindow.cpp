@@ -103,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
+    //hides the total revenue for the sort by item feature
+    ui->label_inventorysales->hide();
 }
 
 
@@ -347,7 +349,7 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 //                                        "GROUP BY products.productID"
         QSqlQuery query;
         if(!(query.exec("SELECT products.productID, products.name,"
-                        " sum(products.price * purchases.qty) "
+                        " sum(products.price * purchases.qty)"
                         "FROM products LEFT OUTER JOIN purchases "
                         "ON products.productID = purchases.productID "
                         "GROUP BY products.productID")))
@@ -358,14 +360,15 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         sortItemModel->setQuery(query);
 
         sortItemModel->sort(ITEM_PRICE, Qt::AscendingOrder);
-        sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("Product ID"));
+        sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("ID"));
         sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
-        sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Total Revenue"));
+        sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Revenue"));
 
 
         //set up view
         ui->tableView_sales_sortitem->setModel(sortItemModel);
         ui->tableView_sales_sortitem->resizeColumnToContents(ITEM_NAME);
+        ui->tableView_sales_sortitem->verticalHeader()->setVisible(false);
         ui->tableView_sales_sortitem->setItemDelegateForColumn(ITEM_PRICE, formatPrice);
         ui->tableView_sales_sortitem->setEditTriggers(QAbstractItemView::AnyKeyPressed);
         ui->tableView_sales_sortitem->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -374,6 +377,18 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         ui->tableView_sales_sortitem->setWordWrap(false);
         ui->tableView_sales_sortitem->sortByColumn(ITEM_PRICE, Qt::AscendingOrder);
         ui->tableView_sales_sortitem->show();
+
+        QString revenueMessage;
+        revenueMessage = "Total Revenue: $";
+        double totalRevenue = 0.0;
+        for (int index = 0; index < sortItemModel->rowCount(); index++)
+        {
+
+           totalRevenue = totalRevenue + sortItemModel->record(index).value(ITEM_PRICE).toDouble();
+        }
+        revenueMessage = revenueMessage.append(QString::number(totalRevenue, 'f', 2));
+        ui->label_inventorysales->show();
+        ui->label_inventorysales->setText(revenueMessage);
     }
 
     void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
