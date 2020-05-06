@@ -3,41 +3,12 @@
 
 #include <QtSql>
 #include <QSqlDatabase>
-#include <QVector>
 
 class Database : public QSqlDatabase
 {
 public:
-
-    // For use in 'Recommend Upgrades/Downgrades' features
-    struct Member // Object to hold member purchase information
-    {
-        QString memberID;
-        QString name;
-        QString amountSpent;
-    };
-
     // Constructor
     Database(QString path, QString driver);
-
-    // Finding the database file
-    static QString findDatabase(QString fileName);
-
-    // Get list of regular member IDs
-    QStringList GetRegularMemberIDList();
-
-    // Get vector of member purchase listings
-    QVector<Member> GetRegularMemberPurchases(QStringList regularIDList);
-
-    // Get list of executive member IDs
-    QStringList GetExecutiveMemberIDList();
-
-    // Get vector of member purchase listings
-    QVector<Member> GetExecutiveMemberPurchases(QStringList executiveIDList);
-
-
-
-    // ---------- START SUGGESTED PROTOTYPES (by weston) ---------- //
 
     // Add Member
     bool AddCustomer(QString name, QString isExecutive, QString expireDate);
@@ -57,27 +28,15 @@ public:
     // Remove Product
     bool DeleteProduct(QString productID);
 
-    // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
+    // Finding the database file
+    static QString findDatabase(QString fileName);
 
-    // ---------- START PROTOTYPES (by noah) ---------- //
-    double getPrice(QString item);
 
-    int getItem(QString item);
-
-    QStringList getNames();
-
-    QStringList getPOSMembers();
-
-    void addPurchase(int memberID, int productID, QString datePurchased, int qty);
-   
-    int checkLogin(QString username, QString password);
-    // ---------- END PROTOTYPES (by noah) ---------- //
+    // PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
+    // DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
 
     // Destructor
     ~Database();
-
-private:
-    Member temp;
 };
 
 #endif // DATABASE_H
