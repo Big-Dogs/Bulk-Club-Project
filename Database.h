@@ -5,11 +5,20 @@
 #include <QSqlDatabase>
 #include <QVector>
 
+
+/*!
+ * \brief The Database class is a wrapper for QSqlDatabase
+ */
 class Database : public QSqlDatabase
 {
 public:
 
-    // For use in 'Recommend Upgrades/Downgrades' features
+    // Member information Struct
+    /*!
+     * \struct Member
+     * \brief Object to hold member purchase information. For use in
+     * 'Recommend Upgrades/Downgrades' features
+     */
     struct Member // Object to hold member purchase information
     {
         QString memberID;
@@ -17,22 +26,50 @@ public:
         QString amountSpent;
     };
 
-    // Constructor
+    /*!
+     * \brief Database - Constructor
+     * \param path Path to SQL Database file
+     * \param driver QString identifier for the specific flavor of SQL
+     * we are using.
+     */
     Database(QString path, QString driver);
 
-    // Finding the database file
+    /*!
+     * \brief findDatabase : Method used for finding the database file
+     * \param fileName : a string representing the name of database file to be
+     * found
+     * \return
+     */
     static QString findDatabase(QString fileName);
 
-    // Get list of regular member IDs
+    /*!
+     * \brief GetRegularMemberIDList : Method for returning a list of member
+     * IDs of type 'Regular'
+     * \return regularIDList : A QStringList of member IDs
+     */
     QStringList GetRegularMemberIDList();
 
-    // Get vector of member purchase listings
+    /*!
+     * \brief GetRegularMemberPurchases : Method for returning member purchases
+     * of 'Regular' members
+     * \param regularIDList : A QStringList of member IDs
+     * \return regularPurchaseAr : A vector of 'Regular'-type members' purchases
+     */
     QVector<Member> GetRegularMemberPurchases(QStringList regularIDList);
 
-    // Get list of executive member IDs
+    /*!
+     * \brief GetExecutiveMemberIDList : Method for returning a list of member
+     * IDs of type 'Executive'
+     * \return executiveIDList : A QStringList of member ID's
+     */
     QStringList GetExecutiveMemberIDList();
 
-    // Get vector of member purchase listings
+    /*!
+     * \brief GetExecutiveMemberPurchases
+     * \param executiveIDList : A QStringList of member IDs
+     * \return executivePurchaseAr : A vector 'Executive'-type members'
+     * purchases
+     */
     QVector<Member> GetExecutiveMemberPurchases(QStringList executiveIDList);
 
 

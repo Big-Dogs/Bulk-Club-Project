@@ -1,10 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-
-
-
 // Window Initialization
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,8 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // Create Executive Member Vector
-
-
 
     ui->stackedWidget_main->setCurrentIndex(HOME); // setting default indices
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
@@ -110,9 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-
     delete database;
-
     delete formatPrice;
 
     if (itemModel != nullptr)
@@ -121,15 +113,12 @@ MainWindow::~MainWindow()
     }
 
    delete ui->lineEdit_admin_itemsubmission_id->validator();
-
    delete ui->lineEdit_admin_itemsubmission_price->validator();
 }
 
 /*----Testing Permissions----*/
 void MainWindow::setPermissions(int permission)
 {
-
-
     if(permission == NONE)
     {
         ui->pushButton_POS->setEnabled(false);
@@ -179,14 +168,16 @@ void MainWindow::on_pushButton_adminpermissions_clicked()
     setPermissions(ADMINISTRATOR);
 }
 
-
 /*----Window Navigation----*/
+
+
 void MainWindow::on_pushButton_home_clicked() // home page
 {
     ui->stackedWidget_main->setCurrentIndex(HOME);
     index = 0;
     setPermissions(index);
 }
+
 
 void MainWindow::on_pushButton_POS_clicked() // POS page
 {
@@ -232,7 +223,6 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         }
 
         // Initialize tableView_sales_daily using querymodel
-
         ui->tableView_sales_daily->setModel(dailySalesModel);
         dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
         dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
@@ -247,17 +237,14 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         ui->tableView_sales_daily->verticalHeader()->setVisible(false);
         // Make fields uneditable
         ui->tableView_membership->setEditTriggers(QTableView::NoEditTriggers);
-
-        
-
     }
 
     void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
     {
         //Constant
-            const int ID_COLUMN     = 0; //The column number for the member's id number
-            const int NAME_COLUMN   = 1; //The column number for the member's name
-            const int REVUNE_COLUMN = 2; //The column number for the member's revune
+        const int ID_COLUMN     = 0; //The column number for the member's id number
+        const int NAME_COLUMN   = 1; //The column number for the member's name
+        const int REVUNE_COLUMN = 2; //The column number for the member's revune
         //Variables
         QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
         QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
@@ -968,7 +955,12 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
 
 }
 
-void MainWindow::on_pushButton_membership_expiration_clicked() // member expiration list
+/*!
+ * \brief MainWindow::on_pushButton_membership_expiration_clicked : Method
+ * allows user to determine which memberships are expiring based on month
+ * entered. Intended to be used with ...expire_clicked, the confirmation button.
+ */
+void MainWindow::on_pushButton_membership_expiration_clicked()
 {
     ui->tableWidget_membership->hide();
     // Populate dropdown menu if empty
@@ -992,10 +984,8 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
     membershipModel = new MembershipTableModel(this, database);
     membershipModel->InitializeTable();
     ui->tableView_membership->setModel(membershipModel);
-
     // Resize Columns
     ui->tableView_membership->resizeColumnsToContents();
-
     // Hide numerical vertical header
     ui->tableView_membership->verticalHeader()->setVisible(false);
     // Make fields uneditable
@@ -1004,6 +994,11 @@ void MainWindow::on_pushButton_membership_expiration_clicked() // member expirat
     ui->gridWidget_membership_expire->show();
 }
 
+/*!
+ * \brief MainWindow::on_pushButton_membership_expire_clicked: Method attached
+ * to button to confirm entry of expiration month selected. Month selected will
+ * determine which members to show (based on expiration date)
+ */
 void MainWindow::on_pushButton_membership_expire_clicked()
 {
 
@@ -1038,8 +1033,12 @@ void MainWindow::on_pushButton_membership_expire_clicked()
      ui->gridWidget_membership_expire->show();
 }
 
-
-void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades list
+/*!
+ * \brief MainWindow::on_pushButton_membership_upgrades_clicked : Method
+ * will display which members should upgrade their membership based on
+ * rebate amount earned through purchases
+ */
+void MainWindow::on_pushButton_membership_upgrades_clicked()
 {
     // Reset all values
     InitializeMembershipTableWidget();
@@ -1055,6 +1054,11 @@ void MainWindow::on_pushButton_membership_upgrades_clicked() // member upgrades 
     PrintUpgradeReport(regularMemberPurchases);
 }
 
+/*!
+ * \brief MainWindow::on_pushButton_membership_downgrades_clicked : Method
+ * will display which members should downgrade their membership based on
+ * insufficient rebate amount earned through purchases
+ */
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
     // Reset all values
@@ -1249,30 +1253,6 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
 }
 
 
-
-/**
- * @brief MainWindow::TextCompleter
- * Continuously searches list of products as the user types what they want
- * to find.
- * @param names the list of school names currently in database
- * @param field QLineEdit form that function is being used on
- */
-void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
-{
-    QCompleter *completer = new QCompleter(products, inputField);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    inputField->setCompleter(completer);
-}
-void MainWindow::ClearMemberFields()
-{
-    ui->lineEdit_admin_membersubmission_id->clear();
-    ui->lineEdit_admin_membersubmission_name->clear();
-    //ui->lineEdit_admin_membersubmission_executive->clear();
-    //ui->lineEdit_admin_membersubmission_date->clear();
-}
-
-
-/*----Home Page push buttons----*/
 void MainWindow::on_pushButton_home_login_clicked()
 {
     ui->label_home_warning->hide();
@@ -1293,8 +1273,36 @@ void MainWindow::on_pushButton_home_login_clicked()
     }
 }
 
-// Helper Function Definitions
-    // Reset all values in membership table widget
+                // Helper Function Definitions
+
+/**
+ * @brief MainWindow::TextCompleter
+ * Continuously searches list of products as the user types what they want
+ * to find.
+ * @param names the list of school names currently in database
+ * @param field QLineEdit form that function is being used on
+ */
+void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
+{
+    QCompleter *completer = new QCompleter(products, inputField);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    inputField->setCompleter(completer);
+}
+
+
+void MainWindow::ClearMemberFields()
+{
+    ui->lineEdit_admin_membersubmission_id->clear();
+    ui->lineEdit_admin_membersubmission_name->clear();
+    //ui->lineEdit_admin_membersubmission_executive->clear();
+    //ui->lineEdit_admin_membersubmission_date->clear();
+}
+
+/*!
+ * \brief MainWindow::InitializeMembershipTableWidget : Helper function
+ * will reset values and initialize model used to configure membership
+ * tablewidget
+ */
 void MainWindow::InitializeMembershipTableWidget()
 {
     ui->tableWidget_membership->show();
@@ -1309,7 +1317,11 @@ void MainWindow::InitializeMembershipTableWidget()
     ui->tableWidget_membership->resizeColumnsToContents();
 }
 
-    // Print suggested upgrades report
+/*!
+ * \brief MainWindow::PrintUpgradeReport : Function will populate membership
+ * table view to be shown to user in "Recommend Upgrades" feature
+ * \param regularMemberPurchases : Vector of regular members' purchases
+ */
 void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases)
 {
     // loop through purchases to collect all people. add to tableWidget if <65
@@ -1339,7 +1351,11 @@ void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurch
     ui->label_membership_recommendation_status->setText(labelText);
 }
 
-    // Print suggested downgrades report
+/*!
+ * \brief MainWindow::PrintDowngradeReport : Function will populate membership
+ * table view to be shown to user in "Recommend Downgrades" feature
+ * \param executiveMemberPurchases : Vector of executive members' purchases
+ */
 void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases)
 {
     // loop through purchases to collect all people. add to tableWidget if <65
@@ -1367,7 +1383,6 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     // Set label to display number of recommendations
     QString labelText = "Number of recommended membership downgrades: " + QString::number(downgradeCount);
     ui->label_membership_recommendation_status->setText(labelText);
-
 }
 
 
@@ -1464,9 +1479,6 @@ void MainWindow::printReceipt()
     receiptRow++;
 
 }
-
-
-
 
 
 void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
