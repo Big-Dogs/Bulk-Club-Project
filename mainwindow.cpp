@@ -74,32 +74,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     //preparing the line edit integer validations for add member
+    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
     idCheck = new QIntValidator;
     idCheck->setRange(0,100000);
     ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
-    monthCheck = new QIntValidator;
-    monthCheck->setRange(0,12);
-    ui->lineEdit_admin_membersubmission_month->setValidator(monthCheck);
-    dayCheck = new QIntValidator;
-    dayCheck->setTop(31);
-    dayCheck->setBottom(1);
-    ui->lineEdit_admin_membersubmission_day->setValidator(dayCheck);
-    yearCheck = new QIntValidator;
-    yearCheck->setRange(1890,2021);
-    ui->lineEdit_admin_membersubmission_year->setValidator(yearCheck);
 
     //sets up add member
     memberModel = nullptr;
-    ui->lineEdit_admin_membersubmission_year->hide();
-    ui->label_admin_slash1->hide();
-    ui->lineEdit_admin_membersubmission_day->hide();
-    ui->label_admin_slash2->hide();
-    ui->lineEdit_admin_membersubmission_month->hide();
-    ui->label_admin_membersubmission_date->hide();
-    ui->label_admin_membersubmission_date_warning->hide();
-    ui->label_admin_membersubmission_id_warning->hide();
-    ui->label_admin_membersubmission_name_warning->hide();
     ui->label_admin_membersubmission_nameID_warning->hide();
+
 
     InitializeSalesTableView(); //initializes daily sales report
       
@@ -547,9 +530,6 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
      MainWindow::on_pushButton_admin_member_clicked();
 
      //preparing the line edits to have a max character amount
-     ui->lineEdit_admin_membersubmission_month->setMaxLength(2);
-     ui->lineEdit_admin_membersubmission_day->setMaxLength(2);
-     ui->lineEdit_admin_membersubmission_year->setMaxLength(4);
      ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
 
 
@@ -576,6 +556,12 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
+    //hides all warnings
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //used to add the member to the database
+    QSqlQuery query;
+
     //Created strings that are used to assign a date to the new member
     QString thisYear = QDate::currentDate().toString("yyyy");
     QString thisMonth = QDate::currentDate().toString("M");
@@ -588,25 +574,22 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 
     TempMember tempMemberAdd;
 
+
+
     //Populates the tempMember struct instance with the new member information.
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
 
     //Formats the name to make sure the first letter is always capitalized, and the rest are lower case
-    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    QString tempName = tempMemberAdd.name;
-    tempName = tempName.toLower();
-    tempName[0] = tempMemberAdd.name[0].toUpper();
-    tempMemberAdd.name = tempName;
+    tempMemberAdd.name = normalizeCapitalization(ui->lineEdit_admin_membersubmission_name->text());
 
-
-       //     QString(QChar::fromLatin1(firstLetterName);
-
+    //sets the executive status based off of the member based off of the radio button
     qDebug() << tempMemberAdd.name;
     if(ui->radioButton_admin_member->isChecked())
         tempMemberAdd.executiveStatus = "Executive";
     else
         tempMemberAdd.executiveStatus = "Regular";
 
+    //sets the expiration date of the member based on the current date
     tempMemberAdd.expMonth = thisMonth;
     tempMemberAdd.expDay = thisDay;
     tempMemberAdd.expYear = nextYear;
@@ -623,12 +606,15 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
     else if(tempMemberAdd.executiveStatus == "Regular")
         renewalPrice = 60;
 
+
+    //checks to make sure that the id and name fields contain at least one character.
+    //If either of them dont, a warning message pops up that tells the user what
+    //to do
     if(tempMemberAdd.name != "")
     {
         if(tempMemberAdd.id != "")
         {
             //inserts the member into the database
-            QSqlQuery query;
             query.prepare("INSERT INTO members "
                           "(memberID, name, "
                           "memberType, expireDate,"
@@ -643,37 +629,45 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
             if(!query.exec())
             {
                 qDebug() << "Member failed to save" << memberModel->lastError();
+                //sets the correct warning messages
+                ui->label_admin_membersubmission_nameID_warning->setText(
+                            "WARNING: Please enter a unique name and ID");
                 ui->label_admin_membersubmission_nameID_warning->show();
 
+                qDebug() << query.lastError().text();
+                qDebug() << "name == __ | ID != __  ";
             }
             else
             {
                 //clears out all of the member fields, hides the add member widgets, and warnings
                 MainWindow::on_pushButton_admin_member_clicked();
                 MainWindow::ClearMemberFields();
+
+                //hides warning message, and hides member text fields
                 ui->gridWidget_admin_memberdatafields->hide();
-                ui->label_admin_membersubmission_date_warning->hide();
-                ui->label_admin_membersubmission_id_warning->hide();
-                ui->label_admin_membersubmission_name_warning->hide();
                 ui->label_admin_membersubmission_nameID_warning->hide();
-                qDebug() << tempMemberAdd.expYear.toInt(),
-                            tempMemberAdd.expMonth.toInt(),
-                            tempMemberAdd.expDay.toInt();
             }
         }
         else
-        {   //sets the correct warning messages
-            ui->label_admin_membersubmission_id_warning->show();
-            ui->label_admin_membersubmission_name_warning->hide();
-            qDebug() << itemModel->lastError().text();
+        {
+            //sets the correct warning messages
+            ui->label_admin_membersubmission_nameID_warning->setText(
+                        "WARNING: Please enter a unique name and ID");
+            ui->label_admin_membersubmission_nameID_warning->show();
+
+            qDebug() << query.lastError().text();
+            qDebug() << "name != __ | ID == __  ";
         }
     }
     else
-    {   //sets the correct warning messages
-        ui->label_admin_membersubmission_name_warning->show();
+    {
+        //sets the correct warning messages
+        ui->label_admin_membersubmission_nameID_warning->setText(
+                    "WARNING: Please enter a unique name and ID");
+        ui->label_admin_membersubmission_nameID_warning->show();
 
-        if(tempMemberAdd.id == "")
-            ui->label_admin_membersubmission_id_warning->show();
+        qDebug() << query.lastError().text();
+        qDebug() << "name == __ | ID != __  ";
     }
 }
 
@@ -684,11 +678,13 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
-    MainWindow::ClearMemberFields();
-    ui->label_admin_membersubmission_date_warning->hide();
-    ui->label_admin_membersubmission_id_warning->hide();
-    ui->label_admin_membersubmission_name_warning->hide();
     ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //clears out the member information line edits
+    MainWindow::ClearMemberFields();
+
+
+
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -1360,9 +1356,6 @@ void MainWindow::ClearMemberFields()
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
     ui->radioButton_admin_member->setChecked(false);
-    ui->lineEdit_admin_membersubmission_month->clear();
-    ui->lineEdit_admin_membersubmission_day->clear();
-     ui->lineEdit_admin_membersubmission_year->clear();
 }
 
 
