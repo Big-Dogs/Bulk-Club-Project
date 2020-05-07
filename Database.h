@@ -110,11 +110,10 @@ public:
     int checkLogin(QString username, QString password);
     // ---------- END PROTOTYPES (by noah) ---------- //
 
-    // Destructor
     ~Database();
 
 private:
-    Member temp;
+    Member temp; /// placeholder for Member-type operations
 };
 
 #endif // DATABASE_H
