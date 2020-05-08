@@ -178,7 +178,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -269,11 +269,17 @@
        <widget class="QLabel" name="label_inventorysales">
         <property name="geometry">
          <rect>
-          <x>170</x>
-          <y>510</y>
-          <width>161</width>
+          <x>20</x>
+          <y>500</y>
+          <width>251</width>
           <height>16</height>
          </rect>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string>page for sales sorted by item</string>
@@ -1043,7 +1049,7 @@ color: rgb(239, 41, 41);</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

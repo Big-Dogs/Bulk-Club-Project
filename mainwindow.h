@@ -226,6 +226,15 @@ private:
         QString rebate;
     };
 
+    //For use in 'Sort item' feature
+
+    QSqlQueryModel *sortItemModel;
+    enum sortItemHeaders
+    {
+        ITEM_ID,
+        ITEM_NAME,
+        ITEM_PRICE
+    };
 
     //For use in 'Add Customer' feature
     struct TempMember
