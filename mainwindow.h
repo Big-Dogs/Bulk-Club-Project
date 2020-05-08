@@ -26,13 +26,6 @@ public:
 
 private slots:
 
-    /*----Testing Permissions----*/
-    void on_pushButton_employeepermissions_clicked();
-
-    void on_pushButton_managerpermissions_clicked();
-
-    void on_pushButton_adminpermissions_clicked();
-
 
     /*----Menu Navigation----*/
 
@@ -124,7 +117,10 @@ private slots:
             void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
-    
+
+
+    void on_tableView_admin_members_clicked(const QModelIndex &index);
+
     void on_stackedWidget_admin_currentChanged(int arg1);
 
     void on_stackedWidget_admin_widgetRemoved(int index);
@@ -167,6 +163,7 @@ private slots:
     void on_comboBox_pos_memberlist_currentIndexChanged(int index);
 
 
+
 private:
     /* This function capitalize the first letter of
      * every word and set all other letters to lower
@@ -204,6 +201,20 @@ private:
     QStringList productList; // List of all products in database
     QString salesReportProduct; // Product manager wishes to view for sales report
 
+
+
+    //For use in the admin member management functions
+    QSqlTableModel *memberModel;
+    QModelIndex deleteMemberIndex;
+
+    enum memberTableHeaders
+    {
+        memberID,
+        name,
+        membershipType,
+        expirationDate,
+        membershipCost
+    };
 
     //For use in 'Display Member Rebates' feature
     //this is a comment
@@ -243,8 +254,8 @@ private:
     const float REBATE_RATE = 0.02;      // rebate rate for calculation
     const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
     QStringList tableWidgetColumnNames = {
-        "Membership Number",
-        "Member Name",
+        "ID",
+        "Name",
         "Amount Spent",
         "Rebate Amount"
     };

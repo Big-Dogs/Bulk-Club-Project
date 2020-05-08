@@ -32,42 +32,9 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page_home">
-     <widget class="QWidget" name="gridLayoutWidget_4">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>60</y>
-        <width>160</width>
-        <height>98</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="pushButton_managerpermissions">
-         <property name="text">
-          <string>manager</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="pushButton_employeepermissions">
-         <property name="text">
-          <string>employee</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="pushButton_adminpermissions">
-         <property name="text">
-          <string>admin</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="gridLayoutWidget_12">
       <property name="geometry">
        <rect>
@@ -122,45 +89,6 @@
       </property>
       <property name="text">
        <string>Login</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_manager">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>260</y>
-        <width>171</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>USERNAME: man PW: man</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_home_admintest">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>280</y>
-        <width>181</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>USERNAME: admin PW: admin</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_home_employeetest">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>240</y>
-        <width>181</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>USERNAME: emp PW: emp</string>
       </property>
      </widget>
     </widget>
@@ -841,21 +769,21 @@ color: rgb(239, 41, 41);</string>
          <item row="0" column="2">
           <widget class="QPushButton" name="pushButton_admin_canceldeletemember">
            <property name="text">
-            <string>cancel</string>
+            <string>Cancel</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="pushButton_admin_confirmdeletemember">
            <property name="text">
-            <string>confirm</string>
+            <string>Confirm</string>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_admin_confirmdeletemember">
            <property name="text">
-            <string>set text &quot;delete MEMBER NAME ?&quot;</string>
+            <string>Delete MEMBER NAME ?&quot;</string>
            </property>
           </widget>
          </item>
@@ -1127,6 +1055,73 @@ color: rgb(239, 41, 41);</string>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_home_username</tabstop>
+  <tabstop>lineEdit_home_password</tabstop>
+  <tabstop>pushButton_home_login</tabstop>
+  <tabstop>pushButton_home</tabstop>
+  <tabstop>pushButton_POS</tabstop>
+  <tabstop>pushButton_sales</tabstop>
+  <tabstop>pushButton_members</tabstop>
+  <tabstop>pushButton_admin</tabstop>
+  <tabstop>comboBox_pos_memberlist</tabstop>
+  <tabstop>comboBox_pos_itemlist</tabstop>
+  <tabstop>comboBox_pos_qty</tabstop>
+  <tabstop>pushButton_pos_purchase</tabstop>
+  <tabstop>tableWidget_pos_receipts</tabstop>
+  <tabstop>pushButton_sales_daily</tabstop>
+  <tabstop>comboBox_sales_byday</tabstop>
+  <tabstop>pushButton_sale_byday</tabstop>
+  <tabstop>tableView_sales_daily</tabstop>
+  <tabstop>pushButton_sales_sortmember</tabstop>
+  <tabstop>tableView_sales_sortmember</tabstop>
+  <tabstop>pushButton_sales_sortitem</tabstop>
+  <tabstop>tableView_sales_sortitem</tabstop>
+  <tabstop>pushButton_sales_searchmember</tabstop>
+  <tabstop>lineEdit_sales_searchmember</tabstop>
+  <tabstop>pushButton_sales_searchmemberconfirm</tabstop>
+  <tabstop>comboBox_sales_manymembersfound</tabstop>
+  <tabstop>tableView_sales_searchmember</tabstop>
+  <tabstop>pushButton_sales_searchitem</tabstop>
+  <tabstop>lineEdit_sales_searchitem</tabstop>
+  <tabstop>pushButton_sales_searchitemconfirm</tabstop>
+  <tabstop>tableView_sales_searchitem</tabstop>
+  <tabstop>pushButton_membership_rebates</tabstop>
+  <tabstop>comboBox_membership_expire</tabstop>
+  <tabstop>pushButton_membership_expire</tabstop>
+  <tabstop>tableWidget_membership</tabstop>
+  <tabstop>pushButton_membership_expiration</tabstop>
+  <tabstop>pushButton_membership_upgrades</tabstop>
+  <tabstop>pushButton_membership_downgrades</tabstop>
+  <tabstop>pushButton_admin_member</tabstop>
+  <tabstop>pushButton_admin_additem</tabstop>
+  <tabstop>pushButton_admin_edititem</tabstop>
+  <tabstop>pushButton_admin_deleteitem</tabstop>
+  <tabstop>pushButton_admin_confirmdeleteitem</tabstop>
+  <tabstop>pushButton_admin_canceldeleteitem</tabstop>
+  <tabstop>lineEdit_admin_itemsubmission_id</tabstop>
+  <tabstop>lineEdit_admin_itemsubmission_name</tabstop>
+  <tabstop>lineEdit_admin_itemsubmission_price</tabstop>
+  <tabstop>pushButton_admin_itemsubmission_submit</tabstop>
+  <tabstop>pushButton_admin_itemsubmission_cancel</tabstop>
+  <tabstop>tableView_admin_inventory</tabstop>
+  <tabstop>pushButton_admin_inventory</tabstop>
+  <tabstop>pushButton_admin_addmember</tabstop>
+  <tabstop>pushButton_admin_editmember</tabstop>
+  <tabstop>pushButton_admin_deletemember</tabstop>
+  <tabstop>pushButton_admin_confirmdeletemember</tabstop>
+  <tabstop>pushButton_admin_canceldeletemember</tabstop>
+  <tabstop>lineEdit_admin_membersubmission_id</tabstop>
+  <tabstop>lineEdit_admin_membersubmission_name</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>lineEdit_admin_membersubmission_month</tabstop>
+  <tabstop>lineEdit_admin_membersubmission_day</tabstop>
+  <tabstop>lineEdit_admin_membersubmission_year</tabstop>
+  <tabstop>pushButton_admin_membersubmission_submit</tabstop>
+  <tabstop>pushButton_admin_membersubmission_cancel</tabstop>
+  <tabstop>tableView_admin_members</tabstop>
+  <tabstop>tableView_membership</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
