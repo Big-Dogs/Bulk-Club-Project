@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_pos_purchase->setEnabled(false);
 
 
-    ui->label_home_warning->hide();
+    ui->label_home_warning->setText("");
 
     setPermissions(NONE);
 
@@ -164,21 +164,6 @@ void MainWindow::setPermissions(int permission)
     }
 }
 
-void MainWindow::on_pushButton_employeepermissions_clicked()
-{
-    setPermissions(EMPLOYEE);
-}
-
-void MainWindow::on_pushButton_managerpermissions_clicked()
-{
-    setPermissions(MANAGER);
-}
-
-void MainWindow::on_pushButton_adminpermissions_clicked()
-{
-    setPermissions(ADMINISTRATOR);
-}
-
 
 /*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page
@@ -204,7 +189,6 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
     void MainWindow::on_pushButton_sales_daily_clicked() // daily sales report
     {
         ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
-        InitializeSalesTableView();
     }
 
     void MainWindow::on_pushButton_sale_byday_clicked()
@@ -1092,6 +1076,8 @@ void MainWindow::on_pushButton_pos_purchase_clicked() // purchase button
 
     ui->pushButton_pos_purchase->setEnabled(false);
     ui->comboBox_pos_itemlist->setEnabled(false);
+
+    InitializeSalesTableView();
 }
 
 void MainWindow::on_comboBox_pos_memberlist_activated(int index)
@@ -1106,13 +1092,14 @@ void MainWindow::on_comboBox_pos_itemlist_activated(int index)
     posItem = this->database->getItem(posItemName);
     ui->comboBox_pos_qty->setEnabled(true);
 
+
 }
 void MainWindow::on_comboBox_pos_qty_activated(int index)
 {
     posQty = index + 1;
     posPrice = this->database->getPrice(posItemName);
     posTotal = posPrice * posQty;
-    ui->label_pos_price->setText(QString::number(posTotal));
+    ui->label_pos_price->setText(QString::number(posTotal, 'f', 2));
     ui->pushButton_pos_purchase->setEnabled(true);
 }
 
@@ -1275,7 +1262,7 @@ void MainWindow::ClearMemberFields()
 /*----Home Page push buttons----*/
 void MainWindow::on_pushButton_home_login_clicked()
 {
-    ui->label_home_warning->hide();
+    ui->label_home_warning->setText("");
 
     QString username = ui->lineEdit_home_username->text();
     QString password = ui->lineEdit_home_password->text();
@@ -1289,8 +1276,12 @@ void MainWindow::on_pushButton_home_login_clicked()
     }
     else
     {
-        ui->label_home_warning->show();
+        ui->label_home_warning->setText("Invalid username or password. Please try again.");
+        ui->label_home_warning->setStyleSheet("color: red");
     }
+
+    ui->lineEdit_home_username->clear();
+    ui->lineEdit_home_password->clear();
 }
 
 // Helper Function Definitions
@@ -1449,11 +1440,12 @@ void MainWindow::printReceipt()
     QTableWidgetItem *qty = new QTableWidgetItem;
     QTableWidgetItem *total = new QTableWidgetItem;
 
+
     member->setText(QString::number(posMemberID));
     item->setText(posItemName);
     price->setText(QString::number(posPrice));
     qty->setText(QString::number(posQty));
-    total->setText(QString::number(posTotal));
+    total->setText(QString::number(posTotal, 'f', 2));
 
     ui->tableWidget_pos_receipts->insertRow(receiptRow);
     ui->tableWidget_pos_receipts->setItem(receiptRow, 0, member);

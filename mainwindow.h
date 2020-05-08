@@ -26,13 +26,6 @@ public:
 
 private slots:
 
-    /*----Testing Permissions----*/
-    void on_pushButton_employeepermissions_clicked();
-
-    void on_pushButton_managerpermissions_clicked();
-
-    void on_pushButton_adminpermissions_clicked();
-
 
     /*----Menu Navigation----*/
 
