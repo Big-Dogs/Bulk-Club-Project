@@ -88,7 +88,9 @@ MainWindow::MainWindow(QWidget *parent)
     //sets up add member
     memberModel = nullptr;
     ui->label_admin_membersubmission_nameID_warning->hide();
-
+    ui->pushButton_admin_editmember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+    ui->pushButton_admin_deletemember->setEnabled(true);
 
     InitializeSalesTableView(); //initializes daily sales report
       
@@ -472,6 +474,9 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_confirmdeletemember->hide();
 
     if(memberModel != nullptr)
     {
@@ -528,6 +533,12 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
         const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
         const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
         const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
+
+
+        //Resetting the add memebr page
+        ui->gridWidget_admin_memberdatafields->hide();
+        ui->pushButton_admin_deletemember->setEnabled(false);
+        ui->gridWidget_admin_confirmdeletemember->hide();
 
         //Hidding error message
         ui->label_admin_products_errormessage->setVisible(false);
@@ -589,11 +600,13 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     /*----Member Page----*/
 void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
 {
+    MainWindow::on_pushButton_admin_member_clicked();
     ui->gridWidget_admin_memberdatafields->show();
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
 
-     MainWindow::on_pushButton_admin_member_clicked();
+
+
 
      //preparing the line edits to have a max character amount
      ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
@@ -629,7 +642,7 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
 {
 
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -751,7 +764,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
 {
     ui->gridWidget_admin_memberdatafields->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -766,7 +779,7 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
     ui->gridWidget_admin_confirmdeletemember->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -785,7 +798,7 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
 void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
 {
     ui->gridWidget_admin_confirmdeletemember->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 }
@@ -1684,7 +1697,13 @@ void MainWindow::on_stackedWidget_admin_widgetRemoved(int index)
 
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    if(ui->gridWidget_admin_memberdatafields->isHidden())
+    {
+        ui->pushButton_admin_deletemember->setEnabled(true);
+        ui->pushButton_admin_editmember->setEnabled(false);
+        ui->pushButton_admin_addmember->setEnabled(true);
+    }
+
 }
 
 void MainWindow::on_stackedWidget_main_currentChanged(int arg1)

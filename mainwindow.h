@@ -251,7 +251,7 @@ private:
     QIntValidator *monthCheck;
     QIntValidator *dayCheck;
     QIntValidator *yearCheck;
-    QSqlTableModel *memberModel;
+
 
     // For use in upgrade/downgrade features
     float rebateAmount = 0.0; // member's rebate received
