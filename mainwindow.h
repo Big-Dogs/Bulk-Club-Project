@@ -7,7 +7,6 @@
 #include <QSqlDriver>
 #include "Database.h"
 #include "MembershipTableModel.h"
-#include "debugflags.h"
 #include "moneydelegate.h"
 
 QT_BEGIN_NAMESPACE
@@ -171,14 +170,6 @@ private slots:
 
     void on_tableView_admin_members_clicked(const QModelIndex &index);
 
-    void on_stackedWidget_admin_currentChanged(int arg1);
-
-    void on_stackedWidget_admin_widgetRemoved(int index);
-
-    void on_stackedWidget_main_currentChanged(int arg1);
-
-    void on_stackedWidget_sales_currentChanged(int arg1);
-
     void on_tableView_admin_inventory_activated(const QModelIndex &index);
 
     void on_lineEdit_admin_itemsubmission_id_textEdited(const QString &arg1);
@@ -196,6 +187,7 @@ private slots:
      */
     void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                    const QVector<int> &roles);
+
 
     void on_tableView_item_currentChanged(int row);
 
@@ -245,7 +237,7 @@ private:
 
 
     //For use in the admin member management functions
-    QSqlTableModel *memberModel;
+//    QSqlTableModel *memberModel;
     QModelIndex deleteMemberIndex;
 
     enum memberTableHeaders
@@ -283,8 +275,17 @@ private:
         QString id;
         QString name;
         QString executiveStatus;
-        QString expirationDate;
+        QString expMonth;
+        QString expDay;
+        QString expYear;
+        QString expDate;
     };
+
+    QIntValidator *idCheck;
+    QIntValidator *monthCheck;
+    QIntValidator *dayCheck;
+    QIntValidator *yearCheck;
+    QSqlTableModel *memberModel;
 
     // For use in POS page
     QString posItemName; // name of item
@@ -294,7 +295,6 @@ private:
     double posPrice; // item price
     double posTotal; // total of price * qty
     int receiptRow; // index of row in receipt table
-
 
     // For use in upgrade/downgrade features
     float rebateAmount = 0.0; // member's rebate received
