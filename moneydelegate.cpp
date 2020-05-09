@@ -9,7 +9,7 @@ MoneyDelegate::MoneyDelegate(QObject *parent)
     //nothing special in constructor
 }
 
-
+//A overwritten paint function that changes the format of the data that is rendered
 void MoneyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     double  value; //The value being displayed in the table
