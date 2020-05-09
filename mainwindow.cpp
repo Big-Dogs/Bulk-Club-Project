@@ -1303,21 +1303,21 @@ void MainWindow::ClearMemberFields()
 
 
 /*----Home Page push buttons----*/
-void MainWindow::on_pushButton_home_login_clicked()
+void MainWindow::on_pushButton_home_login_clicked() // attempts to log the user in
 {
     ui->label_home_warning->setText("");
 
     QString username = ui->lineEdit_home_username->text();
     QString password = ui->lineEdit_home_password->text();
 
-    int permissionIndex = this->database->CheckLogin(username, password);
+    int permissionIndex = this->database->CheckLogin(username, password); //checks database for matching credentials
 
-    if (permissionIndex > NONE)
+    if (permissionIndex > NONE) // if there is a match, set the permission level to matching index
     {
         setPermissions(permissionIndex);
 
     }
-    else
+    else // if not, display warning message
     {
         ui->label_home_warning->setText("Invalid username or password. Please try again.");
         ui->label_home_warning->setStyleSheet("color: red");

@@ -54,7 +54,10 @@ private slots:
          */
         void on_comboBox_pos_memberlist_activated(int index);
 
-
+        /*!
+         * \brief on_comboBox_pos_memberlist_currentIndexChanged : Method to clear the receipts page when a new
+         * member is selected
+         */
         void on_comboBox_pos_memberlist_currentIndexChanged(int index);
 
 
@@ -63,6 +66,11 @@ private slots:
      * \brief on_pushButton_home_clicked : Method to switch current page to home and log the user out
      */
     void on_pushButton_home_clicked();
+
+        /*!
+         * \brief on_pushButton_home_login_clicked : Method to attempt to log the user in
+         */
+        void on_pushButton_home_login_clicked();
 
         /*----Sales page----*/
     /*!
@@ -190,7 +198,7 @@ private slots:
 
     void on_tableView_admin_inventory_pressed(const QModelIndex &index);
 
-    void on_pushButton_home_login_clicked();
+
 
 
 
@@ -390,13 +398,21 @@ private:
      */
     void setPermissions(int permission);
 
-        //initializes sales by day table view
+    /*!
+     * \brief InitializeSalesTableView : Method for filling the daily sales combo box and initializing
+     * the daily sales report table
+     */
     void InitializeSalesTableView();
 
-        //initialize pos table
+    /*!
+     * \brief InitializePosTable : Method for filling the POS page combo boxes and initializing
+     * the POS receipts table
+     */
     void InitializePosTable();
 
-        //prints a receipt in pos page
+    /*!
+     * \brief printReceipt : method for populating the POS receipts table
+     */
     void printReceipt();
 
 
