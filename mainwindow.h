@@ -455,7 +455,7 @@ private:
 
 
     //For use in the admin member management functions
-//    QSqlTableModel *memberModel;
+    QSqlTableModel *memberModel;
     QModelIndex deleteMemberIndex;
 
     enum memberTableHeaders
