@@ -22,7 +22,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setPermissions(int);
 
 private slots:
 
@@ -30,18 +29,55 @@ private slots:
     /*----Menu Navigation----*/
 
         /*----POS page----*/
+    /*!
+     * \brief on_pushButton_POS_clicked : Method to switch current page to POS
+     */
     void on_pushButton_POS_clicked();
 
+        /*!
+         * \brief on_pushButton_pos_purchase_clicked : Method to confirm purchase and add it to the database
+         */
         void on_pushButton_pos_purchase_clicked();
 
+        /*!
+         * \brief on_comboBox_pos_itemlist_activated : Method to select the item for the upcoming purchase
+         */
+        void on_comboBox_pos_itemlist_activated(int index);
+
+        /*!
+         * \brief on_comboBox_pos_qty_activated : Method to select the quantity for the upcoming purchase
+         */
+        void on_comboBox_pos_qty_activated(int index);
+
+        /*!
+         * \brief on_comboBox_pos_memberlist_activated : Method to select the member id for the upcoming purchase
+         */
+        void on_comboBox_pos_memberlist_activated(int index);
+
+
+        void on_comboBox_pos_memberlist_currentIndexChanged(int index);
+
+
         /*----Home page----*/
+    /*!
+     * \brief on_pushButton_home_clicked : Method to switch current page to home and log the user out
+     */
     void on_pushButton_home_clicked();
 
         /*----Sales page----*/
+    /*!
+     * \brief on_pushButton_sales_clicked : Method to switch current page to sales
+     */
     void on_pushButton_sales_clicked();
 
+        /*!
+         * \brief on_pushButton_sales_daily_clicked : Method to open daily sales tab
+         */
         void on_pushButton_sales_daily_clicked();
 
+            /*!
+             * \brief on_pushButton_sale_byday_clicked : method to filter sales by day date purchased
+             */
             void on_pushButton_sale_byday_clicked();
 
         void on_pushButton_sales_sortmember_clicked();
@@ -57,6 +93,9 @@ private slots:
             void on_pushButton_sales_searchitemconfirm_clicked();
 
          /*----Membership page----*/
+    /*!
+     * \brief on_pushButton_members_clicked : Method to switch current page to members
+     */
     void on_pushButton_members_clicked();
 
         void on_pushButton_membership_rebates_clicked();
@@ -67,7 +106,12 @@ private slots:
 
         void on_pushButton_membership_downgrades_clicked();
 
+        void on_pushButton_membership_expire_clicked();
+
         /*----Admin page----*/
+    /*!
+     * \brief on_pushButton_admin_clicked : Method to switch current page to admin
+     */
     void on_pushButton_admin_clicked();
 
         void on_pushButton_admin_member_clicked();
@@ -87,6 +131,8 @@ private slots:
             void on_pushButton_admin_canceldeletemember_clicked();
 
             void on_tableView_admin_members_doubleClicked(const QModelIndex &index);
+
+            void ClearMemberFields();
 
         void on_pushButton_admin_inventory_clicked();
 
@@ -108,13 +154,6 @@ private slots:
 
 
 
-
-
-
-
-            void on_pushButton_membership_expire_clicked();
-
-            void ClearMemberFields();
     // Autocomplete text searches
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
@@ -152,15 +191,6 @@ private slots:
     void on_tableView_admin_inventory_pressed(const QModelIndex &index);
 
     void on_pushButton_home_login_clicked();
-
-
-    void on_comboBox_pos_itemlist_activated(int index);
-
-    void on_comboBox_pos_qty_activated(int index);
-
-    void on_comboBox_pos_memberlist_activated(int index);
-
-    void on_comboBox_pos_memberlist_currentIndexChanged(int index);
 
 
 
@@ -245,6 +275,15 @@ private:
         QString expirationDate;
     };
 
+    // For use in POS page
+    QString posItemName; // name of item
+    int posMemberID; // member id
+    int posItem; // item id
+    int posQty; // item quantity
+    double posPrice; // item price
+    double posTotal; // total of price * qty
+    int receiptRow; // index of row in receipt table
+
 
     // For use in upgrade/downgrade features
     float rebateAmount = 0.0; // member's rebate received
@@ -261,20 +300,9 @@ private:
     };
 
 
-
-    // For use in POS page
-    QString posItemName;
-    QString posDate;
-    int posMemberID;
-    int posItem;
-    int posQty;
-    double posPrice;
-    double posTotal;
-    int receiptRow;
-
-
-
-    // Enum to keep track of all program pages
+    /*!
+     * \brief The Pages enum is used to track which main page the user is on
+     */
     enum Pages
     {
         HOME,
@@ -284,7 +312,9 @@ private:
         ADMIN,
     };
 
-    // Enum to keep track of manager reports pages
+    /*!
+     * \brief The SalesPages enum is used to track which sales tab the user is on
+     */
     enum SalesPages
     {
         SALES_DAILY,
@@ -294,7 +324,9 @@ private:
         SALES_SEARCH_ITEM,
     };
 
-    // Enum to keep track of administrator interface pages
+    /*!
+     * \brief The Pages enum is used to track which admin tab the user is on
+     */
     enum AdminPages
     {
         ADMIN_MEMBER,
@@ -314,21 +346,12 @@ private:
         REBATE_AMOUNT
     };
 
-    // Enum to keep track of daily sales dates
-    enum DATES
-    {
-        TWENTYFOURTH,
-        TWELFTH,
-        THIRTEENTH,
-        FOURTEENTH,
-        FIFTEENTH,
-        SIXTEENTH,
-        SEVENTEETH,
-        EIGHTEENTH,
-    };
 
-    // Enum to keep track of daily sales columns
-    enum DAILYSALES
+
+    /*!
+     * \brief The DailySales enum is used to track columns on the daily sales table
+     */
+    enum DailySales
     {
         DAILY_DATE,
         DAILY_ID,
@@ -338,7 +361,9 @@ private:
         DAILY_TOTAL,
     };
 
-    // Enum to keep track of permission level
+    /*!
+     * \brief The PermissionLevel enum is used to track login credentials
+     */
     enum PermissionLevel
     {
         NONE,
@@ -359,6 +384,11 @@ private:
         // Print suggested downgrades report
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
 
+    /*!
+     * \brief SetPermissions : Method for changing the user's permission level
+     * \param permission : An integer holding the index that will set the user's permission level
+     */
+    void setPermissions(int permission);
 
         //initializes sales by day table view
     void InitializeSalesTableView();
