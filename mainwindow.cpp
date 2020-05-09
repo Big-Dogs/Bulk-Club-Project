@@ -79,6 +79,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
 
+    //preparing the line edit integer validations for add member
+    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
+    idCheck = new QIntValidator;
+    idCheck->setRange(0,100000);
+    ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
+
+    //sets up add member
+    memberModel = nullptr;
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+
     InitializeSalesTableView(); //initializes daily sales report
       
     ui->label_admin_products_errormessage->setVisible(false);
@@ -470,26 +481,46 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     memberModel->setTable("members");
     memberModel->setSort(name, Qt::AscendingOrder);
 
-    memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-    memberModel->setHeaderData(memberID, Qt::Horizontal, QVariant("Member ID"));
-    memberModel->setHeaderData(name, Qt::Horizontal, QVariant("Name"));
-    memberModel->setHeaderData(membershipType, Qt::Horizontal, QVariant("Member Type"));
-    memberModel->setHeaderData(expirationDate, Qt::Horizontal, QVariant("Expiration Date"));
-    memberModel->setHeaderData(membershipCost, Qt::Horizontal, QVariant("Member Cost"));
+        //set up model
+        if (memberModel != nullptr)
+        {
+            delete memberModel;
+        }
+        enum MembershipTableWidgetColumns{
+            ID_COLUMN,
+            NAME_COLUMN,
+            MEMBERSHIP_TYPE_COLUMN,
+            EXPIRATION_DATE_COLUMN,
+            RENEWAL_PRICE_COLUMN
+        };
 
-    memberModel->select();
+        memberModel = new QSqlTableModel;
+        memberModel->setTable("members");
 
-    ui->tableView_admin_members->setModel(memberModel);
-    ui->tableView_admin_members->resizeColumnToContents(name);
-    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
-    ui->tableView_admin_inventory->setWordWrap(false);
-//  QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-//  QObject::connect(ui->tableView_admin_members, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
+        memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
+        memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+        memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+        memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
+        memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
+        memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
+        memberModel->select();
 
-}
+
+        //set up view
+        ui->tableView_admin_members->setModel(memberModel);
+        ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
+        ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+        ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
+        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
+        ui->tableView_admin_members->setWordWrap(false);
+
+
+    }
+
 
     void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
     {
@@ -563,6 +594,11 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
     ui->pushButton_admin_deletemember->setEnabled(false);
 
      MainWindow::on_pushButton_admin_member_clicked();
+
+     //preparing the line edits to have a max character amount
+     ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
+
+
 }
 
 void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
@@ -592,49 +628,124 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
 {
-    ui->gridWidget_admin_memberdatafields->hide();
+
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
-    QString memberType = "Regular";
+    //hides all warnings
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //used to add the member to the database
+    QSqlQuery query;
+
+    //Created strings that are used to assign a date to the new member
+    QString thisYear = QDate::currentDate().toString("yyyy");
+    QString thisMonth = QDate::currentDate().toString("M");
+    QString thisDay = QDate::currentDate().toString("dd");
+
+    //Takes care of memberships that start on the 29th of feb
+    if(QDate::isLeapYear(thisYear.toInt()) && QDate::currentDate().toString("M/dd") == "2/29")
+        thisDay = QString::number(thisDay.toInt() - 1);
+    QString nextYear = QString::number(thisYear.toInt() + 1);
 
     TempMember tempMemberAdd;
 
 
+
+    //Populates the tempMember struct instance with the new member information.
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
-    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
-    if(tempMemberAdd.executiveStatus == "executive")
-        memberType = "Executive";
+    //Formats the name to make sure the first letter is always capitalized, and the rest are lower case
+    tempMemberAdd.name = normalizeCapitalization(ui->lineEdit_admin_membersubmission_name->text());
 
-    QSqlQuery query;
-
-    int renewalPrice;
-
-    if(memberType == "Executive")
-        renewalPrice = 120;
+    //sets the executive status based off of the member based off of the radio button
+    qDebug() << tempMemberAdd.name;
+    if(ui->radioButton_admin_member->isChecked())
+        tempMemberAdd.executiveStatus = "Executive";
     else
+        tempMemberAdd.executiveStatus = "Regular";
+
+    //sets the expiration date of the member based on the current date
+    tempMemberAdd.expMonth = thisMonth;
+    tempMemberAdd.expDay = thisDay;
+    tempMemberAdd.expYear = nextYear;
+
+    //creates the expiration date string
+    tempMemberAdd.expDate = tempMemberAdd.expMonth + "/"
+                          + tempMemberAdd.expDay   + "/"
+                          + tempMemberAdd.expYear;
+
+    //sets the renewal price for the member based on executive status
+    int renewalPrice = 0;
+    if(tempMemberAdd.executiveStatus == "Executive")
+        renewalPrice = 120;
+    else if(tempMemberAdd.executiveStatus == "Regular")
         renewalPrice = 60;
 
-    query.prepare("INSERT INTO members "
-                  "(memberID, name, "
-                  "memberType, expireDate,"
-                  "renewalPrice) VALUES(?,?,?,?,?)");
 
-    query.addBindValue(tempMemberAdd.id);
-    query.addBindValue(tempMemberAdd.name);
-    query.addBindValue(memberType);
-    query.addBindValue(tempMemberAdd.expirationDate);
-    query.addBindValue(QString::number(renewalPrice));
+    //checks to make sure that the id and name fields contain at least one character.
+    //If either of them dont, a warning message pops up that tells the user what
+    //to do
+    if(tempMemberAdd.name != "")
+    {
+        if(tempMemberAdd.id != "")
+        {
+            //inserts the member into the database
+            query.prepare("INSERT INTO members "
+                          "(memberID, name, "
+                          "memberType, expireDate,"
+                          "renewalPrice) VALUES(?,?,?,?,?)");
 
-    if(!query.exec())
-        qDebug() << "Member failed to save";
+            query.addBindValue(tempMemberAdd.id);
+            query.addBindValue(tempMemberAdd.name);
+            query.addBindValue(tempMemberAdd.executiveStatus);
+            query.addBindValue(tempMemberAdd.expDate);
+            query.addBindValue(QString::number(renewalPrice));
 
-     MainWindow::on_pushButton_admin_member_clicked();
-     MainWindow::ClearMemberFields();
+            if(!query.exec())
+            {
+                qDebug() << "Member failed to save" << memberModel->lastError();
+                //sets the correct warning messages
+                ui->label_admin_membersubmission_nameID_warning->setText(
+                            "WARNING: Please enter a unique name and ID");
+                ui->label_admin_membersubmission_nameID_warning->show();
+
+                qDebug() << query.lastError().text();
+                qDebug() << "name == __ | ID != __  ";
+            }
+            else
+            {
+                //clears out all of the member fields, hides the add member widgets, and warnings
+                MainWindow::on_pushButton_admin_member_clicked();
+                MainWindow::ClearMemberFields();
+
+                //hides warning message, and hides member text fields
+                ui->gridWidget_admin_memberdatafields->hide();
+                ui->label_admin_membersubmission_nameID_warning->hide();
+            }
+        }
+        else
+        {
+            //sets the correct warning messages
+            ui->label_admin_membersubmission_nameID_warning->setText(
+                        "WARNING: Please enter a unique name and ID");
+            ui->label_admin_membersubmission_nameID_warning->show();
+
+            qDebug() << query.lastError().text();
+            qDebug() << "name != __ | ID == __  ";
+        }
+    }
+    else
+    {
+        //sets the correct warning messages
+        ui->label_admin_membersubmission_nameID_warning->setText(
+                    "WARNING: Please enter a unique name and ID");
+        ui->label_admin_membersubmission_nameID_warning->show();
+
+        qDebug() << query.lastError().text();
+        qDebug() << "name == __ | ID != __  ";
+    }
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -644,7 +755,13 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //clears out the member information line edits
     MainWindow::ClearMemberFields();
+
+
+
 }
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
@@ -1030,6 +1147,8 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
         ui->label_membership_recommendation_status->setText(labelText);
 
+        //resets the table
+        on_pushButton_admin_member_clicked();
 
 }
 
@@ -1335,8 +1454,7 @@ void MainWindow::ClearMemberFields()
 {
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
-    //ui->lineEdit_admin_membersubmission_executive->clear();
-    //ui->lineEdit_admin_membersubmission_date->clear();
+    ui->radioButton_admin_member->setChecked(false);
 }
 
 
@@ -1867,6 +1985,7 @@ void MainWindow::on_tableView_item_currentChanged(int row)
     qDebug() << "current changed";
 }
 
+//
 //void restrictSelectToRow(const QModelIndex &selectedRow)
 //{
 //    //Variable

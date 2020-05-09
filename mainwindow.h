@@ -242,9 +242,16 @@ private:
         QString id;
         QString name;
         QString executiveStatus;
-        QString expirationDate;
+        QString expMonth;
+        QString expDay;
+        QString expYear;
+        QString expDate;
     };
-
+    QIntValidator *idCheck;
+    QIntValidator *monthCheck;
+    QIntValidator *dayCheck;
+    QIntValidator *yearCheck;
+    QSqlTableModel *memberModel;
 
     // For use in upgrade/downgrade features
     float rebateAmount = 0.0; // member's rebate received
