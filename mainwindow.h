@@ -155,8 +155,18 @@ private slots:
 
         void on_pushButton_membership_expiration_clicked();
 
+        /*!
+         * \brief MainWindow::on_pushButton_membership_upgrades_clicked : Method
+         * will display which members should upgrade their membership based on
+         * rebate amount earned through purchases
+         */
         void on_pushButton_membership_upgrades_clicked();
 
+        /*!
+         * \brief MainWindow::on_pushButton_membership_downgrades_clicked : Method
+         * will display which members should downgrade their membership based on
+         * insufficient rebate amount earned through purchases
+         */
         void on_pushButton_membership_downgrades_clicked();
 
         void on_pushButton_membership_expire_clicked();
@@ -319,7 +329,15 @@ private slots:
             void on_pushButton_admin_canceldeleteitem_clicked();
 
 
-    // Autocomplete text searches
+
+    /**
+    * @brief MainWindow::TextCompleter
+    * Continuously searches list of products as the user types what they want
+    * to find.
+    * @param names the list of school names currently in database
+    * @param field QLineEdit form that function is being used on
+    */
+
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
 
@@ -604,13 +622,24 @@ private:
 
     // Helper Function Prototypes
 
-        // Reset all values in membership table widget
+    /*!
+     * \brief InitializeMembershipTableWidget : Method resets values for
+     * membership tablewidget
+     */
     void InitializeMembershipTableWidget();
 
-        // Print suggested upgrades report
+    /*!
+     * \brief MainWindow::PrintUpgradeReport : Function will populate membership
+     * table view to be shown to user in "Recommend Upgrades" feature
+     * \param regularMemberPurchases : Vector of regular members' purchases
+     */
     void PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases);
 
-        // Print suggested downgrades report
+    /*!
+     * \brief MainWindow::PrintDowngradeReport : Function will populate membership
+     * table view to be shown to user in "Recommend Downgrades" feature
+     * \param executiveMemberPurchases : Vector of executive members' purchases
+     */
     void PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases);
 
     /*!

@@ -267,32 +267,6 @@ QVector<Database::Member> Database::GetExecutiveMemberPurchases(QStringList exec
 }
 
 
-
-// Add Member
-bool Database::AddCustomer(QString name, QString isExecutive, QString expireDate) { return false; }
-
-// Edit Member Data
-bool Database::UpdateCustomer(QString name, QString isExecutive, QString expireDate) { return false; }
-
-// Remove Member
-bool Database::DeleteCustomer(QString memberID) { return false; }
-
-// Add Product
-bool Database::AddProduct(QString name, QString price) { return false; }
-
-// Edit Product Data
-bool Database::UpdateProduct(QString name, QString price) { return false; }
-
-// Remove Product
-bool Database::DeleteProduct(QString productID) { return false; }
-
-
-
-// PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
-// DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
-
-
-// Get price of product
 double Database::GetPrice(QString item)
 {
     double itemPrice = 0;
@@ -466,7 +440,6 @@ int Database::CheckLogin(QString username, QString password)
         //set permission level
     if(query.exec())
     {
-
         while(query.next())
         {
                       permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
