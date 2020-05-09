@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+    this->parent = parent;
+
     // Instantiate database
     if (databasePath != "NOT FOUND")
     {
@@ -106,6 +108,109 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_inventorysales->hide();
 }
 
+MainWindow::MainWindow(const MainWindow &otherWindow)
+    : QMainWindow(otherWindow.parent)
+    , ui(new Ui::MainWindow)
+{
+    //Variables
+    QString databasePath = Database::findDatabase("db.db");
+
+    ui->setupUi(this);
+
+    // Instantiate database
+    if (databasePath != "NOT FOUND")
+    {
+        this->database = new Database(databasePath, "QSQLITE");
+    }
+    else
+    {
+        throw databasePath;
+    }
+
+    qDebug() << "Current Path: " << QDir::currentPath();
+
+    formatPrice = new MoneyDelegate;
+
+    sortItemModel = new QSqlTableModel;
+
+
+    // setting default indices
+    ui->stackedWidget_main->setCurrentIndex(HOME);
+
+    ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
+
+    //ensures the user is logged out when the program starts
+    setPermissions(NONE);
+    ui->label_home_warning->setText("");
+
+    //initializes pos page
+    InitializePosTable();
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
+    ui->pushButton_pos_purchase->setEnabled(false);
+
+    //initializes sales page
+    InitializeSalesTableView();
+    ui->label_total_revenue->setVisible(false);
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+
+    //initializes membership page
+    ui->tableWidget_membership->hide();
+    ui->gridWidget_membership_expire->hide();
+
+    //initializes admin page
+    ui->pushButton_admin_confirmdeletemember->setEnabled(false);
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_confirmdeletemember->hide();
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->gridWidget_admin_confirmdeleteitem->hide();
+
+
+
+    //preparing the line edit integer validations for add member
+    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
+    idCheck = new QIntValidator;
+    idCheck->setRange(0,100000);
+    ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
+
+    //sets up add member
+    memberModel = nullptr;
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    ui->pushButton_admin_editmember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+
+    ui->label_admin_products_errormessage->setVisible(false);
+
+    itemModel = nullptr;
+
+    //Setting up admin item submission line edits
+    //Validators
+    QIntValidator    *productIdValidator;    //The validator for product id
+    QDoubleValidator *productPriceValidator; //The validator for product price
+
+    //id
+    productIdValidator = new QIntValidator;
+    productIdValidator->setTop(1000);
+    ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
+
+    //price
+    productPriceValidator = new QDoubleValidator;
+    productPriceValidator->setDecimals(2);
+    productIdValidator->setBottom(0.01);
+    ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
+    ui->lineEdit_admin_itemsubmission_price->setMaxLength(6);
+
+    //name
+    ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
+
+
+    qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
+
+    //hides the total revenue for the sort by item feature
+    ui->label_inventorysales->hide();
+}
 
 MainWindow::~MainWindow()
 {

@@ -19,6 +19,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
+    MainWindow(const MainWindow &otherWindow);
+
     ~MainWindow();
 
 
@@ -457,6 +460,7 @@ private:
     QString normalizeCapitalization(QString text);
 
     Ui::MainWindow *ui;
+    QWidget *parent;
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
     Database *database; // Pointer to database
