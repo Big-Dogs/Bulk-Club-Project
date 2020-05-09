@@ -111,41 +111,6 @@ MainWindow::~MainWindow()
    delete ui->lineEdit_admin_itemsubmission_price->validator();
 }
 
-void MainWindow::setPermissions(int permission) //uses login credentials to control the user's access to program features
-{
-    switch(permission)
-    {
-    case PermissionLevel::NONE:                 //login failed
-        ui->pushButton_POS->setEnabled(false);
-        ui->pushButton_sales->setEnabled(false);
-        ui->pushButton_members->setEnabled(false);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(HOME);
-        break;
-    case PermissionLevel::EMPLOYEE:             //employee login enables the POS page
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(false);
-        ui->pushButton_members->setEnabled(false);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(POS);
-        break;
-    case PermissionLevel::MANAGER:              //manager login enables POS, sales, and membership pages
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(SALES);
-        break;
-    case PermissionLevel::ADMINISTRATOR:        //administrator login enables all pages
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
-        ui->pushButton_admin->setEnabled(true);
-        ui->stackedWidget_main->setCurrentIndex(ADMIN);
-        break;
-    }
-}
-
 /*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page and logs user out
 {
@@ -1328,6 +1293,41 @@ void MainWindow::on_pushButton_home_login_clicked() // attempts to log the user 
 }
 
 // Helper Function Definitions
+
+void MainWindow::setPermissions(int permission) //uses login credentials to control the user's access to program features
+{
+    switch(permission)
+    {
+    case PermissionLevel::NONE:                 //login failed
+        ui->pushButton_POS->setEnabled(false);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(HOME);
+        break;
+    case PermissionLevel::EMPLOYEE:             //employee login enables the POS page
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+        break;
+    case PermissionLevel::MANAGER:              //manager login enables POS, sales, and membership pages
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
+        break;
+    case PermissionLevel::ADMINISTRATOR:        //administrator login enables all pages
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(true);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+        break;
+    }
+}
     // Reset all values in membership table widget
 void MainWindow::InitializeMembershipTableWidget()
 {
@@ -1406,13 +1406,14 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 
 
 
-void MainWindow::InitializeSalesTableView()
+void MainWindow::InitializeSalesTableView() // fills the daily sales combo box and sets up the tableview
 {
 
     ui->comboBox_sales_byday->clear();
     QSqlQuery query;
+    //query the database to get every purchase date
     query.prepare("select datePurchased from purchases group by datePurchased");
-    //sales by day combo box
+    //if successful, fill the sales by day combo box with retrieves items
     if(query.exec())
     {
        while (query.next())
@@ -1420,6 +1421,7 @@ void MainWindow::InitializeSalesTableView()
            ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
        }
     }
+    //if not successful, print an error message
     else
     {
         qDebug() << query.lastError().text();
@@ -1432,8 +1434,8 @@ void MainWindow::InitializeSalesTableView()
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
 }
 
-//initialize pos table
-void MainWindow::InitializePosTable()
+
+void MainWindow::InitializePosTable() // fills the POS page combo boxes and initializes the receipts table
 {
     QStringList TableHeader;
     ui->tableWidget_pos_receipts->setColumnCount(5);
@@ -1445,7 +1447,7 @@ void MainWindow::InitializePosTable()
     ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
     receiptRow = 0;
 
-    //initializing combo boxes
+    //initializing member id combo box
     QStringList members = this->database->GetPOSMembers();
     qDebug() << members.length() << " items";
     //item number combo box
@@ -1456,6 +1458,8 @@ void MainWindow::InitializePosTable()
             ui->comboBox_pos_memberlist->addItem(members.at(i));
         }
     }
+
+    //initializing items combo box
     QStringList items = this->database->GetNames();
     qDebug() << items.length() << " items";
     //item number combo box
@@ -1466,6 +1470,8 @@ void MainWindow::InitializePosTable()
             ui->comboBox_pos_itemlist->addItem(items.at(i));
         }
     }
+
+    //initializing quantity combo box
     if(ui->comboBox_pos_qty->count() == 0)
     {
         for (int i = 1; i <= 10; i++)
@@ -1475,7 +1481,7 @@ void MainWindow::InitializePosTable()
     }
 }
 
-void MainWindow::printReceipt()
+void MainWindow::printReceipt() // prints the receipt table in the pos page
 {
     QTableWidgetItem *member = new QTableWidgetItem;
     QTableWidgetItem *item = new QTableWidgetItem;

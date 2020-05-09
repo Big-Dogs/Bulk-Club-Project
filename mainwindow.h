@@ -41,16 +41,19 @@ private slots:
 
         /*!
          * \brief on_comboBox_pos_itemlist_activated : Method to select the item for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_itemlist_activated(int index);
 
         /*!
          * \brief on_comboBox_pos_qty_activated : Method to select the quantity for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_qty_activated(int index);
 
         /*!
          * \brief on_comboBox_pos_memberlist_activated : Method to select the member id for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_memberlist_activated(int index);
 
