@@ -4,6 +4,11 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 
+/*!
+ * \brief The MoneyDelegate class is a wrapper for QStyledItem Delegate that
+ * formats double-types to limit decimal places to two, and adds a dollar sign
+ * as a prefix.
+ */
 class MoneyDelegate : public QStyledItemDelegate
 {
 public:

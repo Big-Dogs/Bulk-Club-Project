@@ -13,18 +13,27 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+/*!
+ * \brief The MainWindow class handles user interface and serves as the primary
+ * container for the entire program
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    /*!
+     * \brief MainWindow::MainWindow() Default Constructor
+     * \param parent QWidget parent object
+     */
     MainWindow(QWidget *parent = nullptr);
+
+    /*!
+     * \brief ~MainWindow() Destructor
+     */
     ~MainWindow();
 
-
 private slots:
-
-
     /*----Menu Navigation----*/
 
         /*----POS page----*/
@@ -61,7 +70,6 @@ private slots:
          * member is selected
          */
         void on_comboBox_pos_memberlist_currentIndexChanged(int index);
-
 
         /*----Home page----*/
     /*!
@@ -105,6 +113,10 @@ private slots:
          */
         void on_pushButton_sales_sortmember_clicked();
 
+        /*!
+         * \brief on_pushButton_sales_sortitem_clicked : Button allows user to
+         * activate "Sort by Item" feature
+         */
         void on_pushButton_sales_sortitem_clicked();
 
         /*!
@@ -141,8 +153,17 @@ private slots:
              */
             void on_pushButton_sales_searchmemberconfirm_clicked();
 
+        /*!
+         * \brief on_pushButton_sales_searchitem_clicked : Button allows
+         * user to activate "Search by Item" feature
+         */
         void on_pushButton_sales_searchitem_clicked();
 
+            /*!
+             * \brief on_pushButton_sales_searchitemconfirm_clicked : Button
+             * allows user to confirm selection for item they would like to
+             * search for
+             */
             void on_pushButton_sales_searchitemconfirm_clicked();
 
          /*----Membership page----*/
@@ -151,9 +172,23 @@ private slots:
      */
     void on_pushButton_members_clicked();
 
+        /*!
+         * \brief on_pushButton_membership_rebates_clicked : Button allows user
+         * to display membership rebate amounts
+         */
         void on_pushButton_membership_rebates_clicked();
 
+        /*!
+         * \brief on_pushButton_membership_expiration_clicked : Button allows
+         * user to enter member expiration report interface
+         */
         void on_pushButton_membership_expiration_clicked();
+
+            /*!
+             * \brief on_pushButton_membership_expire_clicked : Button will
+             * generate membership expiration report based on month selected
+             */
+            void on_pushButton_membership_expire_clicked();
 
         /*!
          * \brief MainWindow::on_pushButton_membership_upgrades_clicked : Method
@@ -169,32 +204,71 @@ private slots:
          */
         void on_pushButton_membership_downgrades_clicked();
 
-        void on_pushButton_membership_expire_clicked();
-
         /*----Admin page----*/
     /*!
      * \brief on_pushButton_admin_clicked : Method to switch current page to admin
      */
     void on_pushButton_admin_clicked();
 
+        /*!
+         * \brief on_pushButton_admin_member_clicked : Button allows user to
+         * enter membership administration interface
+         */
         void on_pushButton_admin_member_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_addmember_clicked : Button allows
+             * user to enter "Add Member" interface
+             */
             void on_pushButton_admin_addmember_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_editmember_clicked : Button allows
+             * user to enter "Edit Member" interface
+             */
             void on_pushButton_admin_editmember_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_deletemember_clicked : Button allows
+             * user to enter "Delete Member" interface
+             */
             void on_pushButton_admin_deletemember_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_membersubmission_submit_clicked :
+             * Button will confirm user's choice
+             */
             void on_pushButton_admin_membersubmission_submit_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_membersubmission_cancel_clicked :
+             * Button will cancel user's choice
+             */
             void on_pushButton_admin_membersubmission_cancel_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_confirmdeletemember_clicked :
+             * Button will confirm user's choice to delete member
+             */
             void on_pushButton_admin_confirmdeletemember_clicked();
 
+            /*!
+             * \brief on_pushButton_admin_canceldeletemember_clicked :
+             * Button will cancel user's choice to delete member
+             */
             void on_pushButton_admin_canceldeletemember_clicked();
 
+            /*!
+             * \brief on_tableView_admin_members_doubleClicked : Allows
+             *  user to select specific cells of table
+             * \param index : Cell selected by user
+             */
             void on_tableView_admin_members_doubleClicked(const QModelIndex &index);
 
+            /*!
+             * \brief ClearMemberFields : Method will reinitialize fields to
+             * blank state
+             */
             void ClearMemberFields();
 
         /*!
@@ -328,8 +402,6 @@ private slots:
              */
             void on_pushButton_admin_canceldeleteitem_clicked();
 
-
-
     /**
     * @brief MainWindow::TextCompleter
     * Continuously searches list of products as the user types what they want
@@ -337,10 +409,13 @@ private slots:
     * @param names the list of school names currently in database
     * @param field QLineEdit form that function is being used on
     */
-
     void TextCompleter(QStringList products, QLineEdit *inputField);
 
-
+    /*!
+     * \brief on_tableView_admin_members_clicked : Method allows user to
+     * directly select cells within the admin tableview
+     * \param index : Cell selected by user
+     */
     void on_tableView_admin_members_clicked(const QModelIndex &index);
 
     /*!
@@ -434,8 +509,6 @@ private slots:
      */
     void on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                    const QVector<int> &roles);
-
-
 private:
     /*!
      * \brief normalizeCapitalization
@@ -456,26 +529,24 @@ private:
      */
     QString normalizeCapitalization(QString text);
 
-    Ui::MainWindow *ui;
-    int index = 0; // Testing Permissions
-    MembershipTableModel *membershipModel; // Membership Table View Configuration
-    Database *database; // Pointer to database
+    Ui::MainWindow *ui;     /// Pointer to user interface object
+    int index = 0;          /// Testing Permissions
+    MembershipTableModel *membershipModel; /// Pointer to Membership Table View Configuration
+    Database *database;     /// Pointer to database object
 
-    QSqlTableModel *itemModel; ///\var The table model use to display the products table
+    QSqlTableModel *itemModel; /// Pointer to table model used to display the products table
 
-    MoneyDelegate *formatPrice; ///\var A pointer to the delegate used to format
-                                ///     items in table for money
+    MoneyDelegate *formatPrice; /// Pointer to delegate used to format money-related items in table
 
     // For use in 'Search Sales by Product Name' feature
-    QStringList productList; // List of all products in database
-    QString salesReportProduct; // Product manager wishes to view for sales report
-
-
+    QStringList productList;    /// List of all products in database
+    QString salesReportProduct; /// Specific product requested by sales manager
 
     //For use in the admin member management functions
-    QSqlTableModel *memberModel;
-    QModelIndex deleteMemberIndex;
+    QSqlTableModel *memberModel;    /// Model used to configure admin tableview
+    QModelIndex deleteMemberIndex;  /// Index of member to delete from database
 
+    /// Enum used to configure membership table headers
     enum memberTableHeaders
     {
         memberID,
@@ -485,8 +556,7 @@ private:
         membershipCost
     };
 
-    //For use in 'Display Member Rebates' feature
-    //this is a comment
+    /// Struct used to store member data for use in 'Display Member Rebates' feature
     struct ExecutiveMemberRebate
     {
         QString memberID;
@@ -495,8 +565,7 @@ private:
         QString rebate;
     };
 
-    //For use in 'Sort item' feature
-
+    /// Enum used to configure table headers for 'Sort by Item' feature
     QSqlQueryModel *sortItemModel;
     enum sortItemHeaders
     {
@@ -505,7 +574,7 @@ private:
         ITEM_PRICE
     };
 
-    //For use in 'Add Customer' feature
+    /// Struct used to store member data for use in 'Add Customer' feature
     struct TempMember
     {
         QString id;
@@ -517,38 +586,34 @@ private:
         QString expDate;
     };
 
-    QIntValidator *idCheck;
-    QIntValidator *monthCheck;
-    QIntValidator *dayCheck;
-    QIntValidator *yearCheck;
-
+    // For use in 'Add Member' feature
+    QIntValidator *idCheck;     /// Validates member ID
 
     // For use in POS page
-    QString posItemName; // name of item
-    int posMemberID; // member id
-    int posItem; // item id
-    int posQty; // item quantity
-    double posPrice; // item price
-    double posTotal; // total of price * qty
-    int receiptRow; // index of row in receipt table
+    QString posItemName;    /// Name of item purchased
+    int posMemberID;        /// ID of member making purchase
+    int posItem;            /// ID of product being purchased
+    int posQty;             /// Quantity of items purchased
+    double posPrice;        /// Price of item purchased
+    double posTotal;        /// Total of price * quantity
+    int receiptRow;         /// Index of row in receipt table
 
     // For use in upgrade/downgrade features
-    float rebateAmount = 0.0; // member's rebate received
-    int downgradeCount = 0; // number of downgrade recommendations on QStringList
-    int upgradeCount = 0; // number of downgrade recommendations on QStringList
-    const int TABLE_WIDGET_COLS = 4; // number of columns on tablewidget
-    const float REBATE_RATE = 0.02;      // rebate rate for calculation
-    const float REBATE_MIN = 65.0;       // minimum rebate needed for exec member
+    float rebateAmount = 0.0;           /// Amount member will receive (rebate)
+    int downgradeCount = 0;             /// Number of downgrade recommendations on QStringList
+    int upgradeCount = 0;               /// Number of downgrade recommendations on QStringList
+    const int TABLE_WIDGET_COLS = 4;    /// Number of columns on tablewidget
+    const float REBATE_RATE = 0.02;     /// Rebate rate used for calculation
+    const float REBATE_MIN = 65.0;      /// Minimum rebate needed to make executive membership worth the price
     QStringList tableWidgetColumnNames = {
         "ID",
         "Name",
         "Amount Spent",
         "Rebate Amount"
-    };
-
+    }; /// List of names used for tablewidget in 'Recommend Upgrade/Downgrade' features
 
     /*!
-     * \brief The Pages enum is used to track which main page the user is on
+     * \brief Enum used to track which main page the user is on
      */
     enum Pages
     {
@@ -560,7 +625,7 @@ private:
     };
 
     /*!
-     * \brief The SalesPages enum is used to track which sales tab the user is on
+     * \brief Enum used to track which sales tab the user is on
      */
     enum SalesPages
     {
@@ -572,7 +637,7 @@ private:
     };
 
     /*!
-     * \brief The Pages enum is used to track which admin tab the user is on
+     * \brief Enum used to track which admin tab the user is on
      */
     enum AdminPages
     {
@@ -580,11 +645,9 @@ private:
         ADMIN_ITEM,
     };
 
+    QModelIndex currentProcessIndex; /// The current index being processed
 
-    QModelIndex currentProcessIndex; //The current index being processed
-
-
-    // Enum to keep track of upgrade/downgrade feature columns
+    /// Enum to keep track of upgrade/downgrade feature columns
     enum MembershipTableWidgetColumns
     {
         MEMBERSHIP_NUMBER,
@@ -592,8 +655,6 @@ private:
         AMT_SPENT,
         REBATE_AMOUNT
     };
-
-
 
     /*!
      * \brief The DailySales enum is used to track columns on the daily sales table
@@ -609,7 +670,7 @@ private:
     };
 
     /*!
-     * \brief The PermissionLevel enum is used to track login credentials
+     * \brief Enum used to track login credentials
      */
     enum PermissionLevel
     {
@@ -619,8 +680,7 @@ private:
         ADMINISTRATOR,
     };
 
-
-    // Helper Function Prototypes
+    // Helper Function Prototypes //
 
     /*!
      * \brief InitializeMembershipTableWidget : Method resets values for
@@ -664,9 +724,5 @@ private:
      * \brief printReceipt : method for populating the POS receipts table
      */
     void printReceipt();
-
-
-
-
 };
 #endif // MAINWINDOW_H

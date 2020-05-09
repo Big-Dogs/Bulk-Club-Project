@@ -24,54 +24,49 @@ MainWindow::MainWindow(QWidget *parent)
     qDebug() << "Current Path: " << QDir::currentPath();
 
     formatPrice = new MoneyDelegate;
-
     sortItemModel = new QSqlTableModel;
 
-
-    // setting default indices
+    // Set default indices
     ui->stackedWidget_main->setCurrentIndex(HOME); 
-
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
 
-    //ensures the user is logged out when the program starts
+    // Ensure user is logged out when program starts
     setPermissions(NONE);
     ui->label_home_warning->setText("");
 
-    //initializes pos page
+    // Initialize point of sale page
     InitializePosTable();
     ui->comboBox_pos_qty->setEnabled(false);
     ui->comboBox_pos_itemlist->setEnabled(false);
     ui->pushButton_pos_purchase->setEnabled(false);
 
-    //initializes sales page
+    // Initialize sales page
     InitializeSalesTableView();
     ui->label_total_revenue->setVisible(false);
     ui->label_sales_searchmembererrormessage->setVisible(false);
 
-    //initializes membership page
+    // Initializes membership page
     ui->tableWidget_membership->hide();
     ui->gridWidget_membership_expire->hide();
 
-    //initializes admin page
+    // Initializes admin page
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
     ui->gridWidget_admin_memberdatafields->hide();
     ui->gridWidget_admin_confirmdeletemember->hide();
     ui->gridWidget_admin_itemdatafields->hide();
     ui->gridWidget_admin_confirmdeleteitem->hide();
 
-
-
-    //preparing the line edit integer validations for add member
-    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
+    // Prepare line edit integer validations for 'Add Member' feature
     idCheck = new QIntValidator;
     idCheck->setRange(0,100000);
     ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
 
-    //sets up add member
+    // Initialize 'Add Member' feature
     memberModel = nullptr;
     ui->label_admin_membersubmission_nameID_warning->hide();
 
+    // Initialize 'Edit Member' and 'Delete Member' features
     ui->pushButton_admin_editmember->hide();
     ui->pushButton_admin_deletemember->setEnabled(false);
   
@@ -79,34 +74,34 @@ MainWindow::MainWindow(QWidget *parent)
 
     itemModel = nullptr;
 
-    //Setting up admin item submission line edits
-    //Validators
+    // Initialize administrator item submission line edits
+    // Validators
     QIntValidator    *productIdValidator;    //The validator for product id
     QDoubleValidator *productPriceValidator; //The validator for product price
 
-    //id
+        // ID
     productIdValidator = new QIntValidator;
     productIdValidator->setTop(1000);
     ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
 
-    //price
+        // Price
     productPriceValidator = new QDoubleValidator;
     productPriceValidator->setDecimals(2);
     productIdValidator->setBottom(0.01);
     ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
     ui->lineEdit_admin_itemsubmission_price->setMaxLength(6);
 
-    //name
+        // Name
     ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
 
-
+    // Initialize positional placeholders
     qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
 
-    //hides the total revenue for the sort by item feature
+    // Hides the total revenue for the sort by item feature
     ui->label_inventorysales->hide();
 }
 
-
+// MainWindow Destructor
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -123,63 +118,75 @@ MainWindow::~MainWindow()
 }
 
 /*----Window Navigation----*/
-void MainWindow::on_pushButton_home_clicked() // home page and logs user out
+
+// Navigates to home page and logs user out
+void MainWindow::on_pushButton_home_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(HOME);
     setPermissions(PermissionLevel::NONE); //logs user out
 }
 
-void MainWindow::on_pushButton_POS_clicked() // POS page
+// Navigates to POS page
+void MainWindow::on_pushButton_POS_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
 }
 
-void MainWindow::on_pushButton_sales_clicked() // sales page
+// Navigates to sales page
+void MainWindow::on_pushButton_sales_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
 
-void MainWindow::on_pushButton_members_clicked() // membership page
+// Navigates to membership page
+void MainWindow::on_pushButton_members_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(MEMBER);
 }
 
-void MainWindow::on_pushButton_admin_clicked() // administrator page
+// Navigates to administrator page
+void MainWindow::on_pushButton_admin_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(ADMIN);
 }
 
-/*----Sales Page push buttons----*/
-void MainWindow::on_pushButton_sales_daily_clicked() // opens daily sales tab
+    /*----Sales Page push buttons----*/
+
+// Navigates to daily sales tab
+void MainWindow::on_pushButton_sales_daily_clicked()
 {
     ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
 }
 
-void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date purchased
+// Filter purchases based on date of purchases
+void MainWindow::on_pushButton_sale_byday_clicked()
 {
-    QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
-    QSqlQuery query;
-    // query to retrieve purchases sorted by date
+    QSqlQueryModel *dailySalesModel = new QSqlQueryModel; // Create new model
+    QSqlQuery query; // Query to gather data
+
+    //Retrieve purchases sorted by date
     query.prepare("SELECT purchases.datePurchased, purchases.memberID, "
                                   "products.name, products.price, purchases.qty, products.price * purchases.qty "
                                   "FROM purchases join products "
                                   "ON (products.productID = purchases.productID) "
                                   "WHERE datePurchased = ?");
+
+    // Configure combo box
     qDebug() << "combo box: " << ui->comboBox_sales_byday->currentText();
     query.bindValue(0, ui->comboBox_sales_byday->currentText());
-    // if successful set the query model
+
+    // If successful, set the query model
     if (query.exec())
     {
         dailySalesModel->setQuery(query);
     }
-    // otherwise print a warning message
+    // Else print error message
     else
     {
         qDebug() << query.lastError().text();
     }
 
     // Initialize tableView_sales_daily using querymodel
-
     ui->tableView_sales_daily->setModel(dailySalesModel);
     dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
     dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
@@ -188,20 +195,21 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
     dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
     dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
 
+    // Resize tableview columns
     ui->tableView_sales_daily->resizeColumnToContents(2);
 
-
-        // Initialize tableView_sales_daily using querymodel
-        ui->tableView_sales_daily->setModel(dailySalesModel);
-        dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
-        dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
-        dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
-        dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
-        dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
-        dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
+    // Initialize tableView_sales_daily using querymodel
+    ui->tableView_sales_daily->setModel(dailySalesModel);
+    dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
+    dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
+    dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
+    dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
+    dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
+    dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
 
     // Hide numerical vertical header
     ui->tableView_sales_daily->verticalHeader()->setVisible(false);
+
     // Make fields uneditable
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
 }
@@ -209,60 +217,61 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
 //The button to print out the revenue of each member
 void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 {
-    //Constant
+    //Constants
     const int ID_COLUMN      = 0; //The column number for the member's id number
     const int NAME_COLUMN    = 1; //The column number for the member's name
     const int REVENUE_COLUMN = 2; //The column number for the member's revenue
+
     //Variables
     QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
     QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
 
     double totalRevenue = 0.00; //The total revenue across all members
 
-
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-   bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS Revenue FROM members "
-                                "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
-                                "LEFT OUTER JOIN products ON purchases.productID=products.productID "
-                                "GROUP BY members.memberID "
-                                "ORDER BY members.memberID");
+    bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS Revenue FROM members "
+                                 "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
+                                 "LEFT OUTER JOIN products ON purchases.productID=products.productID "
+                                 "GROUP BY members.memberID "
+                                 "ORDER BY members.memberID");
 
-   if (!queryError)
-   {
-       qDebug() << query.lastError().text();
-       throw query.lastError();
-   }
-   else
-   {
-       qDebug() << "successful";
-   }
+    // If error, output error message
+    if (!queryError)
+    {
+        qDebug() << query.lastError().text();
+        throw query.lastError();
+    }
+    else // Else, output success
+    {
+        qDebug() << "successful";
+    }
 
-   tableData = new QSqlQueryModel();
+    // Initialize and configure tablemodel
+    tableData = new QSqlQueryModel();
+    tableData->setQuery(query);
+    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, tr("ID"));
+    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, tr("Name"));
+    tableData->setHeaderData(REVENUE_COLUMN, Qt::Horizontal, tr("Revenue"));
 
-   tableData->setQuery(query);
+    // Configure tableview
+    ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
+    ui->tableView_sales_sortmember->setModel(tableData);
+    ui->tableView_sales_sortmember->setItemDelegateForColumn(REVENUE_COLUMN, formatPrice);
+    ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
 
-   tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, tr("ID"));
-   tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, tr("Name"));
-   tableData->setHeaderData(REVENUE_COLUMN, Qt::Horizontal, tr("Revenue"));
+    // Debug: Output rowcount
+    qDebug() << tableData->rowCount();
 
-   ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
+    // Sum total revenue
+    for (int index = 0; index < tableData->rowCount(); index++)
+    {
+        totalRevenue += tableData->record(index).value("Revenue").toDouble();
+    }
 
-   ui->tableView_sales_sortmember->setModel(tableData);
-
-   ui->tableView_sales_sortmember->setItemDelegateForColumn(REVENUE_COLUMN, formatPrice);
-
-   ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
-
-   qDebug() << tableData->rowCount();
-   for (int index = 0; index < tableData->rowCount(); index++)
-   {
-
-      totalRevenue += tableData->record(index).value("Revenue").toDouble();
-   }
-
-   ui->label_total_revenue->setText(QString("Total Revenue: $").append(QString::number(totalRevenue, 'f', 2)));
-   ui->label_total_revenue->setVisible(true);
+    // List total revenue
+    ui->label_total_revenue->setText(QString("Total Revenue: $").append(QString::number(totalRevenue, 'f', 2)));
+    ui->label_total_revenue->setVisible(true);
 }
 
 
