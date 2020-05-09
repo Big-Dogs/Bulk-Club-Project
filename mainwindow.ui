@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page_home">
      <widget class="QWidget" name="gridLayoutWidget_12">
@@ -178,7 +178,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -336,31 +336,22 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QLabel" name="label_sales_searchmembererrormessage">
         <property name="geometry">
          <rect>
           <x>690</x>
-          <y>190</y>
-          <width>291</width>
-          <height>61</height>
+          <y>200</y>
+          <width>289</width>
+          <height>31</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QLabel" name="label_sales_searchmembererrormessage">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);
 color: rgb(239, 41, 41);</string>
-           </property>
-           <property name="text">
-            <string>Error: </string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBox_sales_manymembersfound"/>
-         </item>
-        </layout>
+        </property>
+        <property name="text">
+         <string>Error: </string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="page_sales_searchitem">
@@ -1024,7 +1015,6 @@ color: rgb(239, 41, 41);</string>
   <tabstop>pushButton_sales_searchmember</tabstop>
   <tabstop>lineEdit_sales_searchmember</tabstop>
   <tabstop>pushButton_sales_searchmemberconfirm</tabstop>
-  <tabstop>comboBox_sales_manymembersfound</tabstop>
   <tabstop>tableView_sales_searchmember</tabstop>
   <tabstop>pushButton_sales_searchitem</tabstop>
   <tabstop>lineEdit_sales_searchitem</tabstop>

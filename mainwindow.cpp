@@ -49,7 +49,6 @@ MainWindow::MainWindow(QWidget *parent)
     InitializeSalesTableView();
     ui->label_total_revune->setVisible(false);
     ui->label_sales_searchmembererrormessage->setVisible(false);
-    ui->comboBox_sales_manymembersfound->setVisible(false);
 
     //initializes membership page
     ui->tableWidget_membership->hide();
@@ -198,6 +197,7 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
 }
 
+//The button to print out the revenue of each member
 void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 {
     //Constant
@@ -338,6 +338,7 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     ui->label_inventorysales->setText(revenueMessage);
 }
 
+//The button the search for a specific member in order to print out the revenue of that member
 void MainWindow::on_pushButton_sales_searchmember_clicked() // search by member
 {
     //Constants
@@ -405,6 +406,8 @@ void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
     TextCompleter(productList, inputField);
 }
 
+//The button to search the database for the member inputted into lineEdit_sales_searchmember and
+//print them out to the tableView
 void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search member button
 {
     //Constant
@@ -424,7 +427,6 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
     //seting error widgets to be invisible
     ui->label_sales_searchmembererrormessage->setVisible(false);
-    ui->comboBox_sales_manymembersfound->setVisible(false);
 
     memberFound = ui->lineEdit_sales_searchmember->text();
 
@@ -456,40 +458,20 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
     qDebug() << "check";
 
-    if (tableData->rowCount() == 1)
-    {
-        ui->tableView_sales_searchmember->setModel(tableData);
-        ui->tableView_sales_searchmember->verticalHeader()->setVisible(false);
-//        ui->tableView_sales_searchmember->resizeColumnsToContents(); Messes up with the delegate, will work on in a later sprint
+    ui->tableView_sales_searchmember->setModel(tableData);
+    ui->tableView_sales_searchmember->verticalHeader()->setVisible(false);
 
-        if (tableData->record(0).value("memberId").isNull()) //no members found
-        {
-            ui->label_sales_searchmembererrormessage->setText("Error: That member was not found");
-            ui->label_sales_searchmembererrormessage->setVisible(true);
-
-            //clearing table view
-            tableData->clear();
-        }
-        else //exactly one member found
-        {
-            ui->tableView_sales_searchmember->setItemDelegateForColumn(2, formatPrice);
-        }
-    }
-    else //more than one member found
+    if (tableData->record(0).value("memberId").isNull()) //no members found
     {
-        ui->label_sales_searchmembererrormessage->setText("Error: Many members found, please choose the one you were looking for");
+        ui->label_sales_searchmembererrormessage->setText("Error: That member was not found");
         ui->label_sales_searchmembererrormessage->setVisible(true);
 
-        for (int index = 0; index < tableData->rowCount(); index++)
-        {
-            comboBoxText = tableData->record(index).value("memberId").toString().append(" ");
-
-            comboBoxText.append(tableData->record(index).value("name").toString());
-
-            ui->comboBox_sales_manymembersfound->addItem(comboBoxText);
-        }
-
-        ui->comboBox_sales_manymembersfound->setVisible(true);
+        //clearing table view
+        tableData->clear();
+    }
+    else //exactly one member found
+    {
+        ui->tableView_sales_searchmember->setItemDelegateForColumn(2, formatPrice);
     }
 }
 
@@ -592,64 +574,67 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     }
 
 
-    void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
+//The button that access the item management system, prepares the tableView with the products table for the database
+//and the add, edit, and delete buttons
+void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inventory
+{
+    //Constant
+    const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
+    const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
+    const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
+
+    //Hidding error message
+    ui->label_admin_products_errormessage->setVisible(false);
+
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
+    ui->gridWidget_admin_itemdatafields->setVisible(false);
+
+    //set up model
+    if (itemModel != nullptr)
     {
-        //Constant
-        const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
-        const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
-        const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
-
-        //Hidding error message
-        ui->label_admin_products_errormessage->setVisible(false);
-
-        ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
-        ui->gridWidget_admin_itemdatafields->setVisible(false);
-
-        //set up model
-        if (itemModel != nullptr)
-        {
-            delete itemModel;
-        }
-        itemModel = new QSqlTableModel;
-
-        itemModel->setTable("products");
-
-        itemModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-        itemModel->setSort(PRODUCT_NAME_COLUMN, Qt::AscendingOrder);
-
-        itemModel->setHeaderData(PRODUCT_ID_COLUMN, Qt::Horizontal, QVariant("Product ID"));
-
-        itemModel->setHeaderData(PRODUCT_NAME_COLUMN, Qt::Horizontal, QVariant("Product Name"));
-
-        itemModel->setHeaderData(PRODUCT_PRICE_COLUMN, Qt::Horizontal, QVariant("Price"));
-
-        itemModel->select();
-
-        //set up view
-        ui->tableView_admin_inventory->setModel(itemModel);
-
-        ui->tableView_admin_inventory->setItemDelegateForColumn(PRODUCT_PRICE_COLUMN, formatPrice);
-
-        ui->tableView_admin_inventory->resizeColumnToContents(PRODUCT_NAME_COLUMN);
-
-        ui->tableView_admin_inventory->setEditTriggers(QAbstractItemView::AnyKeyPressed);
-      
-        ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
-
-        ui->tableView_admin_inventory->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-        ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
-
-        ui->tableView_admin_inventory->setWordWrap(false);
-
-        //connecting to dataChanged and currentChanged
-        QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-
-        //Disabling edit and delete functionality since no item is selected
-        ui->pushButton_admin_edititem->setEnabled(false);
-        ui->pushButton_admin_deleteitem->setEnabled(false);
+        delete itemModel;
     }
+    itemModel = new QSqlTableModel;
+
+    itemModel->setTable("products");
+
+    itemModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    itemModel->setSort(PRODUCT_NAME_COLUMN, Qt::AscendingOrder);
+
+    itemModel->setHeaderData(PRODUCT_ID_COLUMN, Qt::Horizontal, QVariant("Product ID"));
+
+    itemModel->setHeaderData(PRODUCT_NAME_COLUMN, Qt::Horizontal, QVariant("Product Name"));
+
+    itemModel->setHeaderData(PRODUCT_PRICE_COLUMN, Qt::Horizontal, QVariant("Price"));
+
+    itemModel->select();
+
+    //set up view
+    ui->tableView_admin_inventory->setModel(itemModel);
+
+    ui->tableView_admin_inventory->setItemDelegateForColumn(PRODUCT_PRICE_COLUMN, formatPrice);
+
+    ui->tableView_admin_inventory->resizeColumnToContents(PRODUCT_NAME_COLUMN);
+
+    ui->tableView_admin_inventory->setEditTriggers(QAbstractItemView::AnyKeyPressed);
+      
+    ui->tableView_admin_inventory->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    ui->tableView_admin_inventory->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
+
+    ui->tableView_admin_inventory->setWordWrap(false);
+
+    //connecting to dataChanged and currentChanged
+    QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
+
+
+    //Disabling edit and delete functionality since no item is selected
+    ui->pushButton_admin_edititem->setEnabled(false);
+    ui->pushButton_admin_deleteitem->setEnabled(false);
+}
 
 void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
 {
@@ -855,6 +840,7 @@ void MainWindow::on_tableView_admin_members_doubleClicked(const QModelIndex &ind
 }
 
     /*----Inventory Page----*/
+//The button that initialize the add item feature
 void MainWindow::on_pushButton_admin_additem_clicked() //add item button
 {
     if (!itemModel->isDirty())
@@ -881,6 +867,7 @@ void MainWindow::on_pushButton_admin_additem_clicked() //add item button
     }//end if (!itemModel->isDirty())
 }
 
+//The button that initialize the edit item feature
 void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
 {
     ui->gridWidget_admin_itemdatafields->show();
@@ -895,6 +882,7 @@ void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
     ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 }
 
+//The button that initialize the delete item feature
 void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
 {
     //Variables
@@ -927,6 +915,7 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
     }//end if (!item->itemModel->isDirty())
 }
 
+//Submit the changes to itemModel from add or edit item to the database
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
 {
     //Constant
@@ -1031,6 +1020,7 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
     }
 }
 
+//Reverts the changes made to itemModel by add or edit item
 void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels add/edit
 {
     ui->gridWidget_admin_itemdatafields->hide();
@@ -1052,6 +1042,7 @@ void MainWindow::on_pushButton_admin_itemsubmission_cancel_clicked() // cancels 
     ui->label_admin_products_errormessage->setVisible(false);
 }
 
+//Submit the changes made to itemModel by delete item to the database
 void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms delete
 {
     ui->gridWidget_admin_confirmdeleteitem->hide();
@@ -1064,6 +1055,7 @@ void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms del
     itemModel->submitAll();
 }
 
+//Revert changes made to itemModel by delete item
 void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delete
 {
     ui->gridWidget_admin_confirmdeleteitem->hide();
@@ -1076,11 +1068,6 @@ void MainWindow::on_pushButton_admin_canceldeleteitem_clicked() // cancels delet
     itemModel->revertAll();
 
     itemModel->select();
-}
-
-void MainWindow::on_tableView_admin_inventory_doubleClicked(const QModelIndex &index) // double click admin inventory table
-{
-    // set text for label_admin_confirmdeleteitem and change initial value to empty
 }
 
 /*----Membership Page push buttons----*/
@@ -1629,69 +1616,8 @@ void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
     ui->pushButton_admin_deletemember->setEnabled(true);
 }
 
-void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index)
-{
-    //Variables
-    QModelIndex     idIndex;       //The index at the id column in the same row as index
-    QModelIndexList previousIndex; //A QModelIndex to store the previous index if necessary
 
-    //checking if table model is clean or dirty
-    //dirty means data is being added, updated, or deleted
-    if (!itemModel->isDirty())
-    {
-
-    }
-    else
-    {
-        //Data is being added, updated, or deleted
-        //The button that is enable tells me which one it is
-
-        if (ui->pushButton_admin_additem->isEnabled())
-        {
-            qDebug() << "Detects add item";
-            if (index.row() != itemModel->rowCount() - 1)
-            {
-                //display error message
-                ui->label_admin_products_errormessage->setText("Warning, The item you are adding is not saved. \n "
-                                                               "Please either submit or cancel the addition of this item before moving on.");
-                ui->label_admin_products_errormessage->setVisible(true);
-
-                ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, itemModel->fieldIndex("productID")));
-            }
-        }
-
-        if (ui->pushButton_admin_edititem->isEnabled())
-        {
-
-        }
-
-        if (ui->pushButton_admin_deleteitem->isEnabled());
-        {
-            idIndex = index.sibling(index.row(), itemModel->fieldIndex("productID"));
-            if (idIndex.data().toString() == ui->label_admin_itemsubmission_id->text())
-            {
-                //display error message
-                ui->label_admin_products_errormessage->setText("Warning, Please confirm or cancel the current deletion \n "
-                                                               "before editing or adding another product.");
-
-                ui->label_admin_products_errormessage->setVisible(true);
-
-                previousIndex = itemModel->match(idIndex, Qt::EditRole, QVariant(ui->label_admin_itemsubmission_id->text()));
-
-                if (!previousIndex.isEmpty())
-                {
-                    ui->tableView_admin_inventory->setCurrentIndex(previousIndex.first());
-                }
-                else
-                {
-                    qDebug() << "Something went wrong";
-                }
-            }//end if (index.data().toString() == ui->label_admin_itemsubmission_id->text())
-        }//end if (ui->pushButton_admin_deleteitem->isEnabled());
-    }
-}
-
-//Keeping the table model updated with what is new the line edits
+//Keeping the id column in the table model updated with what is new the line edit
 void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &productId)
 {
     //Constant
@@ -1717,6 +1643,7 @@ void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &p
     itemModel->setData(productIdIndex, QVariant(productId));
 }
 
+//Keeping the name column in the table model updated with what is new the line edit
 void MainWindow::on_lineEdit_admin_itemsubmission_name_textEdited(const QString &productName)
 {
     //Constant
@@ -1743,6 +1670,7 @@ void MainWindow::on_lineEdit_admin_itemsubmission_name_textEdited(const QString 
     itemModel->setData(productNameIndex, QVariant(productName));
 }
 
+//Keeping the price column in the table model updated with what is new the line edit
 void MainWindow::on_lineEdit_admin_itemsubmission_price_textEdited(const QString &productPrice)
 {
     //Constant
@@ -1759,6 +1687,7 @@ void MainWindow::on_lineEdit_admin_itemsubmission_price_textEdited(const QString
     itemModel->setData(productPriceIndex, QVariant(productPrice));
 }
 
+//Fills in line edit with selected data and prevent user from selecting new data when change itemModel
 void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 {
     //Constant
@@ -1845,6 +1774,7 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
     }
 }
 
+//Upper case the first letter in every word and lower case the rest
 QString MainWindow::normalizeCapitalization(QString text)
 {
     //Vairables
@@ -1873,6 +1803,7 @@ QString MainWindow::normalizeCapitalization(QString text)
     return text;
 }
 
+//Update line edits with data changed in the tableview
 void MainWindow::on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                const QVector<int> &roles)
 {
