@@ -1033,7 +1033,7 @@ void MainWindow::on_pushButton_membership_expire_clicked()
      ui->gridWidget_membership_expire->show();
 }
 
-
+// Button brings user to membership upgrade recommendations
 void MainWindow::on_pushButton_membership_upgrades_clicked()
 {
     // Reset all values
@@ -1050,7 +1050,7 @@ void MainWindow::on_pushButton_membership_upgrades_clicked()
     PrintUpgradeReport(regularMemberPurchases);
 }
 
-
+// Button brings user to membership downgrade recommendations
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
     // Reset all values
@@ -1284,11 +1284,7 @@ void MainWindow::ClearMemberFields()
     //ui->lineEdit_admin_membersubmission_date->clear();
 }
 
-/*
- * \brief MainWindow::InitializeMembershipTableWidget : Helper function
- * will reset values and initialize model used to configure membership
- * tablewidget
- */
+//Helper function will reset values and initialize model used to configure membership tablewidget
 void MainWindow::InitializeMembershipTableWidget()
 {
     ui->tableWidget_membership->show();
