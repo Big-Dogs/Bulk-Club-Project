@@ -487,42 +487,36 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     memberModel->setSort(name, Qt::AscendingOrder);
 
 
-        //set up model
-        if (memberModel != nullptr)
-        {
-            delete memberModel;
-        }
-        enum MembershipTableWidgetColumns{
-            ID_COLUMN,
-            NAME_COLUMN,
-            MEMBERSHIP_TYPE_COLUMN,
-            EXPIRATION_DATE_COLUMN,
-            RENEWAL_PRICE_COLUMN
-        };
+    enum MembershipTableWidgetColumns{
+        ID_COLUMN,
+        NAME_COLUMN,
+        MEMBERSHIP_TYPE_COLUMN,
+        EXPIRATION_DATE_COLUMN,
+        RENEWAL_PRICE_COLUMN
+    };
 
-        memberModel = new QSqlTableModel;
-        memberModel->setTable("members");
-
-        memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
-        memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
-        memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
-        memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
-        memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
-        memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
-        memberModel->select();
+    memberModel = new QSqlTableModel;
+    memberModel->setTable("members");
+    memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
+    memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+    memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+    memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
+    memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
+    memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
+    memberModel->select();
 
 
-        //set up view
-        ui->tableView_admin_members->setModel(memberModel);
-        ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
-        ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
-        ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
-        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
-        ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
-        ui->tableView_admin_members->setWordWrap(false);
-
+    //set up view
+    ui->tableView_admin_members->setModel(memberModel);
+    ui->tableView_admin_members->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
+    ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+    ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
+    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
+    ui->tableView_admin_members->setWordWrap(false);
 
     }
 
@@ -1703,7 +1697,6 @@ void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
         ui->pushButton_admin_editmember->setEnabled(false);
         ui->pushButton_admin_addmember->setEnabled(true);
     }
-
 }
 
 void MainWindow::on_stackedWidget_main_currentChanged(int arg1)
