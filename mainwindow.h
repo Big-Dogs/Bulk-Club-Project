@@ -348,7 +348,10 @@ private:
 
     // Helper Function Prototypes
 
-        // Reset all values in membership table widget
+    /*!
+     * \brief InitializeMembershipTableWidget : Method resets values for
+     * membership tablewidget
+     */
     void InitializeMembershipTableWidget();
 
         // Print suggested upgrades report
