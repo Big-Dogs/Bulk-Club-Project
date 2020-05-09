@@ -72,30 +72,6 @@ public:
      */
     QVector<Member> GetExecutiveMemberPurchases(QStringList executiveIDList);
 
-
-
-    // ---------- START SUGGESTED PROTOTYPES (by weston) ---------- //
-
-    // Add Member
-    bool AddCustomer(QString name, QString isExecutive, QString expireDate);
-
-    // Edit Member Data
-    bool UpdateCustomer(QString name, QString isExecutive, QString expireDate);
-
-    // Remove Member
-    bool DeleteCustomer(QString memberID);
-
-    // Add Product
-    bool AddProduct(QString name, QString price);
-
-    // Edit Product Data
-    bool UpdateProduct(QString name, QString price);
-
-    // Remove Product
-    bool DeleteProduct(QString productID);
-
-    // ---------- END SUGGESTED PROTOTYPES (by weston) ---------- //
-
     // ---------- START PROTOTYPES (by noah) ---------- //
     double getPrice(QString item);
 
