@@ -266,9 +266,10 @@ QVector<Database::Member> Database::GetExecutiveMemberPurchases(QStringList exec
    return executivePurchaseAr;
 }
 
+
 double Database::getPrice(QString item)
 {
-    double purchaseAmt = 0;
+    double itemPrice = 0;
 
     QSqlQuery query;
 
@@ -284,10 +285,10 @@ double Database::getPrice(QString item)
 
         while(query.next())
         {
-            purchaseAmt = query.value(0).toDouble();
+            itemPrice = query.value(0).toDouble();
         }
 
-        qDebug() << "item price: " << purchaseAmt;
+        qDebug() << "item price: " << itemPrice;
     }
     //else
          //display errormessage
@@ -296,18 +297,19 @@ double Database::getPrice(QString item)
         qDebug() << "no match found";
     }
 
-    return purchaseAmt;
+    return itemPrice;
 }
 
-int Database::getItem(QString item)
+// Get Product ID of product
+int Database::GetItem(QString item)
 {
-    int purchaseAmt = 0;
+    int productID = 0;
 
     QSqlQuery query;
 
 
     //finds item being purchased
-       //query database to get price of selected item
+       //query database to get product id of selected item
     query.prepare("select productID from products where name = ?");
     //if it does match
         //return price of item
@@ -318,10 +320,10 @@ int Database::getItem(QString item)
 
         while(query.next())
         {
-            purchaseAmt = query.value(0).toDouble();
+            productID = query.value(0).toInt();
         }
 
-        qDebug() << "item price: " << purchaseAmt;
+        qDebug() << "item price: " << productID;
     }
     //else
          //display errormessage
@@ -330,10 +332,11 @@ int Database::getItem(QString item)
         qDebug() << "no match found";
     }
 
-    return purchaseAmt;
+    return productID;
 }
 
-QStringList Database::getNames()
+// Get list of product names
+QStringList Database::GetNames()
 {
     QStringList itemNames;
     int index = 0;
@@ -363,15 +366,16 @@ QStringList Database::getNames()
     return itemNames;
 }
 
-QStringList Database::getPOSMembers()
+// Get a list of member IDs
+QStringList Database::GetPOSMembers()
 {
-    QStringList memberNames;
+    QStringList memberIDs;
     int index = 0;
 
     QSqlQuery query;
 
-    //retrieves item names
-       //query database to match item name to item number
+    //retrieves member IDs
+       //query database to get member IDs
     query.prepare("select memberID from members");
     //if it does match
         //return names
@@ -379,7 +383,7 @@ QStringList Database::getPOSMembers()
     {
         while(query.next())
         {
-            memberNames.insert(index, query.value(0).toString());
+            memberIDs.insert(index, query.value(0).toString());
             index++;
         }
     }
@@ -391,30 +395,38 @@ QStringList Database::getPOSMembers()
     }
 
 
-    return memberNames;
+    return memberIDs;
 }
 
-void Database::addPurchase(int memberID, int productID, QString datePurchased, int qty)
+// Adds a purchase to the database
+void Database::AddPurchase(int memberID, int productID, QString datePurchased, int qty)
 {
 
     QSqlQuery query;
 
+    //Add a purchase
+       //prepare database to insert a purchase into the
+       //purchases table
     query.prepare("INSERT INTO purchases "
                   "(memberID, productID, "
                   "datePurchased, qty)"
                   "VALUES(?,?,?,?)");
 
+    //insert into purchases table
     query.addBindValue(memberID);
     query.addBindValue(productID);
     query.addBindValue(datePurchased);
     query.addBindValue(qty);
 
+    //else
+         //display errormessage
     if(!query.exec())
         qDebug() << "Purchase could not be added.";
 
 }
-//check login
-int Database::checkLogin(QString username, QString password)
+
+//Compares user entered login to the credentials in the database
+int Database::CheckLogin(QString username, QString password)
 {
     int permissionLevel = 0;
 
@@ -428,7 +440,6 @@ int Database::checkLogin(QString username, QString password)
         //set permission level
     if(query.exec())
     {
-
         while(query.next())
         {
                       permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
