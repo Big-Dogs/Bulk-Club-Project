@@ -1033,11 +1033,7 @@ void MainWindow::on_pushButton_membership_expire_clicked()
      ui->gridWidget_membership_expire->show();
 }
 
-/*!
- * \brief MainWindow::on_pushButton_membership_upgrades_clicked : Method
- * will display which members should upgrade their membership based on
- * rebate amount earned through purchases
- */
+
 void MainWindow::on_pushButton_membership_upgrades_clicked()
 {
     // Reset all values
@@ -1054,11 +1050,7 @@ void MainWindow::on_pushButton_membership_upgrades_clicked()
     PrintUpgradeReport(regularMemberPurchases);
 }
 
-/*!
- * \brief MainWindow::on_pushButton_membership_downgrades_clicked : Method
- * will display which members should downgrade their membership based on
- * insufficient rebate amount earned through purchases
- */
+
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
     // Reset all values
@@ -1275,13 +1267,7 @@ void MainWindow::on_pushButton_home_login_clicked()
 
                 // Helper Function Definitions
 
-/**
- * @brief MainWindow::TextCompleter
- * Continuously searches list of products as the user types what they want
- * to find.
- * @param names the list of school names currently in database
- * @param field QLineEdit form that function is being used on
- */
+// Autocomplete text searches
 void MainWindow::TextCompleter(QStringList products, QLineEdit *inputField)
 {
     QCompleter *completer = new QCompleter(products, inputField);
@@ -1298,7 +1284,7 @@ void MainWindow::ClearMemberFields()
     //ui->lineEdit_admin_membersubmission_date->clear();
 }
 
-/*!
+/*
  * \brief MainWindow::InitializeMembershipTableWidget : Helper function
  * will reset values and initialize model used to configure membership
  * tablewidget
@@ -1317,11 +1303,7 @@ void MainWindow::InitializeMembershipTableWidget()
     ui->tableWidget_membership->resizeColumnsToContents();
 }
 
-/*!
- * \brief MainWindow::PrintUpgradeReport : Function will populate membership
- * table view to be shown to user in "Recommend Upgrades" feature
- * \param regularMemberPurchases : Vector of regular members' purchases
- */
+// Print suggested upgrades report
 void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurchases)
 {
     // loop through purchases to collect all people. add to tableWidget if <65
@@ -1351,11 +1333,7 @@ void MainWindow::PrintUpgradeReport(QVector<Database::Member> regularMemberPurch
     ui->label_membership_recommendation_status->setText(labelText);
 }
 
-/*!
- * \brief MainWindow::PrintDowngradeReport : Function will populate membership
- * table view to be shown to user in "Recommend Downgrades" feature
- * \param executiveMemberPurchases : Vector of executive members' purchases
- */
+// Print suggested downgrades report
 void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberPurchases)
 {
     // loop through purchases to collect all people. add to tableWidget if <65
