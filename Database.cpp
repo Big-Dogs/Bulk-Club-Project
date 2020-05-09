@@ -267,7 +267,7 @@ QVector<Database::Member> Database::GetExecutiveMemberPurchases(QStringList exec
 }
 
 
-double Database::getPrice(QString item)
+double Database::GetPrice(QString item)
 {
     double itemPrice = 0;
 
