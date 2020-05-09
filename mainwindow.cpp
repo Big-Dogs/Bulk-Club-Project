@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->gridWidget_membership_expire->hide();
 
-    ui->label_total_revune->setVisible(false);
+    ui->label_total_revenue->setVisible(false);
     ui->label_sales_searchmembererrormessage->setVisible(false);
     ui->comboBox_sales_manymembersfound->setVisible(false);
 
@@ -258,16 +258,16 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
         //Constant
             const int ID_COLUMN     = 0; //The column number for the member's id number
             const int NAME_COLUMN   = 1; //The column number for the member's name
-            const int REVUNE_COLUMN = 2; //The column number for the member's revune
+            const int revenue_COLUMN = 2; //The column number for the member's revenue
         //Variables
         QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
         QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
 
-        double totalRevune = 0.00; //The total revune across all members
+        double totalrevenue = 0.00; //The total revenue across all members
 
         ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-       bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+       bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
                                     "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                                     "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                                     "GROUP BY members.memberID "
@@ -290,13 +290,13 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
 
        tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, tr("ID"));
        tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, tr("Name"));
-       tableData->setHeaderData(REVUNE_COLUMN, Qt::Horizontal, tr("Revune"));
+       tableData->setHeaderData(revenue_COLUMN, Qt::Horizontal, tr("revenue"));
 
        ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
 
        ui->tableView_sales_sortmember->setModel(tableData);
 
-       ui->tableView_sales_sortmember->setItemDelegateForColumn(REVUNE_COLUMN, formatPrice);
+       ui->tableView_sales_sortmember->setItemDelegateForColumn(revenue_COLUMN, formatPrice);
 
        ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
 
@@ -304,11 +304,11 @@ void MainWindow::on_pushButton_sales_clicked() // sales page
        for (int index = 0; index < tableData->rowCount(); index++)
        {
 
-          totalRevune += tableData->record(index).value("Revune").toDouble();
+          totalrevenue += tableData->record(index).value("revenue").toDouble();
        }
 
-       ui->label_total_revune->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
-       ui->label_total_revune->setVisible(true);
+       ui->label_total_revenue->setText(QString("Total revenue: $").append(QString::number(totalrevenue, 'f', 2)));
+       ui->label_total_revenue->setVisible(true);
     }
 
     void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
@@ -575,8 +575,6 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
 
         //connecting to dataChanged and currentChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-        QObject::connect(ui->tableView_admin_inventory, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
-
 
         //Disabling edit and delete functionality since no item is selected
         ui->pushButton_admin_edititem->setEnabled(false);
@@ -799,25 +797,28 @@ void MainWindow::on_tableView_admin_members_doubleClicked(const QModelIndex &ind
     /*----Inventory Page----*/
 void MainWindow::on_pushButton_admin_additem_clicked() //add item button
 {
-    ui->gridWidget_admin_itemdatafields->show();
-    ui->pushButton_admin_deleteitem->setEnabled(false);
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
-    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+    if (!itemModel->isDirty())
+    {
+        ui->gridWidget_admin_itemdatafields->show();
+        ui->pushButton_admin_deleteitem->setEnabled(false);
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+        ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
 
-    //setting up line edit for input
-    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
+        //setting up line edit for input
+        ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 
-    ui->lineEdit_admin_itemsubmission_id->setText(QString());
-    ui->lineEdit_admin_itemsubmission_name->setText(QString());
-    ui->lineEdit_admin_itemsubmission_price->setText(QString());
+        ui->lineEdit_admin_itemsubmission_id->setText(QString());
+        ui->lineEdit_admin_itemsubmission_name->setText(QString());
+        ui->lineEdit_admin_itemsubmission_price->setText(QString());
 
-    itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
+        itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
 
-    //selecting an abitary column from the row just inserted
-    ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+        //selecting an abitary column from the row just inserted
+        ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+    }//end if (!itemModel->isDirty())
 }
 
 void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
@@ -840,27 +841,30 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
     QString     confirmDeleteMessage; //The message display to confirm the deletion
     QModelIndex deleteProduct;        //The index of the product being deleted
 
-    currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
-
-    ui->gridWidget_admin_confirmdeleteitem->show();
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_additem->setEnabled(false);
-
-    deleteProduct = ui->tableView_admin_inventory->currentIndex();
-
-    deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
-
-    confirmDeleteMessage = "Delete ";
-    confirmDeleteMessage.append(deleteProduct.data().toString());
-    confirmDeleteMessage.append('?');
-    ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
-
-    bool deleteError = itemModel->removeRow(deleteProduct.row());
-
-    if (!deleteError)
+    if (!itemModel->isDirty())
     {
-        qDebug() << itemModel->lastError().text();
-    }
+        currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
+
+        ui->gridWidget_admin_confirmdeleteitem->show();
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_additem->setEnabled(false);
+
+        deleteProduct = ui->tableView_admin_inventory->currentIndex();
+
+        deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
+
+        confirmDeleteMessage = "Delete ";
+        confirmDeleteMessage.append(deleteProduct.data().toString());
+        confirmDeleteMessage.append('?');
+        ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
+
+        bool deleteError = itemModel->removeRow(deleteProduct.row());
+
+        if (!deleteError)
+        {
+            qDebug() << itemModel->lastError().text();
+        }
+    }//end if (!item->itemModel->isDirty())
 }
 
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
@@ -1310,7 +1314,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     //Constant
     const int ID_COLUMN     = 0; //The column number for the member's id number
     const int NAME_COLUMN   = 1; //The column number for the member's name
-    const int REVENUNE_COLUMN = 2; //The column number for the member's revune
+    const int REVENUNE_COLUMN = 2; //The column number for the member's revenue
 
     //Variables
     QString        memberFound;   //The QString store member that is found, it
@@ -1329,7 +1333,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     memberFound = ui->lineEdit_sales_searchmember->text();
 
     //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
-    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
                          "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                          "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                          "WHERE members.memberID=? OR members.name=?");
@@ -1656,45 +1660,16 @@ void MainWindow::printReceipt()
 
 }
 
-
-
-
-
 void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
 {
     ui->tableWidget_pos_receipts->clear();
     InitializePosTable();
 }
 
-void MainWindow::on_stackedWidget_admin_currentChanged(int arg1)
-{
-
-}
-
-/* I inserted this slot and as a result if I remove it will
- * generate a compile time error
- *
- * if you know how to properly remove please do
- */
-void MainWindow::on_stackedWidget_admin_widgetRemoved(int index)
-{
-
-}
-
 
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
     ui->pushButton_admin_deletemember->setEnabled(true);
-}
-
-void MainWindow::on_stackedWidget_main_currentChanged(int arg1)
-{
-
-}
-
-void MainWindow::on_stackedWidget_sales_currentChanged(int arg1)
-{
-
 }
 
 void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index)
@@ -1974,32 +1949,3 @@ void MainWindow::on_tableModel_dataChanged(const QModelIndex &topLeft, const QMo
         }
     }
 }
-
-void MainWindow::on_tableView_admin_inventory_pressed(const QModelIndex &index)
-{
-    qDebug() << "pressed";
-}
-
-void MainWindow::on_tableView_item_currentChanged(int row)
-{
-    qDebug() << "current changed";
-}
-
-//
-//void restrictSelectToRow(const QModelIndex &selectedRow)
-//{
-//    //Variable
-//    QAbstractItemModel *model = selectedRow.model(); //The model selectedRow exist in
-
-//    for (int columnIndex = 0; columnIndex < model->columnCount(); columnIndex++)
-//    {
-//        for (int rowIndex = 0; rowIndex < model->rowCount(); rowIndex++)
-//        {
-//            //skipping selectedRow's row
-//            if (rowIndex != selectedRow.row())
-//            {
-//                model
-//            }
-//        }
-//    }
-//}
