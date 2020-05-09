@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //initializes sales page
     InitializeSalesTableView();
-    ui->label_total_revune->setVisible(false);
+    ui->label_total_revenue->setVisible(false);
     ui->label_sales_searchmembererrormessage->setVisible(false);
 
     //initializes membership page
@@ -254,8 +254,8 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
       totalRevune += tableData->record(index).value("Revune").toDouble();
    }
 
-   ui->label_total_revune->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
-   ui->label_total_revune->setVisible(true);
+   ui->label_total_revenue->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
+   ui->label_total_revenue->setVisible(true);
 }
 
 
