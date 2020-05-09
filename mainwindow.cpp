@@ -204,19 +204,19 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
 void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 {
     //Constant
-        const int ID_COLUMN     = 0; //The column number for the member's id number
-        const int NAME_COLUMN   = 1; //The column number for the member's name
-        const int REVUNE_COLUMN = 2; //The column number for the member's revune
+    const int ID_COLUMN      = 0; //The column number for the member's id number
+    const int NAME_COLUMN    = 1; //The column number for the member's name
+    const int REVENUE_COLUMN = 2; //The column number for the member's revenue
     //Variables
     QSqlQuery       query;         //The query object use to exucute the query for tableData (easier to check for errors)
     QSqlQueryModel *tableData;     //A point to the query model storing the data for the table
 
-    double totalRevune = 0.00; //The total revune across all members
+    double totalRevenue = 0.00; //The total revenue across all members
 
 
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-   bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+   bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS Revenue FROM members "
                                 "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                                 "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                                 "GROUP BY members.memberID "
@@ -240,13 +240,13 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 
    tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, tr("ID"));
    tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, tr("Name"));
-   tableData->setHeaderData(REVUNE_COLUMN, Qt::Horizontal, tr("Revune"));
+   tableData->setHeaderData(REVENUE_COLUMN, Qt::Horizontal, tr("Revenue"));
 
    ui->tableView_sales_sortmember->verticalHeader()->setVisible(false);
 
    ui->tableView_sales_sortmember->setModel(tableData);
 
-   ui->tableView_sales_sortmember->setItemDelegateForColumn(REVUNE_COLUMN, formatPrice);
+   ui->tableView_sales_sortmember->setItemDelegateForColumn(REVENUE_COLUMN, formatPrice);
 
    ui->tableView_sales_sortmember->resizeColumnToContents(NAME_COLUMN);
 
@@ -254,10 +254,10 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
    for (int index = 0; index < tableData->rowCount(); index++)
    {
 
-      totalRevune += tableData->record(index).value("Revune").toDouble();
+      totalRevenue += tableData->record(index).value("Revenue").toDouble();
    }
 
-   ui->label_total_revenue->setText(QString("Total Revune: $").append(QString::number(totalRevune, 'f', 2)));
+   ui->label_total_revenue->setText(QString("Total Revenue: $").append(QString::number(totalRevenue, 'f', 2)));
    ui->label_total_revenue->setVisible(true);
 }
 
@@ -416,7 +416,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     //Constant
     const int ID_COLUMN     = 0; //The column number for the member's id number
     const int NAME_COLUMN   = 1; //The column number for the member's name
-    const int REVENUNE_COLUMN = 2; //The column number for the member's revune
+    const int REVENUNE_COLUMN = 2; //The column number for the member's revenue
 
     //Variables
     QString        memberFound;   //The QString store member that is found, it
@@ -434,7 +434,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     memberFound = ui->lineEdit_sales_searchmember->text();
 
     //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
-    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
                          "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                          "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                          "WHERE members.memberID=? OR members.name=?");
@@ -457,7 +457,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
     tableData->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
     tableData->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Member Name"));
-    tableData->setHeaderData(REVENUNE_COLUMN, Qt::Horizontal, QVariant("Revenune"));
+    tableData->setHeaderData(REVENUNE_COLUMN, Qt::Horizontal, QVariant("Revenue"));
 
     qDebug() << "check";
 
