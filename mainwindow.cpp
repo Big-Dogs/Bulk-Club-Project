@@ -60,6 +60,19 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gridWidget_admin_confirmdeletemember->hide();
     ui->gridWidget_admin_itemdatafields->hide();
     ui->gridWidget_admin_confirmdeleteitem->hide();
+
+
+
+    //preparing the line edit integer validations for add member
+    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
+    idCheck = new QIntValidator;
+    idCheck->setRange(0,100000);
+    ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
+
+    //sets up add member
+    memberModel = nullptr;
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
     ui->label_admin_products_errormessage->setVisible(false);
 
     itemModel = nullptr;
@@ -108,41 +121,6 @@ MainWindow::~MainWindow()
    delete ui->lineEdit_admin_itemsubmission_id->validator();
 
    delete ui->lineEdit_admin_itemsubmission_price->validator();
-}
-
-void MainWindow::setPermissions(int permission) //uses login credentials to control the user's access to program features
-{
-    switch(permission)
-    {
-    case PermissionLevel::NONE:                 //login failed
-        ui->pushButton_POS->setEnabled(false);
-        ui->pushButton_sales->setEnabled(false);
-        ui->pushButton_members->setEnabled(false);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(HOME);
-        break;
-    case PermissionLevel::EMPLOYEE:             //employee login enables the POS page
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(false);
-        ui->pushButton_members->setEnabled(false);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(POS);
-        break;
-    case PermissionLevel::MANAGER:              //manager login enables POS, sales, and membership pages
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
-        ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(SALES);
-        break;
-    case PermissionLevel::ADMINISTRATOR:        //administrator login enables all pages
-        ui->pushButton_POS->setEnabled(true);
-        ui->pushButton_sales->setEnabled(true);
-        ui->pushButton_members->setEnabled(true);
-        ui->pushButton_admin->setEnabled(true);
-        ui->stackedWidget_main->setCurrentIndex(ADMIN);
-        break;
-    }
 }
 
 /*----Window Navigation----*/
@@ -232,6 +210,7 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 
     double totalRevune = 0.00; //The total revune across all members
 
+
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
    bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revune FROM members "
@@ -243,6 +222,7 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
    if (!queryError)
    {
        qDebug() << query.lastError().text();
+
 
        throw query.lastError();
    }
@@ -278,12 +258,12 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
    ui->label_total_revune->setVisible(true);
 }
 
+
 void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
 {
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_ITEM);
 
  //   ui->tableView_sales_sortitem
-
     //set up model
     if (sortItemModel != nullptr)
     {
@@ -553,26 +533,46 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     memberModel->setTable("members");
     memberModel->setSort(name, Qt::AscendingOrder);
 
-    memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
-    memberModel->setHeaderData(memberID, Qt::Horizontal, QVariant("Member ID"));
-    memberModel->setHeaderData(name, Qt::Horizontal, QVariant("Name"));
-    memberModel->setHeaderData(membershipType, Qt::Horizontal, QVariant("Member Type"));
-    memberModel->setHeaderData(expirationDate, Qt::Horizontal, QVariant("Expiration Date"));
-    memberModel->setHeaderData(membershipCost, Qt::Horizontal, QVariant("Member Cost"));
+        //set up model
+        if (memberModel != nullptr)
+        {
+            delete memberModel;
+        }
+        enum MembershipTableWidgetColumns{
+            ID_COLUMN,
+            NAME_COLUMN,
+            MEMBERSHIP_TYPE_COLUMN,
+            EXPIRATION_DATE_COLUMN,
+            RENEWAL_PRICE_COLUMN
+        };
 
-    memberModel->select();
+        memberModel = new QSqlTableModel;
+        memberModel->setTable("members");
 
-    ui->tableView_admin_members->setModel(memberModel);
-    ui->tableView_admin_members->resizeColumnToContents(name);
-    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableView_admin_inventory->setFocusPolicy(Qt::NoFocus);
-    ui->tableView_admin_inventory->setWordWrap(false);
-//  QObject::connect(memberModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-//  QObject::connect(ui->tableView_admin_members, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
+        memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
+        memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+        memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+        memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
+        memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
+        memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
+        memberModel->select();
 
-}
+
+        //set up view
+        ui->tableView_admin_members->setModel(memberModel);
+        ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
+        ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+        ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
+        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
+        ui->tableView_admin_members->setWordWrap(false);
+
+
+    }
+
 
 //The button that access the item management system, prepares the tableView with the products table for the database
 //and the add, edit, and delete buttons
@@ -643,6 +643,9 @@ void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
     ui->pushButton_admin_deletemember->setEnabled(false);
 
      MainWindow::on_pushButton_admin_member_clicked();
+
+     //preparing the line edits to have a max character amount
+     ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
 }
 
 void MainWindow::on_pushButton_admin_editmember_clicked() // edit member button
@@ -672,49 +675,122 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
 {
-    ui->gridWidget_admin_memberdatafields->hide();
+
     ui->pushButton_admin_deletemember->setEnabled(true);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
-    QString memberType = "Regular";
+    //hides all warnings
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //used to add the member to the database
+    QSqlQuery query;
+
+    //Created strings that are used to assign a date to the new member
+    QString thisYear = QDate::currentDate().toString("yyyy");
+    QString thisMonth = QDate::currentDate().toString("M");
+    QString thisDay = QDate::currentDate().toString("dd");
+
+    //Takes care of memberships that start on the 29th of feb
+    if(QDate::isLeapYear(thisYear.toInt()) && QDate::currentDate().toString("M/dd") == "2/29")
+        thisDay = QString::number(thisDay.toInt() - 1);
+    QString nextYear = QString::number(thisYear.toInt() + 1);
 
     TempMember tempMemberAdd;
 
-
+    //Populates the tempMember struct instance with the new member information.
     tempMemberAdd.id = ui->lineEdit_admin_membersubmission_id->text();
-    tempMemberAdd.name = ui->lineEdit_admin_membersubmission_name->text();
-    //tempMemberAdd.executiveStatus = ui->lineEdit_admin_membersubmission_executive->text();
-    //tempMemberAdd.expirationDate = ui->lineEdit_admin_membersubmission_date->text();
 
-    if(tempMemberAdd.executiveStatus == "executive")
-        memberType = "Executive";
+    //Formats the name to make sure the first letter is always capitalized, and the rest are lower case
+    tempMemberAdd.name = normalizeCapitalization(ui->lineEdit_admin_membersubmission_name->text());
 
-    QSqlQuery query;
-
-    int renewalPrice;
-
-    if(memberType == "Executive")
-        renewalPrice = 120;
+    //sets the executive status based off of the member based off of the radio button
+    qDebug() << tempMemberAdd.name;
+    if(ui->radioButton_admin_member->isChecked())
+        tempMemberAdd.executiveStatus = "Executive";
     else
+        tempMemberAdd.executiveStatus = "Regular";
+
+    //sets the expiration date of the member based on the current date
+    tempMemberAdd.expMonth = thisMonth;
+    tempMemberAdd.expDay = thisDay;
+    tempMemberAdd.expYear = nextYear;
+
+    //creates the expiration date string
+    tempMemberAdd.expDate = tempMemberAdd.expMonth + "/"
+                          + tempMemberAdd.expDay   + "/"
+                          + tempMemberAdd.expYear;
+
+    //sets the renewal price for the member based on executive status
+    int renewalPrice = 0;
+    if(tempMemberAdd.executiveStatus == "Executive")
+        renewalPrice = 120;
+    else if(tempMemberAdd.executiveStatus == "Regular")
         renewalPrice = 60;
 
-    query.prepare("INSERT INTO members "
-                  "(memberID, name, "
-                  "memberType, expireDate,"
-                  "renewalPrice) VALUES(?,?,?,?,?)");
 
-    query.addBindValue(tempMemberAdd.id);
-    query.addBindValue(tempMemberAdd.name);
-    query.addBindValue(memberType);
-    query.addBindValue(tempMemberAdd.expirationDate);
-    query.addBindValue(QString::number(renewalPrice));
+    //checks to make sure that the id and name fields contain at least one character.
+    //If either of them dont, a warning message pops up that tells the user what
+    //to do
+    if(tempMemberAdd.name != "")
+    {
+        if(tempMemberAdd.id != "")
+        {
+            //inserts the member into the database
+            query.prepare("INSERT INTO members "
+                          "(memberID, name, "
+                          "memberType, expireDate,"
+                          "renewalPrice) VALUES(?,?,?,?,?)");
 
-    if(!query.exec())
-        qDebug() << "Member failed to save";
+            query.addBindValue(tempMemberAdd.id);
+            query.addBindValue(tempMemberAdd.name);
+            query.addBindValue(tempMemberAdd.executiveStatus);
+            query.addBindValue(tempMemberAdd.expDate);
+            query.addBindValue(QString::number(renewalPrice));
 
-     MainWindow::on_pushButton_admin_member_clicked();
-     MainWindow::ClearMemberFields();
+            if(!query.exec())
+            {
+                qDebug() << "Member failed to save" << memberModel->lastError();
+                //sets the correct warning messages
+                ui->label_admin_membersubmission_nameID_warning->setText(
+                            "WARNING: Please enter a unique name and ID");
+                ui->label_admin_membersubmission_nameID_warning->show();
+
+                qDebug() << query.lastError().text();
+                qDebug() << "name == __ | ID != __  ";
+            }
+            else
+            {
+                //clears out all of the member fields, hides the add member widgets, and warnings
+                MainWindow::on_pushButton_admin_member_clicked();
+                MainWindow::ClearMemberFields();
+
+                //hides warning message, and hides member text fields
+                ui->gridWidget_admin_memberdatafields->hide();
+                ui->label_admin_membersubmission_nameID_warning->hide();
+            }
+        }
+        else
+        {
+            //sets the correct warning messages
+            ui->label_admin_membersubmission_nameID_warning->setText(
+                        "WARNING: Please enter a unique name and ID");
+            ui->label_admin_membersubmission_nameID_warning->show();
+
+            qDebug() << query.lastError().text();
+            qDebug() << "name != __ | ID == __  ";
+        }
+    }
+    else
+    {
+        //sets the correct warning messages
+        ui->label_admin_membersubmission_nameID_warning->setText(
+                    "WARNING: Please enter a unique name and ID");
+        ui->label_admin_membersubmission_nameID_warning->show();
+
+        qDebug() << query.lastError().text();
+        qDebug() << "name == __ | ID != __  ";
+    }
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -724,8 +800,12 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    //clears out the member information line edits
     MainWindow::ClearMemberFields();
 }
+
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
     ui->gridWidget_admin_confirmdeletemember->hide();
@@ -763,25 +843,28 @@ void MainWindow::on_tableView_admin_members_doubleClicked(const QModelIndex &ind
 //The button that initialize the add item feature
 void MainWindow::on_pushButton_admin_additem_clicked() //add item button
 {
-    ui->gridWidget_admin_itemdatafields->show();
-    ui->pushButton_admin_deleteitem->setEnabled(false);
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
-    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+    if (!itemModel->isDirty())
+    {
+        ui->gridWidget_admin_itemdatafields->show();
+        ui->pushButton_admin_deleteitem->setEnabled(false);
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+        ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
 
-    //setting up line edit for input
-    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
+        //setting up line edit for input
+        ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 
-    ui->lineEdit_admin_itemsubmission_id->setText(QString());
-    ui->lineEdit_admin_itemsubmission_name->setText(QString());
-    ui->lineEdit_admin_itemsubmission_price->setText(QString());
+        ui->lineEdit_admin_itemsubmission_id->setText(QString());
+        ui->lineEdit_admin_itemsubmission_name->setText(QString());
+        ui->lineEdit_admin_itemsubmission_price->setText(QString());
 
-    itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
+        itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
 
-    //selecting an abitary column from the row just inserted
-    ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+        //selecting an abitary column from the row just inserted
+        ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+    }//end if (!itemModel->isDirty())
 }
 
 //The button that initialize the edit item feature
@@ -806,27 +889,30 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
     QString     confirmDeleteMessage; //The message display to confirm the deletion
     QModelIndex deleteProduct;        //The index of the product being deleted
 
-    currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
-
-    ui->gridWidget_admin_confirmdeleteitem->show();
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_additem->setEnabled(false);
-
-    deleteProduct = ui->tableView_admin_inventory->currentIndex();
-
-    deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
-
-    confirmDeleteMessage = "Delete ";
-    confirmDeleteMessage.append(deleteProduct.data().toString());
-    confirmDeleteMessage.append('?');
-    ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
-
-    bool deleteError = itemModel->removeRow(deleteProduct.row());
-
-    if (!deleteError)
+    if (!itemModel->isDirty())
     {
-        qDebug() << itemModel->lastError().text();
-    }
+        currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
+
+        ui->gridWidget_admin_confirmdeleteitem->show();
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_additem->setEnabled(false);
+
+        deleteProduct = ui->tableView_admin_inventory->currentIndex();
+
+        deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
+
+        confirmDeleteMessage = "Delete ";
+        confirmDeleteMessage.append(deleteProduct.data().toString());
+        confirmDeleteMessage.append('?');
+        ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
+
+        bool deleteError = itemModel->removeRow(deleteProduct.row());
+
+        if (!deleteError)
+        {
+            qDebug() << itemModel->lastError().text();
+        }
+    }//end if (!item->itemModel->isDirty())
 }
 
 //Submit the changes to itemModel from add or edit item to the database
@@ -1112,6 +1198,8 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
         ui->label_membership_recommendation_status->setText(labelText);
 
+        //resets the table
+        on_pushButton_admin_member_clicked();
 
 }
 
@@ -1237,6 +1325,7 @@ void MainWindow::on_comboBox_pos_itemlist_activated(int index) // sets item for 
     posItem = this->database->GetItem(posItemName);
     ui->comboBox_pos_qty->setEnabled(true); // enables the quantity selection
 }
+
 void MainWindow::on_comboBox_pos_qty_activated(int index) // sets quantity for upcoming purchase
 {
     posQty = index + 1;
@@ -1282,8 +1371,7 @@ void MainWindow::ClearMemberFields()
 {
     ui->lineEdit_admin_membersubmission_id->clear();
     ui->lineEdit_admin_membersubmission_name->clear();
-    //ui->lineEdit_admin_membersubmission_executive->clear();
-    //ui->lineEdit_admin_membersubmission_date->clear();
+    ui->radioButton_admin_member->setChecked(false);
 }
 
 
@@ -1313,6 +1401,41 @@ void MainWindow::on_pushButton_home_login_clicked() // attempts to log the user 
 }
 
 // Helper Function Definitions
+
+void MainWindow::setPermissions(int permission) //uses login credentials to control the user's access to program features
+{
+    switch(permission)
+    {
+    case PermissionLevel::NONE:                 //login failed
+        ui->pushButton_POS->setEnabled(false);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(HOME);
+        break;
+    case PermissionLevel::EMPLOYEE:             //employee login enables the POS page
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(false);
+        ui->pushButton_members->setEnabled(false);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(POS);
+        break;
+    case PermissionLevel::MANAGER:              //manager login enables POS, sales, and membership pages
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(false);
+        ui->stackedWidget_main->setCurrentIndex(SALES);
+        break;
+    case PermissionLevel::ADMINISTRATOR:        //administrator login enables all pages
+        ui->pushButton_POS->setEnabled(true);
+        ui->pushButton_sales->setEnabled(true);
+        ui->pushButton_members->setEnabled(true);
+        ui->pushButton_admin->setEnabled(true);
+        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+        break;
+    }
+}
     // Reset all values in membership table widget
 void MainWindow::InitializeMembershipTableWidget()
 {
@@ -1389,15 +1512,14 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
 
 }
 
-
-
-void MainWindow::InitializeSalesTableView()
+void MainWindow::InitializeSalesTableView() // fills the daily sales combo box and sets up the tableview
 {
 
     ui->comboBox_sales_byday->clear();
     QSqlQuery query;
+    //query the database to get every purchase date
     query.prepare("select datePurchased from purchases group by datePurchased");
-    //sales by day combo box
+    //if successful, fill the sales by day combo box with retrieves items
     if(query.exec())
     {
        while (query.next())
@@ -1405,6 +1527,7 @@ void MainWindow::InitializeSalesTableView()
            ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
        }
     }
+    //if not successful, print an error message
     else
     {
         qDebug() << query.lastError().text();
@@ -1417,8 +1540,7 @@ void MainWindow::InitializeSalesTableView()
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
 }
 
-//initialize pos table
-void MainWindow::InitializePosTable()
+void MainWindow::InitializePosTable() // fills the POS page combo boxes and initializes the receipts table
 {
     QStringList TableHeader;
     ui->tableWidget_pos_receipts->setColumnCount(5);
@@ -1430,7 +1552,7 @@ void MainWindow::InitializePosTable()
     ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
     receiptRow = 0;
 
-    //initializing combo boxes
+    //initializing member id combo box
     QStringList members = this->database->GetPOSMembers();
     qDebug() << members.length() << " items";
     //item number combo box
@@ -1441,6 +1563,8 @@ void MainWindow::InitializePosTable()
             ui->comboBox_pos_memberlist->addItem(members.at(i));
         }
     }
+
+    //initializing items combo box
     QStringList items = this->database->GetNames();
     qDebug() << items.length() << " items";
     //item number combo box
@@ -1451,6 +1575,8 @@ void MainWindow::InitializePosTable()
             ui->comboBox_pos_itemlist->addItem(items.at(i));
         }
     }
+
+    //initializing quantity combo box
     if(ui->comboBox_pos_qty->count() == 0)
     {
         for (int i = 1; i <= 10; i++)
@@ -1460,7 +1586,7 @@ void MainWindow::InitializePosTable()
     }
 }
 
-void MainWindow::printReceipt()
+void MainWindow::printReceipt() // prints the receipt table in the pos page
 {
     QTableWidgetItem *member = new QTableWidgetItem;
     QTableWidgetItem *item = new QTableWidgetItem;
@@ -1485,11 +1611,11 @@ void MainWindow::printReceipt()
 
 }
 
-
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
     ui->pushButton_admin_deletemember->setEnabled(true);
 }
+
 
 //Keeping the id column in the table model updated with what is new the line edit
 void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &productId)

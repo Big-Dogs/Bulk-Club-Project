@@ -7,7 +7,6 @@
 #include <QSqlDriver>
 #include "Database.h"
 #include "MembershipTableModel.h"
-#include "debugflags.h"
 #include "moneydelegate.h"
 
 QT_BEGIN_NAMESPACE
@@ -41,16 +40,19 @@ private slots:
 
         /*!
          * \brief on_comboBox_pos_itemlist_activated : Method to select the item for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_itemlist_activated(int index);
 
         /*!
          * \brief on_comboBox_pos_qty_activated : Method to select the quantity for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_qty_activated(int index);
 
         /*!
          * \brief on_comboBox_pos_memberlist_activated : Method to select the member id for the upcoming purchase
+         * \param index : unused
          */
         void on_comboBox_pos_memberlist_activated(int index);
 
@@ -453,7 +455,7 @@ private:
 
 
     //For use in the admin member management functions
-    QSqlTableModel *memberModel;
+//    QSqlTableModel *memberModel;
     QModelIndex deleteMemberIndex;
 
     enum memberTableHeaders
@@ -491,8 +493,17 @@ private:
         QString id;
         QString name;
         QString executiveStatus;
-        QString expirationDate;
+        QString expMonth;
+        QString expDay;
+        QString expYear;
+        QString expDate;
     };
+
+    QIntValidator *idCheck;
+    QIntValidator *monthCheck;
+    QIntValidator *dayCheck;
+    QIntValidator *yearCheck;
+    QSqlTableModel *memberModel;
 
     // For use in POS page
     QString posItemName; // name of item
@@ -502,7 +513,6 @@ private:
     double posPrice; // item price
     double posTotal; // total of price * qty
     int receiptRow; // index of row in receipt table
-
 
     // For use in upgrade/downgrade features
     float rebateAmount = 0.0; // member's rebate received
