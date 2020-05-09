@@ -26,7 +26,6 @@ HEADERS += \
     Database.h \
     MembershipTableModel.h \
     mainwindow.h \
-    debugflags.h \
     moneydelegate.h
 
 FORMS += \

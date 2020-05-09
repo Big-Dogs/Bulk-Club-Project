@@ -575,8 +575,6 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
 
         //connecting to dataChanged and currentChanged
         QObject::connect(itemModel, &QSqlTableModel::dataChanged, this, &MainWindow::on_tableModel_dataChanged);
-        QObject::connect(ui->tableView_admin_inventory, &QTableView::selectRow, this, &MainWindow::on_tableView_item_currentChanged);
-
 
         //Disabling edit and delete functionality since no item is selected
         ui->pushButton_admin_edititem->setEnabled(false);
@@ -799,25 +797,28 @@ void MainWindow::on_tableView_admin_members_doubleClicked(const QModelIndex &ind
     /*----Inventory Page----*/
 void MainWindow::on_pushButton_admin_additem_clicked() //add item button
 {
-    ui->gridWidget_admin_itemdatafields->show();
-    ui->pushButton_admin_deleteitem->setEnabled(false);
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_itemsubmission_submit->setVisible(true);
-    ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
+    if (!itemModel->isDirty())
+    {
+        ui->gridWidget_admin_itemdatafields->show();
+        ui->pushButton_admin_deleteitem->setEnabled(false);
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_itemsubmission_submit->setVisible(true);
+        ui->pushButton_admin_itemsubmission_cancel->setVisible(true);
 
-    //setting up line edit for input
-    ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
-    ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
+        //setting up line edit for input
+        ui->lineEdit_admin_itemsubmission_id->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_name->setReadOnly(false);
+        ui->lineEdit_admin_itemsubmission_price->setReadOnly(false);
 
-    ui->lineEdit_admin_itemsubmission_id->setText(QString());
-    ui->lineEdit_admin_itemsubmission_name->setText(QString());
-    ui->lineEdit_admin_itemsubmission_price->setText(QString());
+        ui->lineEdit_admin_itemsubmission_id->setText(QString());
+        ui->lineEdit_admin_itemsubmission_name->setText(QString());
+        ui->lineEdit_admin_itemsubmission_price->setText(QString());
 
-    itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
+        itemModel->insertRows(itemModel->rowCount(), /*Count: */ 1); //inserting 1 row at bottom
 
-    //selecting an abitary column from the row just inserted
-    ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+        //selecting an abitary column from the row just inserted
+        ui->tableView_admin_inventory->setCurrentIndex(itemModel->index(itemModel->rowCount() - 1, 0));
+    }//end if (!itemModel->isDirty())
 }
 
 void MainWindow::on_pushButton_admin_edititem_clicked() // edit item button
@@ -840,27 +841,30 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
     QString     confirmDeleteMessage; //The message display to confirm the deletion
     QModelIndex deleteProduct;        //The index of the product being deleted
 
-    currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
-
-    ui->gridWidget_admin_confirmdeleteitem->show();
-    ui->pushButton_admin_edititem->setEnabled(false);
-    ui->pushButton_admin_additem->setEnabled(false);
-
-    deleteProduct = ui->tableView_admin_inventory->currentIndex();
-
-    deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
-
-    confirmDeleteMessage = "Delete ";
-    confirmDeleteMessage.append(deleteProduct.data().toString());
-    confirmDeleteMessage.append('?');
-    ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
-
-    bool deleteError = itemModel->removeRow(deleteProduct.row());
-
-    if (!deleteError)
+    if (!itemModel->isDirty())
     {
-        qDebug() << itemModel->lastError().text();
-    }
+        currentProcessIndex = ui->tableView_admin_inventory->currentIndex();
+
+        ui->gridWidget_admin_confirmdeleteitem->show();
+        ui->pushButton_admin_edititem->setEnabled(false);
+        ui->pushButton_admin_additem->setEnabled(false);
+
+        deleteProduct = ui->tableView_admin_inventory->currentIndex();
+
+        deleteProduct = deleteProduct.sibling(deleteProduct.row(), itemModel->fieldIndex("name"));
+
+        confirmDeleteMessage = "Delete ";
+        confirmDeleteMessage.append(deleteProduct.data().toString());
+        confirmDeleteMessage.append('?');
+        ui->label_admin_confirmdeleteitem->setText(confirmDeleteMessage);
+
+        bool deleteError = itemModel->removeRow(deleteProduct.row());
+
+        if (!deleteError)
+        {
+            qDebug() << itemModel->lastError().text();
+        }
+    }//end if (!item->itemModel->isDirty())
 }
 
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
@@ -1656,45 +1660,16 @@ void MainWindow::printReceipt()
 
 }
 
-
-
-
-
 void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
 {
     ui->tableWidget_pos_receipts->clear();
     InitializePosTable();
 }
 
-void MainWindow::on_stackedWidget_admin_currentChanged(int arg1)
-{
-
-}
-
-/* I inserted this slot and as a result if I remove it will
- * generate a compile time error
- *
- * if you know how to properly remove please do
- */
-void MainWindow::on_stackedWidget_admin_widgetRemoved(int index)
-{
-
-}
-
 
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
     ui->pushButton_admin_deletemember->setEnabled(true);
-}
-
-void MainWindow::on_stackedWidget_main_currentChanged(int arg1)
-{
-
-}
-
-void MainWindow::on_stackedWidget_sales_currentChanged(int arg1)
-{
-
 }
 
 void MainWindow::on_tableView_admin_inventory_activated(const QModelIndex &index)
@@ -1974,32 +1949,3 @@ void MainWindow::on_tableModel_dataChanged(const QModelIndex &topLeft, const QMo
         }
     }
 }
-
-void MainWindow::on_tableView_admin_inventory_pressed(const QModelIndex &index)
-{
-    qDebug() << "pressed";
-}
-
-void MainWindow::on_tableView_item_currentChanged(int row)
-{
-    qDebug() << "current changed";
-}
-
-//
-//void restrictSelectToRow(const QModelIndex &selectedRow)
-//{
-//    //Variable
-//    QAbstractItemModel *model = selectedRow.model(); //The model selectedRow exist in
-
-//    for (int columnIndex = 0; columnIndex < model->columnCount(); columnIndex++)
-//    {
-//        for (int rowIndex = 0; rowIndex < model->rowCount(); rowIndex++)
-//        {
-//            //skipping selectedRow's row
-//            if (rowIndex != selectedRow.row())
-//            {
-//                model
-//            }
-//        }
-//    }
-//}
