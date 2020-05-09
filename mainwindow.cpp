@@ -125,6 +125,8 @@ MainWindow::~MainWindow()
 /*----Window Navigation----*/
 void MainWindow::on_pushButton_home_clicked() // home page and logs user out
 {
+    //updates the dropdown menu in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(HOME);
     setPermissions(PermissionLevel::NONE); //logs user out
 }
@@ -136,6 +138,8 @@ void MainWindow::on_pushButton_POS_clicked() // POS page
 
 void MainWindow::on_pushButton_sales_clicked() // sales page
 {
+    //updates the dropdown menu in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
 
@@ -381,7 +385,7 @@ void MainWindow::on_pushButton_sales_searchitem_clicked() // search by item
 {
     // Move to proper page
     ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_ITEM);
-
+    productList.clear();
     // Make sure list is empty
     if(productList.empty())
     {
@@ -485,43 +489,83 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
 {
     // Pull desired item to be placed into query
-    salesReportProduct = ui->lineEdit_sales_searchitem->text();
+        salesReportProduct = ui->lineEdit_sales_searchitem->text();
 
-    // Output item to terminal for testing purposes
-    qDebug() << salesReportProduct;
+        // Output item to terminal for testing purposes
+        qDebug() << salesReportProduct;
 
-    // Declare and intialize query and query model to pull relevant information
-    QSqlQueryModel *model = new QSqlQueryModel;
-    QSqlQuery query;
+        // Declare and intialize query and query model to pull relevant information
+        QSqlQueryModel *model = new QSqlQueryModel;
+        QSqlQuery query;
 
-    // Prep extremely complex query
-    query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
-                  "from products, purchases "
-                  "where products.name=:name "
-                  "and products.productID = purchases.productID;");
 
-    // Bind variable to query
-    query.bindValue(":name", salesReportProduct);
 
-    if(query.exec())
-    {
-        // Insert query into model
-        model->setQuery(query);
 
-        // Configure headers to reflect relevant descriptors
-        model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
-        model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
-        model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
-    }
-    else // if unsuccessful, print error
-    {
-        qDebug() << query.lastError().text();
-    }
+        // Prep extremely complex query
+        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
+                      "from products, purchases "
+                      "where products.name=:name "
+                      "and products.productID = purchases.productID;");
 
-    // Hide row numbers
-    ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
-    // Configure tableView with model
-    ui->tableView_sales_searchitem->setModel(model);
+        // Bind variable to query
+        query.bindValue(":name", salesReportProduct);
+        qDebug() <<"query test 2:"<< query.isNull("name");
+        qDebug() <<"query test 1:"<< query.value(1).toInt();
+        if(query.exec())
+        {
+        qDebug() <<"query test integer:"<< query.value(1).toInt();
+
+            // Insert query into model
+            model->setQuery(query);
+
+            // Configure headers to reflect relevant descriptors
+            model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
+            model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
+            model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
+
+        }
+        else // if unsuccessful, print error
+        {
+
+            qDebug() << query.lastError().text();
+
+        }
+        query.first();
+        if(query.value(0).toString() == "")
+        {
+
+
+            query.prepare("SELECT DISTINCT products.name, 0, 0 FROM products, purchases "
+                           "WHERE products.name=? ;"
+                          );
+
+
+            // Bind variable to query
+            query.bindValue(0, salesReportProduct);
+
+            if(query.exec())
+            {
+                // Insert query into model
+                model->setQuery(query);
+
+                // Configure headers to reflect relevant descriptors
+                model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
+                model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
+                model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
+
+            }
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+
+            }
+
+        }
+        // Hide row numbers
+        ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
+        // Configure tableView with model
+        ui->tableView_sales_searchitem->setModel(model);
+
 }
 
 
@@ -804,6 +848,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
         qDebug() << query.lastError().text();
         qDebug() << "name == __ | ID != __  ";
     }
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
@@ -836,6 +881,7 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
     {
         qDebug() << "\nFailed to submit the deleteion request\n";
     }
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
@@ -931,6 +977,8 @@ void MainWindow::on_pushButton_admin_deleteitem_clicked() // delete item button
 //Submit the changes to itemModel from add or edit item to the database
 void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms add/edit
 {
+    //updates the dropdown menu in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
     //Constant
     const int PRODUCT_ID_COLUMN    = 0; //The column for the product id
     const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
@@ -1031,6 +1079,8 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked() //confirms 
 
         ui->label_admin_products_errormessage->setVisible(true);
     }
+    //updates the drop down in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 //Reverts the changes made to itemModel by add or edit item
@@ -1066,6 +1116,9 @@ void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked() // confirms del
     ui->label_admin_products_errormessage->setVisible(false);
 
     itemModel->submitAll();
+
+    //updates the drop down in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 //Revert changes made to itemModel by delete item
