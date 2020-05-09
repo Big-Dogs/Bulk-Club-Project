@@ -73,6 +73,9 @@ MainWindow::MainWindow(QWidget *parent)
     memberModel = nullptr;
     ui->label_admin_membersubmission_nameID_warning->hide();
 
+    ui->pushButton_admin_editmember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+  
     ui->label_admin_products_errormessage->setVisible(false);
 
     itemModel = nullptr;
@@ -524,6 +527,9 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
+    ui->pushButton_admin_addmember->setEnabled(true);
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_confirmdeletemember->hide();
 
     if(memberModel != nullptr)
     {
@@ -534,42 +540,36 @@ void MainWindow::on_pushButton_admin_member_clicked() // adding/deleting members
     memberModel->setSort(name, Qt::AscendingOrder);
 
 
-        //set up model
-        if (memberModel != nullptr)
-        {
-            delete memberModel;
-        }
-        enum MembershipTableWidgetColumns{
-            ID_COLUMN,
-            NAME_COLUMN,
-            MEMBERSHIP_TYPE_COLUMN,
-            EXPIRATION_DATE_COLUMN,
-            RENEWAL_PRICE_COLUMN
-        };
+    enum MembershipTableWidgetColumns{
+        ID_COLUMN,
+        NAME_COLUMN,
+        MEMBERSHIP_TYPE_COLUMN,
+        EXPIRATION_DATE_COLUMN,
+        RENEWAL_PRICE_COLUMN
+    };
 
-        memberModel = new QSqlTableModel;
-        memberModel->setTable("members");
-
-        memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
-        memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
-        memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
-        memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
-        memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
-        memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
-        memberModel->select();
+    memberModel = new QSqlTableModel;
+    memberModel->setTable("members");
+    memberModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    memberModel->setSort(NAME_COLUMN, Qt::AscendingOrder);
+    memberModel->setHeaderData(ID_COLUMN, Qt::Horizontal, QVariant("Member ID"));
+    memberModel->setHeaderData(NAME_COLUMN, Qt::Horizontal, QVariant("Name"));
+    memberModel->setHeaderData(MEMBERSHIP_TYPE_COLUMN, Qt::Horizontal, QVariant("Membership Type"));
+    memberModel->setHeaderData(EXPIRATION_DATE_COLUMN, Qt::Horizontal, QVariant("Expiration Date"));
+    memberModel->setHeaderData(RENEWAL_PRICE_COLUMN, Qt::Horizontal, QVariant("Renewal Cost"));
+    memberModel->select();
 
 
-        //set up view
-        ui->tableView_admin_members->setModel(memberModel);
-        ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
-        ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
-        ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
-        ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
-        ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
-        ui->tableView_admin_members->setWordWrap(false);
-
+    //set up view
+    ui->tableView_admin_members->setModel(memberModel);
+    ui->tableView_admin_members->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView_admin_members->setItemDelegateForColumn(RENEWAL_PRICE_COLUMN, formatPrice);
+    ui->tableView_admin_members->resizeColumnToContents(NAME_COLUMN);
+    ui->tableView_admin_members->resizeColumnToContents(MEMBERSHIP_TYPE_COLUMN);
+    ui->tableView_admin_members->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView_admin_members->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView_admin_members->setFocusPolicy(Qt::NoFocus);
+    ui->tableView_admin_members->setWordWrap(false);
 
     }
 
@@ -583,8 +583,15 @@ void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inve
     const int PRODUCT_NAME_COLUMN  = 1; //The column for the product name
     const int PRODUCT_PRICE_COLUMN = 2; //The column for the procdut price
 
-    //Hidding error message
-    ui->label_admin_products_errormessage->setVisible(false);
+
+        //Resetting the add memebr page
+        ui->gridWidget_admin_memberdatafields->hide();
+        ui->pushButton_admin_deletemember->setEnabled(false);
+        ui->gridWidget_admin_confirmdeletemember->hide();
+
+        //Hidding error message
+        ui->label_admin_products_errormessage->setVisible(false);
+
 
     ui->stackedWidget_admin->setCurrentIndex(ADMIN_ITEM);
     ui->gridWidget_admin_itemdatafields->setVisible(false);
@@ -638,11 +645,13 @@ void MainWindow::on_pushButton_admin_inventory_clicked() // adding/deleting inve
 
 void MainWindow::on_pushButton_admin_addmember_clicked() // add member button
 {
+    MainWindow::on_pushButton_admin_member_clicked();
     ui->gridWidget_admin_memberdatafields->show();
     ui->pushButton_admin_editmember->setEnabled(false);
     ui->pushButton_admin_deletemember->setEnabled(false);
 
-     MainWindow::on_pushButton_admin_member_clicked();
+
+
 
      //preparing the line edits to have a max character amount
      ui->lineEdit_admin_membersubmission_name->setMaxLength(50);
@@ -676,7 +685,7 @@ void MainWindow::on_pushButton_admin_deletemember_clicked() // delete member but
 void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit button for adding/editing
 {
 
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -796,7 +805,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked() // submit
 void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancels submission for adding/editing
 {
     ui->gridWidget_admin_memberdatafields->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -809,7 +818,7 @@ void MainWindow::on_pushButton_admin_membersubmission_cancel_clicked() // cancel
 void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms delete member
 {
     ui->gridWidget_admin_confirmdeletemember->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 
@@ -828,7 +837,7 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked() // confirms d
 void MainWindow::on_pushButton_admin_canceldeletemember_clicked() // cancels delete member
 {
     ui->gridWidget_admin_confirmdeletemember->hide();
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    ui->pushButton_admin_deletemember->setEnabled(false);
     ui->pushButton_admin_addmember->setEnabled(true);
     ui->pushButton_admin_editmember->setEnabled(true);
 }
@@ -1613,7 +1622,12 @@ void MainWindow::printReceipt() // prints the receipt table in the pos page
 
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
-    ui->pushButton_admin_deletemember->setEnabled(true);
+    if(ui->gridWidget_admin_memberdatafields->isHidden())
+    {
+        ui->pushButton_admin_deletemember->setEnabled(true);
+        ui->pushButton_admin_editmember->setEnabled(false);
+        ui->pushButton_admin_addmember->setEnabled(true);
+    }
 }
 
 

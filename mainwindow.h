@@ -455,7 +455,7 @@ private:
 
 
     //For use in the admin member management functions
-//    QSqlTableModel *memberModel;
+    QSqlTableModel *memberModel;
     QModelIndex deleteMemberIndex;
 
     enum memberTableHeaders
@@ -503,7 +503,7 @@ private:
     QIntValidator *monthCheck;
     QIntValidator *dayCheck;
     QIntValidator *yearCheck;
-    QSqlTableModel *memberModel;
+
 
     // For use in POS page
     QString posItemName; // name of item
