@@ -310,14 +310,17 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
                     " sum(products.price * purchases.qty)"
                     "FROM products LEFT OUTER JOIN purchases "
                     "ON products.productID = purchases.productID "
-                    "GROUP BY products.productID")))
+                    "GROUP BY products.productID "
+                    "ORDER BY products.name")))
     {
         qDebug() << query.lastError().text();
     }
     sortItemModel = new QSqlQueryModel;
     sortItemModel->setQuery(query);
 
-    sortItemModel->sort(ITEM_PRICE, Qt::AscendingOrder);
+
+
+    sortItemModel->sort(ITEM_NAME, Qt::AscendingOrder);
     sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("ID"));
     sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
     sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Revenue"));
@@ -333,7 +336,8 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     ui->tableView_sales_sortitem->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView_sales_sortitem->setFocusPolicy(Qt::NoFocus);
     ui->tableView_sales_sortitem->setWordWrap(false);
-    ui->tableView_sales_sortitem->sortByColumn(ITEM_PRICE, Qt::AscendingOrder);
+    ui->tableView_sales_sortitem->setSortingEnabled(true);
+    ui->tableView_sales_sortitem->sortByColumn(ITEM_NAME, Qt::AscendingOrder);
     ui->tableView_sales_sortitem->show();
 
     QString revenueMessage;
@@ -1261,7 +1265,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         {
             totalAllRebates += memberList[i].rebate.toFloat();
         }
-        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
+        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates, 'f', 2);
         ui->label_membership_recommendation_status->setText(labelText);
 
         //resets the table
