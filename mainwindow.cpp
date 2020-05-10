@@ -446,7 +446,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     memberFound = ui->lineEdit_sales_searchmember->text();
 
     //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
-    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) * 1.0775 AS revenue FROM members "
                          "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                          "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                          "WHERE members.memberID=? OR members.name=?");
@@ -506,7 +506,7 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
 
 
         // Prep extremely complex query
-        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
+        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price * 1.0775 "
                       "from products, purchases "
                       "where products.name=:name "
                       "and products.productID = purchases.productID;");
