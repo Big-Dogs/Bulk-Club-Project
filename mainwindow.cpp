@@ -226,7 +226,7 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-   bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS Revenue FROM members "
+   bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) * 1.0775 AS Revenue FROM members "
                                 "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                                 "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                                 "GROUP BY members.memberID "
@@ -307,17 +307,20 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
 //                                        "GROUP BY products.productID"
     QSqlQuery query;
     if(!(query.exec("SELECT products.productID, products.name,"
-                    " sum(products.price * purchases.qty)"
+                    " sum(products.price * purchases.qty) * 1.0775 "
                     "FROM products LEFT OUTER JOIN purchases "
                     "ON products.productID = purchases.productID "
-                    "GROUP BY products.productID")))
+                    "GROUP BY products.productID "
+                    "ORDER BY products.name")))
     {
         qDebug() << query.lastError().text();
     }
     sortItemModel = new QSqlQueryModel;
     sortItemModel->setQuery(query);
 
-    sortItemModel->sort(ITEM_PRICE, Qt::AscendingOrder);
+
+
+    sortItemModel->sort(ITEM_NAME, Qt::AscendingOrder);
     sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("ID"));
     sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
     sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Revenue"));
@@ -333,7 +336,8 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
     ui->tableView_sales_sortitem->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView_sales_sortitem->setFocusPolicy(Qt::NoFocus);
     ui->tableView_sales_sortitem->setWordWrap(false);
-    ui->tableView_sales_sortitem->sortByColumn(ITEM_PRICE, Qt::AscendingOrder);
+    ui->tableView_sales_sortitem->setSortingEnabled(true);
+    ui->tableView_sales_sortitem->sortByColumn(ITEM_NAME, Qt::AscendingOrder);
     ui->tableView_sales_sortitem->show();
 
     QString revenueMessage;
@@ -442,7 +446,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
     memberFound = ui->lineEdit_sales_searchmember->text();
 
     //I know positional placeholders are terrible but I just feel better using something that is actually part of the SQL driver, sorry
-    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) * 1.0775 AS revenue FROM members "
                          "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                          "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                          "WHERE members.memberID=? OR members.name=?");
@@ -502,7 +506,7 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
 
 
         // Prep extremely complex query
-        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
+        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price * 1.0775 "
                       "from products, purchases "
                       "where products.name=:name "
                       "and products.productID = purchases.productID;");
@@ -1261,7 +1265,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked() // member rebates li
         {
             totalAllRebates += memberList[i].rebate.toFloat();
         }
-        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
+        QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates, 'f', 2);
         ui->label_membership_recommendation_status->setText(labelText);
 
         //resets the table
