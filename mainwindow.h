@@ -18,7 +18,44 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    /*!
+     * \brief MainWindow
+     *      The default constructor for the main window
+     *
+     * Precondition
+     *      none
+     *
+     * Postcondition
+     *      initialize any needed set up before the program start
+     *
+     * \param parent - The parent of main window
+     */
     MainWindow(QWidget *parent = nullptr);
+
+    /*!
+     * \brief MainWindow
+     *      The copy constructor for the main window
+     *
+     * Precondition
+     *      none
+     *
+     * Postcondition
+     *      initialize any needed set up before the program start
+     *
+     * \param otherWindow - The main window is being copied
+     */
+    MainWindow(const MainWindow &otherWindow);
+
+    /*!
+     * \brief ~MainWindow
+     *      The destructor for the MainWindow
+     *
+     * Precondition
+     *      Exits the program
+     *
+     * Postcondition
+     *      Closes the main window and delete any dynamic memory
+     */
     ~MainWindow();
 
 
@@ -457,6 +494,7 @@ private:
     QString normalizeCapitalization(QString text);
 
     Ui::MainWindow *ui;
+    QWidget *parent;
     int index = 0; // Testing Permissions
     MembershipTableModel *membershipModel; // Membership Table View Configuration
     Database *database; // Pointer to database
