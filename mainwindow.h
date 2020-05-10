@@ -29,6 +29,20 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
     /*!
+     * \brief MainWindow
+     *      The copy constructor for the main window
+     *
+     * Precondition
+     *      none
+     *
+     * Postcondition
+     *      initialize any needed set up before the program start
+     *
+     * \param otherWindow - The main window is being copied
+     */
+    MainWindow(const MainWindow &otherWindow);
+
+    /*!
      * \brief ~MainWindow() Destructor
      */
     ~MainWindow();
@@ -530,6 +544,7 @@ private:
     QString normalizeCapitalization(QString text);
 
     Ui::MainWindow *ui;     /// Pointer to user interface object
+    QWidget *parent;        ///Pointer to the parent object, used in copy constructor
     int index = 0;          /// Testing Permissions
     MembershipTableModel *membershipModel; /// Pointer to Membership Table View Configuration
     Database *database;     /// Pointer to database object

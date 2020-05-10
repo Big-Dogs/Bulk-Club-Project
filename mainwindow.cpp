@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+    this->parent = parent;
+
     // Instantiate database
     if (databasePath != "NOT FOUND")
     {
@@ -101,6 +103,111 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_inventorysales->hide();
 }
 
+//copy constructor
+MainWindow::MainWindow(const MainWindow &otherWindow)
+    : QMainWindow(otherWindow.parent)
+    , ui(new Ui::MainWindow)
+{
+    //Variables
+    QString databasePath = Database::findDatabase("db.db");
+
+    ui->setupUi(this);
+
+    // Instantiate database
+    if (databasePath != "NOT FOUND")
+    {
+        this->database = new Database(databasePath, "QSQLITE");
+    }
+    else
+    {
+        throw databasePath;
+    }
+
+    qDebug() << "Current Path: " << QDir::currentPath();
+
+    formatPrice = new MoneyDelegate;
+
+    sortItemModel = new QSqlTableModel;
+
+
+    // setting default indices
+    ui->stackedWidget_main->setCurrentIndex(HOME);
+
+    ui->stackedWidget_sales->setCurrentIndex(SALES_DAILY);
+    ui->stackedWidget_admin->setCurrentIndex(ADMIN_MEMBER);
+
+    //ensures the user is logged out when the program starts
+    setPermissions(NONE);
+    ui->label_home_warning->setText("");
+
+    //initializes pos page
+    InitializePosTable();
+    ui->comboBox_pos_qty->setEnabled(false);
+    ui->comboBox_pos_itemlist->setEnabled(false);
+    ui->pushButton_pos_purchase->setEnabled(false);
+
+    //initializes sales page
+    InitializeSalesTableView();
+    ui->label_total_revenue->setVisible(false);
+    ui->label_sales_searchmembererrormessage->setVisible(false);
+
+    //initializes membership page
+    ui->tableWidget_membership->hide();
+    ui->gridWidget_membership_expire->hide();
+
+    //initializes admin page
+    ui->pushButton_admin_confirmdeletemember->setEnabled(false);
+    ui->gridWidget_admin_memberdatafields->hide();
+    ui->gridWidget_admin_confirmdeletemember->hide();
+    ui->gridWidget_admin_itemdatafields->hide();
+    ui->gridWidget_admin_confirmdeleteitem->hide();
+
+
+
+    //preparing the line edit integer validations for add member
+    //ui->lineEdit_admin_membersubmission_name->setValidator(new QRegExpValidator( QRegExp("[A-Za-z]{0,255}"), this ));
+    idCheck = new QIntValidator;
+    idCheck->setRange(0,100000);
+    ui->lineEdit_admin_membersubmission_id->setValidator(idCheck);
+
+    //sets up add member
+    memberModel = nullptr;
+    ui->label_admin_membersubmission_nameID_warning->hide();
+
+    ui->pushButton_admin_editmember->hide();
+    ui->pushButton_admin_deletemember->setEnabled(false);
+
+    ui->label_admin_products_errormessage->setVisible(false);
+
+    itemModel = nullptr;
+
+    //Setting up admin item submission line edits
+    //Validators
+    QIntValidator    *productIdValidator;    //The validator for product id
+    QDoubleValidator *productPriceValidator; //The validator for product price
+
+    //id
+    productIdValidator = new QIntValidator;
+    productIdValidator->setTop(1000);
+    ui->lineEdit_admin_itemsubmission_id->setValidator(productIdValidator);
+
+    //price
+    productPriceValidator = new QDoubleValidator;
+    productPriceValidator->setDecimals(2);
+    productIdValidator->setBottom(0.01);
+    ui->lineEdit_admin_itemsubmission_price->setValidator(productPriceValidator);
+    ui->lineEdit_admin_itemsubmission_price->setMaxLength(6);
+
+    //name
+    ui->lineEdit_admin_itemsubmission_name->setMaxLength(50);
+
+
+    qDebug() << "feature: " << database->driver()->hasFeature(QSqlDriver::PositionalPlaceholders);
+
+    //hides the total revenue for the sort by item feature
+    ui->label_inventorysales->hide();
+}
+
 // MainWindow Destructor
 MainWindow::~MainWindow()
 {
@@ -122,6 +229,8 @@ MainWindow::~MainWindow()
 // Navigates to home page and logs user out
 void MainWindow::on_pushButton_home_clicked()
 {
+    //updates the dropdown menu in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(HOME);
     setPermissions(PermissionLevel::NONE); //logs user out
 }
@@ -135,6 +244,8 @@ void MainWindow::on_pushButton_POS_clicked()
 // Navigates to sales page
 void MainWindow::on_pushButton_sales_clicked()
 {
+    //updates the dropdown menu in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(SALES);
 }
 
@@ -292,10 +403,11 @@ void MainWindow::on_pushButton_sales_sortitem_clicked()
     // Execute Query
         // If unsuccessful, print error
     if(!(query.exec("SELECT products.productID, products.name,"
-                    " sum(products.price * purchases.qty)"
+                    " sum(products.price * purchases.qty) * 1.0775 "
                     "FROM products LEFT OUTER JOIN purchases "
                     "ON products.productID = purchases.productID "
-                    "GROUP BY products.productID")))
+                    "GROUP BY products.productID "
+                    "ORDER BY products.name")))
     {
         qDebug() << query.lastError().text();
     }
@@ -304,6 +416,7 @@ void MainWindow::on_pushButton_sales_sortitem_clicked()
     sortItemModel = new QSqlQueryModel;
     sortItemModel->setQuery(query);
     sortItemModel->sort(ITEM_PRICE, Qt::AscendingOrder);
+
     sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("ID"));
     sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
     sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Revenue"));
@@ -318,7 +431,8 @@ void MainWindow::on_pushButton_sales_sortitem_clicked()
     ui->tableView_sales_sortitem->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView_sales_sortitem->setFocusPolicy(Qt::NoFocus);
     ui->tableView_sales_sortitem->setWordWrap(false);
-    ui->tableView_sales_sortitem->sortByColumn(ITEM_PRICE, Qt::AscendingOrder);
+    ui->tableView_sales_sortitem->setSortingEnabled(true);
+    ui->tableView_sales_sortitem->sortByColumn(ITEM_NAME, Qt::AscendingOrder);
     ui->tableView_sales_sortitem->show();
 
     QString revenueMessage; // Message displayed to user
@@ -381,7 +495,7 @@ void MainWindow::on_pushButton_sales_searchitem_clicked()
 {
     // Move to proper page
     ui->stackedWidget_sales->setCurrentIndex(SALES_SEARCH_ITEM);
-
+    productList.clear();
     // Make sure list is empty
     if(productList.empty())
     {
@@ -489,43 +603,83 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked()
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked()
 {
     // Pull desired item to be placed into query
-    salesReportProduct = ui->lineEdit_sales_searchitem->text();
+        salesReportProduct = ui->lineEdit_sales_searchitem->text();
 
-    // Output item to terminal for testing purposes
-    qDebug() << salesReportProduct;
+        // Output item to terminal for testing purposes
+        qDebug() << salesReportProduct;
 
-    // Declare and intialize query and query model to pull relevant information
-    QSqlQueryModel *model = new QSqlQueryModel;
-    QSqlQuery query;
+        // Declare and intialize query and query model to pull relevant information
+        QSqlQueryModel *model = new QSqlQueryModel;
+        QSqlQuery query;
 
-    // Prep extremely complex query
-    query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price "
-                  "from products, purchases "
-                  "where products.name=:name "
-                  "and products.productID = purchases.productID;");
 
-    // Bind variable to query
-    query.bindValue(":name", salesReportProduct);
 
-    if(query.exec())
-    {
-        // Insert query into model
-        model->setQuery(query);
 
-        // Configure headers to reflect relevant descriptors
-        model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
-        model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
-        model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
-    }
-    else // if unsuccessful, print error
-    {
-        qDebug() << query.lastError().text();
-    }
+        // Prep extremely complex query
+        query.prepare("select products.name, sum(purchases.qty), sum(purchases.qty) * products.price * 1.0775 "
+                      "from products, purchases "
+                      "where products.name=:name "
+                      "and products.productID = purchases.productID;");
 
-    // Hide row numbers
-    ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
-    // Configure tableView with model
-    ui->tableView_sales_searchitem->setModel(model);
+        // Bind variable to query
+        query.bindValue(":name", salesReportProduct);
+        qDebug() <<"query test 2:"<< query.isNull("name");
+        qDebug() <<"query test 1:"<< query.value(1).toInt();
+        if(query.exec())
+        {
+        qDebug() <<"query test integer:"<< query.value(1).toInt();
+
+            // Insert query into model
+            model->setQuery(query);
+
+            // Configure headers to reflect relevant descriptors
+            model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
+            model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
+            model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
+
+        }
+        else // if unsuccessful, print error
+        {
+
+            qDebug() << query.lastError().text();
+
+        }
+        query.first();
+        if(query.value(0).toString() == "")
+        {
+
+
+            query.prepare("SELECT DISTINCT products.name, 0, 0 FROM products, purchases "
+                           "WHERE products.name=? ;"
+                          );
+
+
+            // Bind variable to query
+            query.bindValue(0, salesReportProduct);
+
+            if(query.exec())
+            {
+                // Insert query into model
+                model->setQuery(query);
+
+                // Configure headers to reflect relevant descriptors
+                model->setHeaderData(0, Qt::Horizontal, tr("Product Name"));
+                model->setHeaderData(1, Qt::Horizontal, tr("Quantity Sold"));
+                model->setHeaderData(2, Qt::Horizontal, tr("Total Revenue"));
+
+            }
+            else // if unsuccessful, print error
+            {
+                qDebug() << query.lastError().text();
+
+            }
+
+        }
+        // Hide row numbers
+        ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
+        // Configure tableView with model
+        ui->tableView_sales_searchitem->setModel(model);
+
 }
 
     /*----Admin Page push buttons----*/
@@ -802,6 +956,7 @@ void MainWindow::on_pushButton_admin_membersubmission_submit_clicked()
         qDebug() << query.lastError().text();
         qDebug() << "name == __ | ID != __  ";
     }
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 // Cancel decision to add or edit member
@@ -836,6 +991,7 @@ void MainWindow::on_pushButton_admin_confirmdeletemember_clicked()
     {
         qDebug() << "\nFailed to submit the deleteion request\n";
     }
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 // Cancel decision to delete member
@@ -1039,6 +1195,8 @@ void MainWindow::on_pushButton_admin_itemsubmission_submit_clicked()
         ui->label_admin_products_errormessage->setText(errorMessage);
         ui->label_admin_products_errormessage->setVisible(true);
     }
+    //updates the drop down in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 // Cancel decision to add or edit item to/in database
@@ -1076,6 +1234,9 @@ void MainWindow::on_pushButton_admin_confirmdeleteitem_clicked()
 
     // Configure model
     itemModel->submitAll();
+
+    //updates the drop down in search by item
+    MainWindow::on_pushButton_sales_searchitem_clicked();
 }
 
 // Cancel request to delete item
@@ -1219,7 +1380,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked()
     {
         totalAllRebates += memberList[i].rebate.toFloat();
     }
-
+  
     // Print rebates
     QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
     ui->label_membership_recommendation_status->setText(labelText);
