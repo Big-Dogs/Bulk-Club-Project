@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="page_home">
      <widget class="QWidget" name="gridLayoutWidget_12">
@@ -204,7 +204,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -252,7 +252,7 @@
           <x>810</x>
           <y>130</y>
           <width>160</width>
-          <height>80</height>
+          <height>86</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_sales_byday_status">
@@ -1175,7 +1175,7 @@ color: rgb(239, 41, 41);</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

@@ -177,20 +177,28 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
 
     QSqlQuery nameQuery;
     // query to retrieve purchases sorted by date
-    nameQuery.prepare("SELECT COUNT(DISTINCT(members.name)) AS MagicNumber "
-                      "FROM members, purchases WHERE members.memberID = purchases.memberID "
+    nameQuery.prepare("SELECT members.memberType AS status, COUNT(DISTINCT(members.name)) AS numMembers "
+                      "FROM members, purchases, products WHERE members.memberID = purchases.memberID "
+                      "AND products.productID = purchases.productID "
                       "AND purchases.datePurchased = ? "
                       "GROUP BY members.memberType");
     nameQuery.bindValue(0, ui->comboBox_sales_byday->currentText());
     // if successful set the query mode
     if (nameQuery.exec())
     {
-        nameQuery.next();
         // Copy into int values
-        numberExecutive = nameQuery.value("MagicNumber").toInt();
-        nameQuery.next();
-        numberRegular = nameQuery.value("MagicNumber").toInt();
-
+        while (nameQuery.next())
+        {
+            qDebug() << nameQuery.value("status").toString() << " " << nameQuery.value("numMembers").toInt() << " " << nameQuery.value("name").toString();
+            if (nameQuery.value("status").toString() == "Executive")
+            {
+                numberExecutive = nameQuery.value("numMembers").toInt();
+            }
+            else
+            {
+                numberRegular = nameQuery.value("numMembers").toInt();
+            }
+        }
 
         qDebug() << "Executives: " << numberExecutive;
         qDebug() << "Regular: " << numberRegular;
