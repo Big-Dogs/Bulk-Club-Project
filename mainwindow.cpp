@@ -307,7 +307,7 @@ void MainWindow::on_pushButton_sales_sortitem_clicked() // sales by item
 //                                        "GROUP BY products.productID"
     QSqlQuery query;
     if(!(query.exec("SELECT products.productID, products.name,"
-                    " sum(products.price * purchases.qty)"
+                    " sum(products.price * purchases.qty) * 1.0775 "
                     "FROM products LEFT OUTER JOIN purchases "
                     "ON products.productID = purchases.productID "
                     "GROUP BY products.productID "
