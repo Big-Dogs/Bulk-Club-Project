@@ -1430,40 +1430,41 @@ void MainWindow::on_pushButton_home_login_clicked()
         ui->label_home_warning->setStyleSheet("color: red");
     }
 
-
+    // Clear fields
     ui->lineEdit_home_username->clear();
     ui->lineEdit_home_password->clear();
 }
 
 
-// Helper Function Definitions
+    // Helper Function Definitions //
 
-void MainWindow::setPermissions(int permission) //uses login credentials to control the user's access to program features
+// Use login credentials to control the user's access to program features
+void MainWindow::setPermissions(int permission)
 {
     switch(permission)
     {
-    case PermissionLevel::NONE:                 //login failed
+    case PermissionLevel::NONE:                 // Login failed
         ui->pushButton_POS->setEnabled(false);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
         ui->stackedWidget_main->setCurrentIndex(HOME);
         break;
-    case PermissionLevel::EMPLOYEE:             //employee login enables the POS page
+    case PermissionLevel::EMPLOYEE:             // Employee login enables the POS page
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
         ui->stackedWidget_main->setCurrentIndex(POS);
         break;
-    case PermissionLevel::MANAGER:              //manager login enables POS, sales, and membership pages
+    case PermissionLevel::MANAGER:              // Manager login enables POS, sales, and membership pages
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(false);
         ui->stackedWidget_main->setCurrentIndex(SALES);
         break;
-    case PermissionLevel::ADMINISTRATOR:        //administrator login enables all pages
+    case PermissionLevel::ADMINISTRATOR:        // Administrator login enables all pages
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
@@ -1548,14 +1549,17 @@ void MainWindow::PrintDowngradeReport(QVector<Database::Member> executiveMemberP
     ui->label_membership_recommendation_status->setText(labelText);
 }
 
-void MainWindow::InitializeSalesTableView() // fills the daily sales combo box and sets up the tableview
+// Fill the daily sales combo box and intialize view
+void MainWindow::InitializeSalesTableView()
 {
-
+    // Clear data
     ui->comboBox_sales_byday->clear();
-    QSqlQuery query;
-    //query the database to get every purchase date
+    QSqlQuery query; // Query to retrieve data
+
+    // Prep query
     query.prepare("select datePurchased from purchases group by datePurchased");
-    //if successful, fill the sales by day combo box with retrieves items
+
+    // If successful, fill the sales by day combo box with retrieved items
     if(query.exec())
     {
        while (query.next())
@@ -1563,12 +1567,11 @@ void MainWindow::InitializeSalesTableView() // fills the daily sales combo box a
            ui->comboBox_sales_byday->addItem(query.value("datePurchased").toString());
        }
     }
-    //if not successful, print an error message
+    // If not successful, print an error message
     else
     {
         qDebug() << query.lastError().text();
     }
-
 
     // Hide numerical vertical header
     ui->tableView_sales_daily->verticalHeader()->setVisible(false);
@@ -1576,22 +1579,28 @@ void MainWindow::InitializeSalesTableView() // fills the daily sales combo box a
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
 }
 
-void MainWindow::InitializePosTable() // fills the POS page combo boxes and initializes the receipts table
+// Fill POS page combo boxes and initialize receipts table
+void MainWindow::InitializePosTable()
 {
-    QStringList TableHeader;
-    ui->tableWidget_pos_receipts->setColumnCount(5);
-    TableHeader << "Member ID" << "Item" << "Price" << "qty" << "Total";
+    QStringList TableHeader; // List of header names
+    ui->tableWidget_pos_receipts->setColumnCount(5); // Set column count
+    TableHeader << "Member ID" << "Item" << "Price" << "qty" << "Total"; // Populate header name list
+
+    // Initialize view
     ui->tableWidget_pos_receipts->setHorizontalHeaderLabels(TableHeader);
     ui->tableWidget_pos_receipts->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_pos_receipts->setShowGrid(false);
     ui->tableWidget_pos_receipts->verticalHeader()->setVisible(false);
     ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
+
+    // Initialize row number
     receiptRow = 0;
 
-    //initializing member id combo box
+    // Initialize member ID combo box
     QStringList members = this->database->GetPOSMembers();
     qDebug() << members.length() << " items";
-    //item number combo box
+
+    // Populate item number combo box
     if(ui->comboBox_pos_memberlist->count() == 0)
     {
         for (int i = 0; i < members.length(); i++)
@@ -1600,10 +1609,11 @@ void MainWindow::InitializePosTable() // fills the POS page combo boxes and init
         }
     }
 
-    //initializing items combo box
+    // Initialize items in combo box
     QStringList items = this->database->GetNames();
     qDebug() << items.length() << " items";
-    //item number combo box
+
+    // Populate combo box
     if(ui->comboBox_pos_itemlist->count() == 0)
     {
         for (int i = 0; i < items.length(); i++)
@@ -1612,7 +1622,7 @@ void MainWindow::InitializePosTable() // fills the POS page combo boxes and init
         }
     }
 
-    //initializing quantity combo box
+    // Initialize quantity in combo box
     if(ui->comboBox_pos_qty->count() == 0)
     {
         for (int i = 1; i <= 10; i++)
@@ -1622,21 +1632,24 @@ void MainWindow::InitializePosTable() // fills the POS page combo boxes and init
     }
 }
 
-void MainWindow::printReceipt() // prints the receipt table in the pos page
+// Prints receipt table in POS page
+void MainWindow::printReceipt()
 {
+    // Create all objects
     QTableWidgetItem *member = new QTableWidgetItem;
     QTableWidgetItem *item = new QTableWidgetItem;
     QTableWidgetItem *price = new QTableWidgetItem;
     QTableWidgetItem *qty = new QTableWidgetItem;
     QTableWidgetItem *total = new QTableWidgetItem;
 
-
+    // Populate objects
     member->setText(QString::number(posMemberID));
     item->setText(posItemName);
     price->setText(QString::number(posPrice));
     qty->setText(QString::number(posQty));
     total->setText(QString::number(posTotal, 'f', 2));
 
+    // Populate receipt
     ui->tableWidget_pos_receipts->insertRow(receiptRow);
     ui->tableWidget_pos_receipts->setItem(receiptRow, 0, member);
     ui->tableWidget_pos_receipts->setItem(receiptRow, 1, item);
@@ -1644,9 +1657,9 @@ void MainWindow::printReceipt() // prints the receipt table in the pos page
     ui->tableWidget_pos_receipts->setItem(receiptRow, 3, qty);
     ui->tableWidget_pos_receipts->setItem(receiptRow, 4, total);
     receiptRow++;
-
 }
 
+//
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
     if(ui->gridWidget_admin_memberdatafields->isHidden())
