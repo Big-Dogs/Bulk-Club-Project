@@ -189,7 +189,6 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
         // Copy into int values
         while (nameQuery.next())
         {
-            qDebug() << nameQuery.value("status").toString() << " " << nameQuery.value("numMembers").toInt() << " " << nameQuery.value("name").toString();
             if (nameQuery.value("status").toString() == "Executive")
             {
                 numberExecutive = nameQuery.value("numMembers").toInt();
