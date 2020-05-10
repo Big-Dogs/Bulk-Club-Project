@@ -175,6 +175,33 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
     int numberExecutive = 0;
     int numberRegular = 0;
 
+    QSqlQuery nameQuery;
+    // query to retrieve purchases sorted by date
+    nameQuery.prepare("SELECT COUNT(DISTINCT(members.name)) AS MagicNumber "
+                      "FROM members, purchases WHERE members.memberID = purchases.memberID "
+                      "AND purchases.datePurchased = ? "
+                      "GROUP BY members.memberType");
+    nameQuery.bindValue(0, ui->comboBox_sales_byday->currentText());
+    // if successful set the query mode
+    if (nameQuery.exec())
+    {
+        nameQuery.next();
+        // Copy into int values
+        numberExecutive = nameQuery.value("MagicNumber").toInt();
+        nameQuery.next();
+        numberRegular = nameQuery.value("MagicNumber").toInt();
+
+
+        qDebug() << "Executives: " << numberExecutive;
+        qDebug() << "Regular: " << numberRegular;
+    }
+    // otherwise print a warning message
+    else
+    {
+        qDebug() << nameQuery.lastError().text();
+    }
+
+
     QSqlQueryModel *dailySalesModel = new QSqlQueryModel;
     QSqlQuery query;
     // query to retrieve purchases sorted by date
@@ -189,6 +216,7 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
     // if successful set the query model
     if (query.exec())
     {
+
         dailySalesModel->setQuery(query);
     }
     // otherwise print a warning message
@@ -225,19 +253,6 @@ void MainWindow::on_pushButton_sale_byday_clicked() //filters purchases by date 
     {
        dailyRevenue += dailySalesModel->record(index).value("Total").toDouble();
     }
-
-    // Add up number of regular and executive members
-    for (int i = 0; i < ui->tableView_sales_daily->model()->rowCount(); i++)
-    {
-        if (ui->tableView_sales_daily->model()->index(i, DAILY_STATUS).data().toString() == "Regular")
-        {
-            numberExecutive++;
-        }
-        else
-            numberRegular++;
-    }
-
-
 
     ui->label_sales_byday_dailyrevenue->setText(QString("$").append(QString::number(dailyRevenue, 'f', 2)));
     ui->label_sales_byday_numberofexecutive->setText(QString::number(numberExecutive));
