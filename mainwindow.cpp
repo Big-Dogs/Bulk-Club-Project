@@ -597,6 +597,9 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked() // search mem
 
 void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item button
 {
+    //Constant
+    const int TOTAL_REVENUE_INDEX = 2; //The column index for total revenue
+
     // Pull desired item to be placed into query
         salesReportProduct = ui->lineEdit_sales_searchitem->text();
 
@@ -674,6 +677,8 @@ void MainWindow::on_pushButton_sales_searchitemconfirm_clicked() // search item 
         ui->tableView_sales_searchitem->verticalHeader()->setVisible(false);
         // Configure tableView with model
         ui->tableView_sales_searchitem->setModel(model);
+        //Format total revenue to a money amount
+        ui->tableView_sales_searchitem->setItemDelegateForColumn(TOTAL_REVENUE_INDEX, formatPrice);
 
 }
 
