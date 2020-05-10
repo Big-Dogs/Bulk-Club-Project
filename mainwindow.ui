@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_home">
      <widget class="QWidget" name="gridLayoutWidget_12">
@@ -89,6 +89,19 @@
       </property>
       <property name="text">
        <string>Login</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_home_homepage">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>71</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Home Page</string>
       </property>
      </widget>
     </widget>
@@ -166,6 +179,19 @@
        </rect>
       </property>
      </widget>
+     <widget class="QLabel" name="label_pos_pospage">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>61</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>POS Page</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_sales">
      <widget class="QStackedWidget" name="stackedWidget_sales">
@@ -178,7 +204,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="page_sales_byday">
        <widget class="QTableView" name="tableView_sales_daily">
@@ -186,7 +212,7 @@
          <rect>
           <x>20</x>
           <y>30</y>
-          <width>660</width>
+          <width>711</width>
           <height>460</height>
          </rect>
         </property>
@@ -194,7 +220,7 @@
        <widget class="QWidget" name="gridLayoutWidget_9">
         <property name="geometry">
          <rect>
-          <x>700</x>
+          <x>810</x>
           <y>40</y>
           <width>181</width>
           <height>76</height>
@@ -220,19 +246,119 @@
          </item>
         </layout>
        </widget>
-      </widget>
-      <widget class="QWidget" name="page_sales_sortmember">
-       <widget class="QLabel" name="label_membersales">
+       <widget class="QWidget" name="gridLayoutWidget_4">
         <property name="geometry">
          <rect>
-          <x>640</x>
-          <y>520</y>
+          <x>810</x>
+          <y>130</y>
+          <width>160</width>
+          <height>80</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_sales_byday_status">
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="radioButton_sales_byday_executive">
+           <property name="text">
+            <string>Executive</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="radioButton_sales_byday_regular">
+           <property name="text">
+            <string>Regular</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QRadioButton" name="radioButton_sales_byday_both">
+           <property name="text">
+            <string>Both</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="gridWidget_sales_byday_labels" native="true">
+        <property name="geometry">
+         <rect>
+          <x>740</x>
+          <y>410</y>
+          <width>251</width>
+          <height>80</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_sales_byday_labels">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_sales_byday_regular">
+           <property name="text">
+            <string>Regular Members:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_sales_byday_revenue">
+           <property name="text">
+            <string>Daily Revenue:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_sales_byday_numberofregular">
+           <property name="text">
+            <string>numberofmembers</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_sales_byday_dailyrevenue">
+           <property name="text">
+            <string>dailyrevenue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_sales_byday_executive">
+           <property name="text">
+            <string>Executive Members:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_sales_byday_numberofexecutive">
+           <property name="text">
+            <string>numberofmembers</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QLabel" name="label_sales_bydaypage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Daily Sales Page</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_sales_sortmember">
+       <widget class="QLabel" name="label_sales_sortmember">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
           <width>161</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>page for sales sorted by member</string>
+         <string>Sort by Member Page</string>
         </property>
        </widget>
        <widget class="QTableView" name="tableView_sales_sortmember">
@@ -295,6 +421,19 @@
          </rect>
         </property>
        </widget>
+       <widget class="QLabel" name="label_sales_sortitempage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>111</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Sort by Item Page</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_sales_searchmember">
        <widget class="QTableView" name="tableView_sales_searchmember">
@@ -353,6 +492,19 @@ color: rgb(239, 41, 41);</string>
          <string>Error: </string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_sales_searchmemberpage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>191</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Search by Member Page</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_sales_searchitem">
        <widget class="QTableView" name="tableView_sales_searchitem">
@@ -393,6 +545,19 @@ color: rgb(239, 41, 41);</string>
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QLabel" name="label_sales_searchitempage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>131</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Search by Item Page</string>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -445,26 +610,26 @@ color: rgb(239, 41, 41);</string>
      </widget>
     </widget>
     <widget class="QWidget" name="page_membership">
-     <widget class="QLabel" name="label_membership">
+     <widget class="QLabel" name="label_membershippage">
       <property name="geometry">
        <rect>
-        <x>880</x>
-        <y>350</y>
-        <width>321</width>
+        <x>10</x>
+        <y>10</y>
+        <width>561</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>page for membership info- (member list, rebate suggestions)</string>
+       <string>Rebates Page</string>
       </property>
      </widget>
      <widget class="QTableView" name="tableView_membership">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>20</y>
+        <y>30</y>
         <width>811</width>
-        <height>471</height>
+        <height>461</height>
        </rect>
       </property>
      </widget>
@@ -541,9 +706,9 @@ color: rgb(239, 41, 41);</string>
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>20</y>
+        <y>30</y>
         <width>811</width>
-        <height>471</height>
+        <height>461</height>
        </rect>
       </property>
      </widget>
@@ -572,7 +737,7 @@ color: rgb(239, 41, 41);</string>
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_admin_member">
        <widget class="QTableView" name="tableView_admin_members">
@@ -737,15 +902,28 @@ color: rgb(239, 41, 41);</string>
          <string>WARNING: Please enter a unique name and ID</string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_admin_memberpage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>141</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Manage Members Page</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_admin_inventory">
        <widget class="QTableView" name="tableView_admin_inventory">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>10</y>
+          <y>30</y>
           <width>591</width>
-          <height>471</height>
+          <height>451</height>
          </rect>
         </property>
        </widget>
@@ -900,6 +1078,19 @@ color: rgb(239, 41, 41);</string>
          <string>Error Message</string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_admin_itempage">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>261</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Manage Inventory Page</string>
+        </property>
+       </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="gridLayoutWidget_2">
@@ -984,7 +1175,7 @@ color: rgb(239, 41, 41);</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

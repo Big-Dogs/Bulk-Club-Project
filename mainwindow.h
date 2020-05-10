@@ -90,6 +90,21 @@ private slots:
              */
             void on_pushButton_sale_byday_clicked();
 
+            /*!
+             * \brief on_radioButton_sales_byday_executive_clicked : Method to filter sales results by executive member
+             */
+            void on_radioButton_sales_byday_executive_clicked();
+
+            /*!
+             * \brief on_radioButton_sales_byday_regular_clicked : Method to filter sales results by regular member
+             */
+            void on_radioButton_sales_byday_regular_clicked();
+
+            /*!
+             * \brief on_radioButton_sales_byday_executive_clicked : Method to filter sales results by both member types
+             */
+            void on_radioButton_sales_byday_both_clicked();
+
          /*!
          * \brief on_pushButton_sales_sortmember_clicked -
          *       A slot that is connected to an signal emitted when the sort by member
@@ -601,7 +616,8 @@ private:
     enum DailySales
     {
         DAILY_DATE,
-        DAILY_ID,
+        DAILY_NAME,
+        DAILY_STATUS,
         DAILY_ITEM,
         DAILY_PRICE,
         DAILY_QTY,
