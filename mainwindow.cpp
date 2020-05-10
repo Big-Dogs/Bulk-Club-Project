@@ -1659,9 +1659,10 @@ void MainWindow::printReceipt()
     receiptRow++;
 }
 
-//
+// Determine actions taken when admin tableview is activated
 void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 {
+    // Activate pushbuttons
     if(ui->gridWidget_admin_memberdatafields->isHidden())
     {
         ui->pushButton_admin_deletemember->setEnabled(true);
@@ -1671,7 +1672,7 @@ void MainWindow::on_tableView_admin_members_clicked(const QModelIndex &index)
 }
 
 
-//Keeping the id column in the table model updated with what is new the line edit
+// Update ID column in table model with new line edit information
 void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &productId)
 {
     //Constant
@@ -1697,7 +1698,7 @@ void MainWindow::on_lineEdit_admin_itemsubmission_id_textEdited(const QString &p
     itemModel->setData(productIdIndex, QVariant(productId));
 }
 
-//Keeping the name column in the table model updated with what is new the line edit
+// Update name column in table model with new line edit information
 void MainWindow::on_lineEdit_admin_itemsubmission_name_textEdited(const QString &productName)
 {
     //Constant
@@ -1724,24 +1725,24 @@ void MainWindow::on_lineEdit_admin_itemsubmission_name_textEdited(const QString 
     itemModel->setData(productNameIndex, QVariant(productName));
 }
 
-//Keeping the price column in the table model updated with what is new the line edit
+// Update price column in table model with new line edit information
 void MainWindow::on_lineEdit_admin_itemsubmission_price_textEdited(const QString &productPrice)
 {
     //Constant
-    const int PRODUCT_PRICE_COLUMN = 2; //The column for the product price
+    const int PRODUCT_PRICE_COLUMN = 2; // Column for the product price
 
     //Variables
-    QModelIndex productPriceIndex; //The model index of the product price for the selected row
+    QModelIndex productPriceIndex; // Model index of the product price for the selected row
 
     productPriceIndex = ui->tableView_admin_inventory->currentIndex();
 
-    //making sure the product id row is selected
+    // Ensure product id row is selected
     productPriceIndex = productPriceIndex.model()->index(productPriceIndex.row(), PRODUCT_PRICE_COLUMN);
 
     itemModel->setData(productPriceIndex, QVariant(productPrice));
 }
 
-//Fills in line edit with selected data and prevent user from selecting new data when change itemModel
+// Populate line edit with selected data and prevent user from selecting new data when changing itemModel
 void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 {
     //Constant
@@ -1755,11 +1756,10 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
     QModelIndexList previousIndex; //A QModelIndex to store the previous index if necessary
 
 
-    //checking if table model is clean or dirty
-    //dirty means data is being added, updated, or deleted
+    // Check if table model is clean or dirty. Dirty means data is being added, updated, or deleted
     if (!itemModel->isDirty())
     {
-        //Displaying data of selected item
+        // Display selected item data
         ui->gridWidget_admin_itemdatafields->setVisible(true);
         ui->pushButton_admin_itemsubmission_submit->setVisible(false);
         ui->pushButton_admin_itemsubmission_cancel->setVisible(false);
@@ -1773,26 +1773,25 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
         productData = index.sibling(index.row(), PRODUCT_PRICE_COLUMN);
         ui->lineEdit_admin_itemsubmission_price->setText(productData.data().toString());
 
-        //making data uneditable
+        // Make data uneditable
         ui->lineEdit_admin_itemsubmission_id->setReadOnly(true);
         ui->lineEdit_admin_itemsubmission_name->setReadOnly(true);
         ui->lineEdit_admin_itemsubmission_price->setReadOnly(true);
 
-        //enable edit and delete functionality
+        // Enable edit and delete functionality
         ui->pushButton_admin_edititem->setEnabled(true);
         ui->pushButton_admin_deleteitem->setEnabled(true);
     }
     else
     {
         qDebug() << "detected as dirty";
-        //Data is being added, updated, or deleted
-        //The button that is enable tells me which one it is
 
+        // Detect unwanted data
         if (ui->pushButton_admin_additem->isEnabled())
         {
             if (index.row() != itemModel->rowCount() - 1)
             {
-                //display error message
+                // Display error message
                 ui->label_admin_products_errormessage->setText("Warning, The item you are adding is not saved. \n "
                                                                "Please either submit or cancel the addition of \n "
                                                                "this item before moving on.");
@@ -1814,13 +1813,12 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
 
             if (productData != currentProcessIndex.sibling(currentProcessIndex.row(), itemModel->fieldIndex("productID")))
             {
-                //display error message
+                //  Display error message
                 ui->label_admin_products_errormessage->setText("Warning, Please confirm or cancel the current \n"
                                                                "deletion before editing or adding another \n"
                                                                "product.");
 
                 ui->label_admin_products_errormessage->setVisible(true);
-
                 ui->tableView_admin_inventory->setCurrentIndex(currentProcessIndex);
 
             }//end if (index.data().toString() == ui->label_admin_itemsubmission_id->text())
@@ -1828,7 +1826,7 @@ void MainWindow::on_tableView_admin_inventory_clicked(const QModelIndex &index)
     }
 }
 
-//Upper case the first letter in every word and lower case the rest
+// Uppercase first letter in every word and lowercase the rest
 QString MainWindow::normalizeCapitalization(QString text)
 {
     //Vairables
@@ -1836,9 +1834,9 @@ QString MainWindow::normalizeCapitalization(QString text)
     bool              newWord = true; //A bool value true if processing a new word
 
     text = text.toLower();
-
     textIterator = text.begin();
 
+    // Iterate through word
     for (textIterator = text.begin(); textIterator != text.end(); ++textIterator)
     {
          if (newWord && textIterator->isLetter())
@@ -1857,16 +1855,17 @@ QString MainWindow::normalizeCapitalization(QString text)
     return text;
 }
 
-//Update line edits with data changed in the tableview
+// Update tableview line edits with changed data
 void MainWindow::on_tableModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                const QVector<int> &roles)
 {
     //Constant
-    const int PRODUCT_ID_COlUMN    = 0; //The column for product id
-    const int PRODUCT_NAME_COLUMN  = 1; //The column for product name
-    const int PRODCUT_PRICE_COLUMN = 2; //The column for product price
+    const int PRODUCT_ID_COlUMN    = 0; // Column for product id
+    const int PRODUCT_NAME_COLUMN  = 1; // Column for product name
+    const int PRODCUT_PRICE_COLUMN = 2; // Column for product price
+
     //Variables
-    QModelIndex selectedRow; //The model index in the selected row
+    QModelIndex selectedRow; // Model index in the selected row
 
     selectedRow = ui->tableView_admin_inventory->currentIndex();
     selectedRow = selectedRow.model()->index(selectedRow.row(), PRODUCT_ID_COlUMN);
