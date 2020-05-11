@@ -141,7 +141,6 @@ MainWindow::MainWindow(const MainWindow &otherWindow)
     ui->label_home_warning->setText("");
 
     //initializes pos page
-    InitializePosTable();
     ui->comboBox_pos_qty->setEnabled(false);
     ui->comboBox_pos_itemlist->setEnabled(false);
     ui->pushButton_pos_purchase->setEnabled(false);
@@ -150,6 +149,7 @@ MainWindow::MainWindow(const MainWindow &otherWindow)
     InitializeSalesTableView();
     ui->label_total_revenue->setVisible(false);
     ui->label_sales_searchmembererrormessage->setVisible(false);
+
 
     //initializes membership page
     ui->tableWidget_membership->hide();
@@ -161,6 +161,9 @@ MainWindow::MainWindow(const MainWindow &otherWindow)
     ui->gridWidget_admin_confirmdeletemember->hide();
     ui->gridWidget_admin_itemdatafields->hide();
     ui->gridWidget_admin_confirmdeleteitem->hide();
+
+    ui->pushButton_membership_upgrades->setEnabled(false);
+    ui->pushButton_membership_downgrades->setEnabled(false);
 
 
 
@@ -233,12 +236,16 @@ void MainWindow::on_pushButton_home_clicked()
     MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(HOME);
     setPermissions(PermissionLevel::NONE); //logs user out
+
+    ui->pushButton_membership_upgrades->setEnabled(false);
+    ui->pushButton_membership_downgrades->setEnabled(false);
 }
 
 // Navigates to POS page
 void MainWindow::on_pushButton_POS_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(POS);
+    InitializePosTable();
 }
 
 // Navigates to sales page
@@ -247,6 +254,11 @@ void MainWindow::on_pushButton_sales_clicked()
     //updates the dropdown menu in search by item
     MainWindow::on_pushButton_sales_searchitem_clicked();
     ui->stackedWidget_main->setCurrentIndex(SALES);
+    ui->radioButton_sales_byday_executive->setEnabled(false);
+    ui->radioButton_sales_byday_regular->setEnabled(false);
+    ui->radioButton_sales_byday_both->setEnabled(false);
+
+    ui->gridWidget_sales_byday_labels->hide();
 }
 
 // Navigates to membership page
@@ -259,6 +271,8 @@ void MainWindow::on_pushButton_members_clicked()
 void MainWindow::on_pushButton_admin_clicked()
 {
     ui->stackedWidget_main->setCurrentIndex(ADMIN);
+    ui->pushButton_membership_upgrades->setEnabled(true);
+    ui->pushButton_membership_downgrades->setEnabled(true);
 }
 
     /*----Sales Page push buttons----*/
@@ -272,14 +286,52 @@ void MainWindow::on_pushButton_sales_daily_clicked()
 // Filter purchases based on date of purchases
 void MainWindow::on_pushButton_sale_byday_clicked()
 {
+    double dailyRevenue = 0;
+    int numberExecutive = 0;
+    int numberRegular = 0;
+
+    QSqlQuery nameQuery;
+    // query to retrieve purchases sorted by date
+    nameQuery.prepare("SELECT members.memberType AS status, COUNT(DISTINCT(members.name)) AS numMembers "
+                      "FROM members, purchases, products WHERE members.memberID = purchases.memberID "
+                      "AND products.productID = purchases.productID "
+                      "AND purchases.datePurchased = ? "
+                      "GROUP BY members.memberType");
+    nameQuery.bindValue(0, ui->comboBox_sales_byday->currentText());
+    // if successful set the query mode
+    if (nameQuery.exec())
+    {
+        // Copy into int values
+        while (nameQuery.next())
+        {
+            if (nameQuery.value("status").toString() == "Executive")
+            {
+                numberExecutive = nameQuery.value("numMembers").toInt();
+            }
+            else
+            {
+                numberRegular = nameQuery.value("numMembers").toInt();
+            }
+        }
+
+        qDebug() << "Executives: " << numberExecutive;
+        qDebug() << "Regular: " << numberRegular;
+    }
+    // otherwise print a warning message
+    else
+    {
+        qDebug() << nameQuery.lastError().text();
+    }
+
+
     QSqlQueryModel *dailySalesModel = new QSqlQueryModel; // Create new model
     QSqlQuery query; // Query to gather data
-
-    //Retrieve purchases sorted by date
-    query.prepare("SELECT purchases.datePurchased, purchases.memberID, "
-                                  "products.name, products.price, purchases.qty, products.price * purchases.qty "
-                                  "FROM purchases join products "
-                                  "ON (products.productID = purchases.productID) "
+    // query to retrieve purchases sorted by date
+    query.prepare("SELECT purchases.datePurchased, members.name, members.memberType, "
+                                  "products.name, products.price, purchases.qty, products.price * purchases.qty * 1.0775 AS Total "
+                                  "FROM purchases "
+                                  "JOIN products ON (products.productID = purchases.productID) "
+                                  "JOIN members ON (members.memberID = purchases.memberID) "
                                   "WHERE datePurchased = ?");
 
     // Configure combo box
@@ -289,6 +341,7 @@ void MainWindow::on_pushButton_sale_byday_clicked()
     // If successful, set the query model
     if (query.exec())
     {
+
         dailySalesModel->setQuery(query);
     }
     // Else print error message
@@ -300,29 +353,72 @@ void MainWindow::on_pushButton_sale_byday_clicked()
     // Initialize tableView_sales_daily using querymodel
     ui->tableView_sales_daily->setModel(dailySalesModel);
     dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
-    dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
+    dailySalesModel->setHeaderData(DAILY_NAME, Qt::Horizontal, tr("Member Name"));
+    dailySalesModel->setHeaderData(DAILY_STATUS, Qt::Horizontal, tr("Member Status"));
     dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
     dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
     dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
     dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
 
     // Resize tableview columns
-    ui->tableView_sales_daily->resizeColumnToContents(2);
-
-    // Initialize tableView_sales_daily using querymodel
-    ui->tableView_sales_daily->setModel(dailySalesModel);
-    dailySalesModel->setHeaderData(DAILY_DATE, Qt::Horizontal, tr("Date"));
-    dailySalesModel->setHeaderData(DAILY_ID, Qt::Horizontal, tr("Member ID"));
-    dailySalesModel->setHeaderData(DAILY_ITEM, Qt::Horizontal, tr("Item"));
-    dailySalesModel->setHeaderData(DAILY_PRICE, Qt::Horizontal, tr("Price"));
-    dailySalesModel->setHeaderData(DAILY_QTY, Qt::Horizontal, tr("Qty"));
-    dailySalesModel->setHeaderData(DAILY_TOTAL, Qt::Horizontal, tr("Total"));
+    ui->tableView_sales_daily->resizeColumnToContents(DAILY_NAME);
 
     // Hide numerical vertical header
     ui->tableView_sales_daily->verticalHeader()->setVisible(false);
 
     // Make fields uneditable
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
+
+    ui->radioButton_sales_byday_executive->setEnabled(true);
+    ui->radioButton_sales_byday_regular->setEnabled(true);
+    ui->radioButton_sales_byday_both->setEnabled(true);
+    ui->radioButton_sales_byday_both->click();
+
+    // Add up daily revenue
+    for (int index = 0; index < dailySalesModel->rowCount(); index++)
+    {
+       dailyRevenue += dailySalesModel->record(index).value("Total").toDouble();
+    }
+
+    ui->label_sales_byday_dailyrevenue->setText(QString("$").append(QString::number(dailyRevenue, 'f', 2)));
+    ui->label_sales_byday_numberofexecutive->setText(QString::number(numberExecutive));
+    ui->label_sales_byday_numberofregular->setText(QString::number(numberRegular));
+
+    ui->gridWidget_sales_byday_labels->show();
+}
+
+void MainWindow::on_radioButton_sales_byday_executive_clicked() // filters daily sales report by executive members
+{
+    for (int i = 0; i < ui->tableView_sales_daily->model()->rowCount(); i++)
+    {
+        if (ui->tableView_sales_daily->model()->index(i, DAILY_STATUS).data().toString() == "Regular")
+        {
+            ui->tableView_sales_daily->setRowHidden(i, true);
+        }
+        else
+            ui->tableView_sales_daily->setRowHidden(i, false);
+    }
+}
+
+void MainWindow::on_radioButton_sales_byday_regular_clicked() // filters daily sales report by regular members
+{
+    for (int i = 0; i < ui->tableView_sales_daily->model()->rowCount(); i++)
+    {
+        if (ui->tableView_sales_daily->model()->index(i, DAILY_STATUS).data().toString() == "Executive")
+        {
+            ui->tableView_sales_daily->setRowHidden(i, true);
+        }
+        else
+            ui->tableView_sales_daily->setRowHidden(i, false);
+    }
+}
+
+void MainWindow::on_radioButton_sales_byday_both_clicked() // filters daily sales report by both member types
+{
+    for (int i = 0; i < ui->tableView_sales_daily->model()->rowCount(); i++)
+    {
+        ui->tableView_sales_daily->setRowHidden(i, false);
+    }
 }
 
 //The button to print out the revenue of each member
@@ -1267,6 +1363,9 @@ void MainWindow::on_pushButton_membership_rebates_clicked()
     // Initialize view
     ui->gridWidget_membership_expire->hide();
     ui->tableWidget_membership->hide();
+
+    ui->label_membershippage->setText("Rebates Page");
+
     //clears the information from other vertical stackwidget tabs
     ui->tableWidget_membership->setRowCount(0);
     upgradeCount = 0; // Number of upgrades recommended
@@ -1398,6 +1497,7 @@ void MainWindow::on_pushButton_membership_rebates_clicked()
 // Determine which memberships are expiring based on month requested
 void MainWindow::on_pushButton_membership_expiration_clicked()
 {
+    ui->label_membershippage->setText("Expiration Page");
     ui->tableWidget_membership->hide();
 
     // Populate dropdown menu if empty
@@ -1468,6 +1568,7 @@ void MainWindow::on_pushButton_membership_expire_clicked()
 // Navigate to membership upgrade recommendations
 void MainWindow::on_pushButton_membership_upgrades_clicked()
 {
+    ui->label_membershippage->setText("Recommended Upgrades Page");
     // Reset all values
     InitializeMembershipTableWidget();
 
@@ -1485,6 +1586,7 @@ void MainWindow::on_pushButton_membership_upgrades_clicked()
 // Navigate to membership downgrade recommendations
 void MainWindow::on_pushButton_membership_downgrades_clicked() // member downgrades list
 {
+    ui->label_membershippage->setText("Recommended Downgrades Page");
     // Reset all values
     InitializeMembershipTableWidget();
 
@@ -1512,7 +1614,16 @@ void MainWindow::on_comboBox_pos_memberlist_activated(int index)
 void MainWindow::on_comboBox_pos_memberlist_currentIndexChanged(int index)
 {
     ui->tableWidget_pos_receipts->clear();
-    InitializePosTable();
+
+    QStringList TableHeader;
+    ui->tableWidget_pos_receipts->setColumnCount(5);
+    TableHeader << "Member ID" << "Item" << "Price" << "qty" << "Total";
+    ui->tableWidget_pos_receipts->setHorizontalHeaderLabels(TableHeader);
+    ui->tableWidget_pos_receipts->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget_pos_receipts->setShowGrid(false);
+    ui->tableWidget_pos_receipts->verticalHeader()->setVisible(false);
+    ui->tableWidget_pos_receipts->setColumnWidth(1, 300);
+    receiptRow = 0;
 }
 
 // Set item in POS
@@ -1528,7 +1639,7 @@ void MainWindow::on_comboBox_pos_qty_activated(int index)
 {
     posQty = index + 1;
     posPrice = this->database->GetPrice(posItemName);
-    posTotal = posPrice * posQty; // calculates total
+    posTotal = posPrice * posQty * 1.0775; // calculates total
     ui->label_pos_price->setText(QString::number(posTotal, 'f', 2));
     ui->pushButton_pos_purchase->setEnabled(true); // enables the purchase button
 }
@@ -1621,21 +1732,21 @@ void MainWindow::setPermissions(int permission)
         ui->pushButton_sales->setEnabled(false);
         ui->pushButton_members->setEnabled(false);
         ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(POS);
+        on_pushButton_POS_clicked();
         break;
     case PermissionLevel::MANAGER:              // Manager login enables POS, sales, and membership pages
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(false);
-        ui->stackedWidget_main->setCurrentIndex(SALES);
+        on_pushButton_sales_clicked();
         break;
     case PermissionLevel::ADMINISTRATOR:        // Administrator login enables all pages
         ui->pushButton_POS->setEnabled(true);
         ui->pushButton_sales->setEnabled(true);
         ui->pushButton_members->setEnabled(true);
         ui->pushButton_admin->setEnabled(true);
-        ui->stackedWidget_main->setCurrentIndex(ADMIN);
+        on_pushButton_admin_clicked();
         break;
     }
 }
@@ -1743,6 +1854,8 @@ void MainWindow::InitializeSalesTableView()
     ui->tableView_sales_daily->verticalHeader()->setVisible(false);
     // Make fields uneditable
     ui->tableView_sales_daily->setEditTriggers(QTableView::NoEditTriggers);
+    ui->tableView_sales_daily->setItemDelegateForColumn(DAILY_TOTAL, formatPrice);
+    ui->tableView_sales_daily->setItemDelegateForColumn(DAILY_PRICE, formatPrice);
 }
 
 // Fill POS page combo boxes and initialize receipts table
@@ -1762,9 +1875,12 @@ void MainWindow::InitializePosTable()
     // Initialize row number
     receiptRow = 0;
 
+    // Clearing combobox before repopulating
+    ui->comboBox_pos_memberlist->clear();
+    ui->comboBox_pos_itemlist->clear();
+
     // Initialize member ID combo box
     QStringList members = this->database->GetPOSMembers();
-    qDebug() << members.length() << " items";
 
     // Populate item number combo box
     if(ui->comboBox_pos_memberlist->count() == 0)
@@ -1775,11 +1891,10 @@ void MainWindow::InitializePosTable()
         }
     }
 
-    // Initialize items in combo box
+    //initializing items combo box
     QStringList items = this->database->GetNames();
-    qDebug() << items.length() << " items";
 
-    // Populate combo box
+    //item number combo box
     if(ui->comboBox_pos_itemlist->count() == 0)
     {
         for (int i = 0; i < items.length(); i++)
