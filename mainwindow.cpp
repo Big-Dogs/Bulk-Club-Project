@@ -499,7 +499,7 @@ void MainWindow::on_pushButton_sales_sortitem_clicked()
     // Execute Query
         // If unsuccessful, print error
     if(!(query.exec("SELECT products.productID, products.name,"
-                    " sum(products.price * purchases.qty) * 1.0775 "
+                    " sum(products.price * purchases.qty) * 1.0775, sum(purchases.qty)"
                     "FROM products LEFT OUTER JOIN purchases "
                     "ON products.productID = purchases.productID "
                     "GROUP BY products.productID "
@@ -516,6 +516,7 @@ void MainWindow::on_pushButton_sales_sortitem_clicked()
     sortItemModel->setHeaderData(ITEM_ID, Qt::Horizontal, QVariant("ID"));
     sortItemModel->setHeaderData(ITEM_NAME, Qt::Horizontal, QVariant("Product Name"));
     sortItemModel->setHeaderData(ITEM_PRICE, Qt::Horizontal, QVariant("Revenue"));
+    sortItemModel->setHeaderData(3, Qt::Horizontal, QVariant("Quantity Sold"));
 
     // Configure view
     ui->tableView_sales_sortitem->setModel(sortItemModel);
