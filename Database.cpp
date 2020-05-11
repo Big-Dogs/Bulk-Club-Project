@@ -20,6 +20,7 @@ Database::Database(QString path, QString driver)
     }
 }
 
+// Finds database in filesystem
 QString Database::findDatabase(QString fileName)
 {
     QDir    databaseSearch; //The QDir object used to file the database file
@@ -55,13 +56,12 @@ QString Database::findDatabase(QString fileName)
     return databasePath;
 }
 
-
 // Get list of regular member IDs
 QStringList Database::GetRegularMemberIDList()
 {
-    QStringList regularMemberIDList;
-    int index = 0;
-    QSqlQuery query;
+    QStringList regularMemberIDList; // List of member ID's
+    int index = 0; // Index for list traversal
+    QSqlQuery query; // Query to gather data
     query.prepare("select memberID from members where memberType='Regular'");
 
     // Execute Query
@@ -91,11 +91,11 @@ QStringList Database::GetRegularMemberIDList()
 // Get vector of member purchase listings
 QVector<Database::Member> Database::GetRegularMemberPurchases(QStringList regularIDList)
 {
-    QSqlQuery query;
-    QVector<Member> regularPurchaseAr;
-    Member temp;
+    QSqlQuery query; // Query to gather data
+    QVector<Member> regularPurchaseAr; // Array of 'regular' member purchases
+    Member temp; // Temp object used for copying
 
-    // use executiveMemberID to pull purchase data from db into vector
+    // Use regularMemberID to pull purchase data from db into vector
     query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
                   "FROM members, purchases, products "
                   "WHERE members.memberID = purchases.memberID "
@@ -150,9 +150,9 @@ QVector<Database::Member> Database::GetRegularMemberPurchases(QStringList regula
 // Get list of executive member IDs
 QStringList Database::GetExecutiveMemberIDList()
 {
-    QSqlQuery query;
-    QStringList executiveIDList;
-    int index = 0;
+    QSqlQuery query; // Query to gather data
+    QStringList executiveIDList; // List of executive member ID's
+    int index = 0; // Index for traversing list
 
     query.prepare("select memberID from members where memberType='Executive'");
 
@@ -182,12 +182,12 @@ QStringList Database::GetExecutiveMemberIDList()
     return executiveIDList;
 }
 
-// Get vector of member purchase listings
+// Get vector of executive member purchase listings
 QVector<Database::Member> Database::GetExecutiveMemberPurchases(QStringList executiveIDList)
 {
-    QSqlQuery query;
-    QVector<Member> executivePurchaseAr;
-    Member temp;
+    QSqlQuery query; // Query to gathering data
+    QVector<Member> executivePurchaseAr; // Array of 'executive' member purchases
+    Member temp; // Temporary object used for copying
 
     // use executiveMemberID to pull purchase data from db into vector
     query.prepare("SELECT members.memberID, members.name, sum(purchases.qty * products.price) "
@@ -266,49 +266,22 @@ QVector<Database::Member> Database::GetExecutiveMemberPurchases(QStringList exec
    return executivePurchaseAr;
 }
 
-
-
-// Add Member
-bool Database::AddCustomer(QString name, QString isExecutive, QString expireDate) { return false; }
-
-// Edit Member Data
-bool Database::UpdateCustomer(QString name, QString isExecutive, QString expireDate) { return false; }
-
-// Remove Member
-bool Database::DeleteCustomer(QString memberID) { return false; }
-
-// Add Product
-bool Database::AddProduct(QString name, QString price) { return false; }
-
-// Edit Product Data
-bool Database::UpdateProduct(QString name, QString price) { return false; }
-
-// Remove Product
-bool Database::DeleteProduct(QString productID) { return false; }
-
-
-
-// PUT ALL YALL'S QUERIES DOWN HERE. IF IT'S PURELY A TABLEVIEW QUERY TO
-// DISPLAY DATA THEN YOU DONT NEED TO RUN QUERIES HERE
-
-
-// Get price of product
+// Gets price of item requested
 double Database::GetPrice(QString item)
 {
-    double itemPrice = 0;
+    double itemPrice = 0; // Price of item
 
-    QSqlQuery query;
+    QSqlQuery query; // Query to gather data
 
 
-    //finds item being purchased
-       //query database to get price of selected item
+    // Finds item being purchased
+       // Query database to get price of selected item
     query.prepare("select price from products where name = ?");
-    //if it does match
-        //return price of item
+    // If it does match
+        // Return price of item
     query.bindValue(0, item);
     if(query.exec())
     {
-
         while(query.next())
         {
             itemPrice = query.value(0).toDouble();
@@ -316,9 +289,9 @@ double Database::GetPrice(QString item)
 
         qDebug() << "item price: " << itemPrice;
     }
-    //else
-         //display errormessage
-    else // if unsuccessful, print error
+    // Else
+         // Display errormessage
+    else // If unsuccessful, print error
     {
         qDebug() << "no match found";
     }
@@ -329,21 +302,19 @@ double Database::GetPrice(QString item)
 // Get Product ID of product
 int Database::GetItem(QString item)
 {
-    int productID = 0;
+    int productID = 0; // ID of product requested
 
-    QSqlQuery query;
+    QSqlQuery query; // Query to gather data
 
-
-    //finds item being purchased
-       //query database to get product id of selected item
+    // Finds item being purchased
+       // Query database to get product id of selected item
     query.prepare("select productID from products where name = ?");
-    //if it does match
-        //return price of item
+    // If it does match
+        // Return price of item
     query.bindValue(0, item);
 
     if(query.exec())
     {
-
         while(query.next())
         {
             productID = query.value(0).toInt();
@@ -351,9 +322,9 @@ int Database::GetItem(QString item)
 
         qDebug() << "item price: " << productID;
     }
-    //else
-         //display errormessage
-    else // if unsuccessful, print error
+    // Else
+         // Display errormessage
+    else //  If unsuccessful, print error
     {
         qDebug() << "no match found";
     }
@@ -364,16 +335,15 @@ int Database::GetItem(QString item)
 // Get list of product names
 QStringList Database::GetNames()
 {
-    QStringList itemNames;
-    int index = 0;
+    QStringList itemNames; // List of product names
+    int index = 0; // Index for traversing list
+    QSqlQuery query; // Query to gather data
 
-    QSqlQuery query;
-
-    //retrieves item names
-       //query database to match item name to item number
+    // Retrieves item names
+       // Query database to match item name to item number
     query.prepare("select name from products");
-    //if it does match
-        //return names
+    // If it does match
+        // Return names
     if(query.exec())
     {
         while(query.next())
@@ -382,9 +352,9 @@ QStringList Database::GetNames()
             index++;
         }
     }
-    //else
-         //display errormessage
-    else // if unsuccessful, print error
+    // Else
+         // Display errormessage
+    else // If unsuccessful, print error
     {
         qDebug() << "no match found";
     }
@@ -395,16 +365,15 @@ QStringList Database::GetNames()
 // Get a list of member IDs
 QStringList Database::GetPOSMembers()
 {
-    QStringList memberIDs;
-    int index = 0;
+    QStringList memberIDs; // List of member ID's
+    int index = 0; // Index for traversing list
+    QSqlQuery query; // Query to gather data
 
-    QSqlQuery query;
-
-    //retrieves member IDs
-       //query database to get member IDs
+    // Retrieves member IDs
+       // Query database to get member IDs
     query.prepare("select memberID from members");
-    //if it does match
-        //return names
+    // If it does match
+        // Return names
     if(query.exec())
     {
         while(query.next())
@@ -413,13 +382,12 @@ QStringList Database::GetPOSMembers()
             index++;
         }
     }
-    //else
-         //display errormessage
-    else // if unsuccessful, print error
+    // Else
+         // Display errormessage
+    else // If unsuccessful, print error
     {
         qDebug() << "no match found";
     }
-
 
     return memberIDs;
 }
@@ -427,62 +395,60 @@ QStringList Database::GetPOSMembers()
 // Adds a purchase to the database
 void Database::AddPurchase(int memberID, int productID, QString datePurchased, int qty)
 {
-
-    QSqlQuery query;
+    QSqlQuery query; // Query to gather data
 
     //Add a purchase
-       //prepare database to insert a purchase into the
-       //purchases table
+       // Prepare database to insert a purchase into the
+       // Purchases table
     query.prepare("INSERT INTO purchases "
                   "(memberID, productID, "
                   "datePurchased, qty)"
                   "VALUES(?,?,?,?)");
 
-    //insert into purchases table
+    // Insert into purchases table
     query.addBindValue(memberID);
     query.addBindValue(productID);
     query.addBindValue(datePurchased);
     query.addBindValue(qty);
 
-    //else
-         //display errormessage
+    // Else
+         // Display errormessage
     if(!query.exec())
         qDebug() << "Purchase could not be added.";
-
 }
 
-//Compares user entered login to the credentials in the database
+// Validates user credentials
 int Database::CheckLogin(QString username, QString password)
 {
-    int permissionLevel = 0;
+    int permissionLevel = 0; // Initial user permission level
+    QSqlQuery query; // Query to gather data
 
-    QSqlQuery query;
-
-    //checks if username and password are valid
-       //query database to see if username and password match any items
+    // Checks if username and password are valid
+       // Query database to see if username and password match any items
     query.prepare("select isAdmin, isManager from users where username = '"+username+"' and password = '"+password+"'");
-    //if it does match
-        //verify the permission level of valid user
-        //set permission level
+
+    // If it does match
+        // Verify the permission level of valid user
+        // Set permission level
     if(query.exec())
     {
-
         while(query.next())
         {
-                      permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1; //adds 1 for customer permissions
+            // Add 1 for customer permissions
+            permissionLevel = query.value(0).toInt() + query.value(1).toInt() + 1;
         }
 
         qDebug() << " permission level: " << permissionLevel;
     }
-    //else
-         //display errormessage
-    else // if unsuccessful, print error
+    // Else
+         // Display errormessage
+    else // If unsuccessful, print error
     {
         qDebug() << "no match found";
     }
-      return permissionLevel;
-}
 
+    return permissionLevel;
+}
 
 // Destructor
 Database::~Database() {}

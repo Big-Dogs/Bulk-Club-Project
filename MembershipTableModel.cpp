@@ -1,9 +1,10 @@
 #include "MembershipTableModel.h"
 
-
+// Constructor
 MembershipTableModel::MembershipTableModel(QObject *parent, Database *db)
                     : QSqlTableModel(parent, *db) {}
 
+// Reset values to initialize table
 void MembershipTableModel::InitializeTable()
 {
     // Select 'members' table
