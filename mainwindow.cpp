@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Initializes membership page
     ui->tableWidget_membership->hide();
     ui->gridWidget_membership_expire->hide();
+    ui->label_membership_recommendation_status->setText("");
 
     // Initializes admin page
     ui->pushButton_admin_confirmdeletemember->setEnabled(false);
@@ -1501,6 +1502,7 @@ void MainWindow::on_pushButton_membership_expiration_clicked()
 {
     ui->label_membershippage->setText("Expiration Page");
     ui->tableWidget_membership->hide();
+    ui->label_membership_recommendation_status->setText("");
 
     // Populate dropdown menu if empty
     if(ui->comboBox_membership_expire->count() == 0)

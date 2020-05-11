@@ -722,7 +722,7 @@ color: rgb(239, 41, 41);</string>
        </rect>
       </property>
       <property name="text">
-       <string>[+]recommendation</string>
+       <string/>
       </property>
      </widget>
     </widget>
@@ -875,19 +875,6 @@ color: rgb(239, 41, 41);</string>
           </widget>
          </item>
         </layout>
-       </widget>
-       <widget class="QLabel" name="label_doubleclick">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>520</y>
-          <width>581</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>confirm delete button should be enabled when you double click an item but i can't test until the list is populated</string>
-        </property>
        </widget>
        <widget class="QLabel" name="label_admin_membersubmission_nameID_warning">
         <property name="geometry">
@@ -1048,19 +1035,6 @@ color: rgb(239, 41, 41);</string>
           </widget>
          </item>
         </layout>
-       </widget>
-       <widget class="QLabel" name="label_doubleclick_2">
-        <property name="geometry">
-         <rect>
-          <x>130</x>
-          <y>520</y>
-          <width>581</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>confirm delete button should be enabled when you double click an item but i can't test until the list is populated</string>
-        </property>
        </widget>
        <widget class="QLabel" name="label_admin_products_errormessage">
         <property name="geometry">
