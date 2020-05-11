@@ -1486,8 +1486,9 @@ void MainWindow::on_pushButton_membership_rebates_clicked()
     }
   
     // Print rebates
-    QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates);
+    QString labelText = "Total of all rebates: $" + QString::number(totalAllRebates, 'f', 2);
     ui->label_membership_recommendation_status->setText(labelText);
+
 
     // Reset table
     on_pushButton_admin_member_clicked();
