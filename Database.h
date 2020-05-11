@@ -5,14 +5,12 @@
 #include <QSqlDatabase>
 #include <QVector>
 
-
 /*!
  * \brief The Database class is a wrapper for QSqlDatabase
  */
 class Database : public QSqlDatabase
 {
 public:
-
     // Member information Struct
     /*!
      * \struct Member
@@ -73,7 +71,6 @@ public:
     QVector<Member> GetExecutiveMemberPurchases(QStringList executiveIDList);
 
     // ---------- START PROTOTYPES (by noah) ---------- //
-
     /*!
      * \brief GetPrice : Method for returning the cost of a product
      * in the database
@@ -122,6 +119,9 @@ public:
     int CheckLogin(QString username, QString password);
     // ---------- END PROTOTYPES (by noah) ---------- //
 
+    /*!
+     * \brief ~Database() Destructor
+     */
     ~Database();
 
 private:

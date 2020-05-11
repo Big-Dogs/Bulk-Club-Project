@@ -24,6 +24,7 @@ public:
         EXPIRE_DATE,
         RENEWAL_COST,
     };
+
     /*!
      * \brief Months enum is used to keep track of calendar months. To be used
      * by 'Expiring memberships' feature
