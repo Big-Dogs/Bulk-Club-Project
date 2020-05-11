@@ -437,7 +437,7 @@ void MainWindow::on_pushButton_sales_sortmember_clicked() // sales by member
 
     ui->stackedWidget_sales->setCurrentIndex(SALES_SORT_MEMBER);
 
-    bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS Revenue FROM members "
+    bool queryError = query.exec("SELECT members.memberID, members.name, sum(products.price * purchases.qty) * 1.0775 AS Revenue FROM members "
                                  "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                                  "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                                  "GROUP BY members.memberID "
@@ -648,7 +648,7 @@ void MainWindow::on_pushButton_sales_searchmemberconfirm_clicked()
     memberFound = ui->lineEdit_sales_searchmember->text();
 
     //Prep query
-    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) AS revenue FROM members "
+    retrieveData.prepare("SELECT members.memberID, members.name, sum(products.price * purchases.qty) * 1.0775 AS revenue FROM members "
                          "LEFT OUTER JOIN purchases ON purchases.memberID=members.memberID "
                          "LEFT OUTER JOIN products ON purchases.productID=products.productID "
                          "WHERE members.memberID=? OR members.name=?");
